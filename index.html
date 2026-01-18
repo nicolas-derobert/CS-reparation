@@ -12,7 +12,8 @@
       body { margin: 0; }
     </style>
   </head>
-  <body>
+  <body>Hello</body>
+  <!-- <body>
     <div id="root"></div>
     <script type="text/babel" data-presets="env,react">
       const { useState, useEffect, useContext, createContext } = React;
@@ -66,7 +67,7 @@
         };
 
         const ICON_NAMES = [
-          '"'Clock', 'FileText', 'Settings', 'Search', 'Plus', 'CheckCircle', 'AlertTriangle', 'XCircle', 'Save', 'Printer', 
+          'Clock', 'FileText', 'Settings', 'Search', 'Plus', 'CheckCircle', 'AlertTriangle', 'XCircle', 'Save', 'Printer', 
           'ChevronRight', 'DollarSign', 'Wrench', 'Archive', 'Menu', 'X', 'ClipboardList', 'FileSearch', 'ClipboardCheck', 
           'UserPlus', 'Star', 'Trash2', 'RefreshCw', 'Download', 'CheckSquare', 'Edit3', 'Lock', 'ArrowRight', 'ChevronLeft', 
           'Package', 'BarChart2', 'TrendingDown', 'AlertOctagon', 'Calendar', 'Info', 'Calculator', 'HelpCircle', 
@@ -247,7 +248,7 @@
             }
           };
 
-          const removePhoto = (id) => updatePhotos(photos.filter(p => p.id "'!== id));
+          const removePhoto = (id) => updatePhotos(photos.filter(p => p.id !== id));
           const currentPhotos = (photos || []).filter(p => p.category === category);
 
           return (
@@ -292,19 +293,19 @@
                         </thead>
                         <tbody className="divide-y dark:divide-slate-700">
                             {MEASURE_POSITIONS.map(pos => {
-                                const m = measures?.[pos.id] || { rate: '"'"''"', amp: '"''"' };
+                                const m = measures?.[pos.id] || { rate: '', amp: '' };
                                 return (
-                                    <tr key={pos.id} className={readOnly ? '"''"' : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'}>
-                                        <td className={"'`p-3 font-medium ${textMain}`}>{pos.label}</td>
+                                    <tr key={pos.id} className={readOnly ? '' : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'}>
+                                        <td className={`p-3 font-medium ${textMain}`}>{pos.label}</td>
                                         <td className="p-2">
                                             {readOnly ? (
-                                                <div className="text-center font-mono">{m.rate || '"'-'}</div>
+                                                <div className="text-center font-mono">{m.rate || ''-'}</div>
                                             ) : (
                                                 <input 
                                                     type=\"number\" 
-                                                    className={"'`w-full text-center p-1 rounded ${inputBg} border ${inputBorder} outline-none focus:border-amber-500`}
+                                                    className={`w-full text-center p-1 rounded ${inputBg} border ${inputBorder} outline-none focus:border-amber-500`}
                                                     value={m.rate}
-                                                    onChange={(e) => updateMeasure(pos.id, '"'rate', e.target.value)}
+                                                    onChange={(e) => updateMeasure(pos.id, 'rate', e.target.value)}
                                                 />
                                             )}
                                         </td>
@@ -314,9 +315,9 @@
                                             ) : (
                                                 <input 
                                                     type=\"number\" 
-                                                    className={"'`w-full text-center p-1 rounded ${inputBg} border ${inputBorder} outline-none focus:border-amber-500`}
+                                                    className={`w-full text-center p-1 rounded ${inputBg} border ${inputBorder} outline-none focus:border-amber-500`}
                                                     value={m.amp}
-                                                    onChange={(e) => updateMeasure(pos.id, '"'amp', e.target.value)}
+                                                    onChange={(e) => updateMeasure(pos.id, 'amp', e.target.value)}
                                                 />
                                             )}
                                         </td>
@@ -343,7 +344,7 @@
           const [imageError, setImageError] = useState(false);
 
           return (
-            <div className={"'`flex items-center gap-3 ${className}`}>
+            <div className={`flex items-center gap-3 ${className}`}>
                <div className="flex-shrink-0">
                  {src && !imageError ? (
                    <img 
@@ -374,7 +375,7 @@
           const { sidebarBg, sidebarBorder, textMain, textSec, accentText, accentLightBg, accentLightBorder, menuItemHover } = useTheme();
           
           const menuItems = [
-            { id: '"'dashboard', label: 'TABLEAU DE BORD', icon: Archive },
+            { id: 'dashboard', label: 'TABLEAU DE BORD', icon: Archive },
             { id: 'client_request', label: '1. Demande client', icon: UserPlus }, 
             { id: 'inspection', label: '2. RÃ©ception & Ã©tat', icon: FileSearch }, 
             { id: 'internal_quote', label: '3. Fiche devis interne', icon: ClipboardCheck }, 
@@ -404,8 +405,8 @@
 
           return (
             <>
-              <div className={"'`fixed inset-0 bg-black/50 z-20 md:hidden transition-opacity ${isOpen ? '"'opacity-100' : 'opacity-0 pointer-events-none'}"'`} onClick={toggleSidebar} />
-              <div className={`fixed md:static inset-y-0 left-0 z-30 w-64 ${sidebarBg} ${textMain} border-r ${sidebarBorder} transform transition-transform md:transform-none ${isOpen ? '"'translate-x-0' : '-translate-x-full'} transition-colors duration-300 flex flex-col no-print"'`}>
+              <div className={`fixed inset-0 bg-black/50 z-20 md:hidden transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={toggleSidebar} />
+              <div className={`fixed md:static inset-y-0 left-0 z-30 w-64 ${sidebarBg} ${textMain} border-r ${sidebarBorder} transform transition-transform md:transform-none ${isOpen ? 'translate-x-0' : '-translate-x-full'} transition-colors duration-300 flex flex-col no-print`}>
                 <div className={`p-6 border-b ${sidebarBorder} flex items-center gap-3 shrink-0`}>
                    <BrandLogo />
                 </div>
@@ -417,7 +418,7 @@
                         onClick={() => { setActiveTab(item.id); toggleSidebar(); }} 
                         className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors text-left group gap-3 ${activeTab === item.id ? `${accentLightBg} ${accentText} border ${accentLightBorder}` : `${textSec} ${menuItemHover}`}`}
                     >
-                      {item.id === recommendedPage && item.id !== '"'dashboard' ? (
+                      {item.id === recommendedPage && item.id !== 'dashboard' ? (
                           <ChevronsRight size={16} className=\"text-amber-500 animate-pulse shrink-0\" />
                       ) : (
                           <div className=\"w-4 shrink-0\"></div>
@@ -437,8 +438,8 @@
 
         const Dashboard = ({ repairs, selectRepair, createNewRepair }) => {
           const { textMain, textSec, panelBg, panelBorder, inputBg, inputBorder, tableHeader, tableRowHover, divider, bgHighlightBlue, textOnHighlightBlue, bgHighlightAmber, textOnHighlightAmber, bgHighlightPurple, textOnHighlightPurple, bgHighlightGreen, textOnHighlightGreen, alertDangerBg, alertDangerBorder, alertDangerText, alertWarningBg, alertWarningBorder, alertWarningText } = useTheme();
-          const [searchTerm, setSearchTerm] = useState('"''"');
-          const filtered = repairs.filter(r => (r.client || '"''"').toLowerCase().includes(searchTerm.toLowerCase()) || (r.id || '"''"').toLowerCase().includes(searchTerm.toLowerCase()));
+          const [searchTerm, setSearchTerm] = useState('');
+          const filtered = repairs.filter(r => (r.client || '').toLowerCase().includes(searchTerm.toLowerCase()) || (r.id || '').toLowerCase().includes(searchTerm.toLowerCase()));
           const lateRepairs = repairs.filter(r => r.statusStep > 0 && r.statusStep < 7).slice(0, 2);
           const getCoverageDisplay = (type) => COVERAGE_TYPES.find(c => c.id === (type || 'paid')) || COVERAGE_TYPES[0];
 
@@ -452,7 +453,7 @@
           return (
             <div className=\"p-6 max-w-7xl mx-auto animate-in fade-in duration-500\">
               <div className=\"flex justify-between items-center mb-8\">
-                <div><h2 className={"'`text-2xl font-bold ${textMain} mb-2 uppercase tracking-widest`}>TABLEAU DE BORD</h2><p className={textSec}>AperÃ§u global des dossiers</p></div>
+                <div><h2 className={`text-2xl font-bold ${textMain} mb-2 uppercase tracking-widest`}>TABLEAU DE BORD</h2><p className={textSec}>AperÃ§u global des dossiers</p></div>
                 <button onClick={createNewRepair} className="bg-amber-500 hover:bg-amber-600 text-slate-900 px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md"><Plus size={18} /> Nouveau dossier</button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -492,8 +493,8 @@
                         const CoverageIcon = coverage.icon;
                         return (
                           <tr key={r.id} className={`${tableRowHover} transition-colors cursor-pointer`} onClick={() => selectRepair(r)}>
-                            <td className={`p-4 font-mono font-bold ${textMain}`}>{r.id}</td><td className="p-4 font-medium">{r.client || '"'Client Inconnu'}</td><td className=\"p-4\">{r.model || 'N/A'}</td>
-                            <td className=\"p-4\"><div className={"'`flex items-center gap-2 text-xs font-bold ${coverage.color}`}><CoverageIcon size={14} /><span className="truncate max-w-[150px]">{coverage.label}</span></div></td>
+                            <td className={`p-4 font-mono font-bold ${textMain}`}>{r.id}</td><td className="p-4 font-medium">{r.client || 'Client Inconnu'}</td><td className=\"p-4\">{r.model || 'N/A'}</td>
+                            <td className=\"p-4\"><div className={`flex items-center gap-2 text-xs font-bold ${coverage.color}`}><CoverageIcon size={14} /><span className="truncate max-w-[150px]">{coverage.label}</span></div></td>
                             <td className="p-4"><span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${r.statusStep >= 7 ? `${bgHighlightGreen} ${textOnHighlightGreen}` : `${bgHighlightBlue} ${textOnHighlightBlue}`}`}>{STATUS_STEPS[r.statusStep]}</span></td>
                             <td className="p-4 text-right"><button className="p-2 rounded-full hover:bg-amber-500/10 text-amber-500"><ChevronRight size={18} /></button></td>
                           </tr>
@@ -514,32 +515,32 @@
               <div className={`${panelBg} p-6 rounded-xl border ${panelBorder}`}>
                 <h3 className={`text-lg font-bold ${accentText} mb-6 flex items-center gap-2`}><UserPlus size={20} /> Demande client & identification</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                  <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1 flex items-center`}>NÂ° Client</label><input type="text" value={data.clientId || '"'"''"'} onChange={e => updateData({...data, clientId: e.target.value})} className={"'`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} placeholder="ex: CL-8890" /></div>
-                  <div className="lg:col-span-2"><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>Nom du client</label><input type="text" value={data.client || '"'"''"'} onChange={e => updateData({...data, client: e.target.value})} className={"'`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
+                  <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1 flex items-center`}>NÂ° Client</label><input type="text" value={data.clientId || ''} onChange={e => updateData({...data, clientId: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} placeholder="ex: CL-8890" /></div>
+                  <div className="lg:col-span-2"><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>Nom du client</label><input type="text" value={data.client || ''} onChange={e => updateData({...data, client: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
                   
                   <div className="lg:col-span-3 grid grid-cols-3 gap-4">
-                     <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>Adresse</label><input type="text" value={data.clientAddress || '"'"''"'} onChange={e => updateData({...data, clientAddress: e.target.value})} className={"'`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
-                     <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>NPA</label><input type="text" value={data.clientZip || '"'"''"'} onChange={e => updateData({...data, clientZip: e.target.value})} className={"'`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
-                     <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>Ville</label><input type="text" value={data.clientCity || '"'"''"'} onChange={e => updateData({...data, clientCity: e.target.value})} className={"'`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
+                     <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>Adresse</label><input type="text" value={data.clientAddress || ''} onChange={e => updateData({...data, clientAddress: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
+                     <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>NPA</label><input type="text" value={data.clientZip || ''} onChange={e => updateData({...data, clientZip: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
+                     <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>Ville</label><input type="text" value={data.clientCity || ''} onChange={e => updateData({...data, clientCity: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
                   </div>
                   
-                  <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>ModÃ¨le / RÃ©fÃ©rence</label><input type="text" value={data.model || '"'"''"'} onChange={e => updateData({...data, model: e.target.value})} className={"'`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
-                  <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>NÂ° de sÃ©rie</label><input type="text" value={data.serial || '"'"''"'} onChange={e => updateData({...data, serial: e.target.value})} className={"'`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
+                  <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>ModÃ¨le / RÃ©fÃ©rence</label><input type="text" value={data.model || ''} onChange={e => updateData({...data, model: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
+                  <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>NÂ° de sÃ©rie</label><input type="text" value={data.serial || ''} onChange={e => updateData({...data, serial: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
                 </div>
                 <div className={`p-5 rounded-lg border ${panelBorder} bg-slate-50 dark:bg-slate-900/30 mb-6 shadow-inner`}>
                   <h4 className="text-xs font-bold uppercase mb-4 flex items-center gap-2 text-slate-400 font-mono">CHRONOLOGIE DU DOSSIER</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-                    <div><label className="block text-[10px] font-bold mb-1 opacity-70">DATE DE VENTE</label><input type="date" value={data.saleDate || '"'"''"'} onChange={e => updateData({...data, saleDate: e.target.value})} className={"'`w-full p-2 rounded border ${inputBorder} ${inputBg} text-xs`} /></div>
-                    <div><label className="block text-[10px] font-bold mb-1 opacity-70">DATE DERNIÃˆRE RÃ‰PARATION</label><input type="date" value={data.lastRepairDate || '"'"''"'} onChange={e => updateData({...data, lastRepairDate: e.target.value})} className={"'`w-full p-2 rounded border ${inputBorder} ${inputBg} text-xs`} /></div>
-                    <div><label className={`block text-[10px] font-bold mb-1 ${accentText}`}>DATE DE RETOUR SAV</label><input type="date" value={data.depositDate || '"'"''"'} onChange={e => updateData({...data, depositDate: e.target.value})} className=\"w-full p-2 rounded border border-amber-500 bg-amber-500/5 text-xs font-bold\" /></div>
+                    <div><label className="block text-[10px] font-bold mb-1 opacity-70">DATE DE VENTE</label><input type="date" value={data.saleDate || ''} onChange={e => updateData({...data, saleDate: e.target.value})} className={`w-full p-2 rounded border ${inputBorder} ${inputBg} text-xs`} /></div>
+                    <div><label className="block text-[10px] font-bold mb-1 opacity-70">DATE DERNIÃˆRE RÃ‰PARATION</label><input type="date" value={data.lastRepairDate || ''} onChange={e => updateData({...data, lastRepairDate: e.target.value})} className={`w-full p-2 rounded border ${inputBorder} ${inputBg} text-xs`} /></div>
+                    <div><label className={`block text-[10px] font-bold mb-1 ${accentText}`}>DATE DE RETOUR SAV</label><input type="date" value={data.depositDate || ''} onChange={e => updateData({...data, depositDate: e.target.value})} className=\"w-full p-2 rounded border border-amber-500 bg-amber-500/5 text-xs font-bold\" /></div>
                   </div>
                 </div>
                 <div className=\"space-y-4\">
-                  <div><label className=\"block text-[10px] font-bold uppercase mb-1 opacity-70\">Demande client</label><textarea rows={3} value={data.customerRequestText || '"''"'} onChange={e => updateData({...data, customerRequestText: e.target.value})} className={"'`w-full ${inputBg} border ${inputBorder} rounded p-3 text-sm outline-none focus:border-amber-500`} placeholder="Demande prÃ©cise du client..." /></div>
-                  <div><label className="block text-[10px] font-bold uppercase mb-1 opacity-70">ProblÃ¨me remontÃ© par le client</label><textarea rows={3} value={data.issue || '"'"''"'} onChange={e => updateData({...data, issue: e.target.value})} className={"'`w-full ${inputBg} border ${inputBorder} rounded p-3 text-sm outline-none focus:border-amber-500`} placeholder="Adapte le contenu en te limitant Ã  une reformulation des mot du client qui explique le problÃ¨me tel qu'"'il le vit.\" /></div>
+                  <div><label className=\"block text-[10px] font-bold uppercase mb-1 opacity-70\">Demande client</label><textarea rows={3} value={data.customerRequestText || ''} onChange={e => updateData({...data, customerRequestText: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-3 text-sm outline-none focus:border-amber-500`} placeholder="Demande prÃ©cise du client..." /></div>
+                  <div><label className="block text-[10px] font-bold uppercase mb-1 opacity-70">ProblÃ¨me remontÃ© par le client</label><textarea rows={3} value={data.issue || ''} onChange={e => updateData({...data, issue: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-3 text-sm outline-none focus:border-amber-500`} placeholder="Adapte le contenu en te limitant Ã  une reformulation des mot du client qui explique le problÃ¨me tel qu'il le vit.\" /></div>
                 </div>
               </div>
-              <div className={"'`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-end gap-4 z-30 md:pl-64 shadow-2xl`}><button onClick={onValidateStep} className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg hover:scale-105 transition-transform"><CheckCircle size={18}/> Valider & Suivant</button></div>
+              <div className={`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-end gap-4 z-30 md:pl-64 shadow-2xl`}><button onClick={onValidateStep} className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg hover:scale-105 transition-transform"><CheckCircle size={18}/> Valider & Suivant</button></div>
             </div>
           );
         };
@@ -572,37 +573,37 @@
                 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-6">
                     <label className="flex items-center gap-2 cursor-pointer font-medium hover:text-amber-500 transition-colors">
-                        <input type="checkbox" checked={!!data.receivedItems?.hasBox} onChange={() => handleItemToggle('"'hasBox')} className=\"w-5 h-5 accent-amber-500\" /> 
+                        <input type="checkbox" checked={!!data.receivedItems?.hasBox} onChange={() => handleItemToggle('hasBox')} className=\"w-5 h-5 accent-amber-500\" /> 
                         BoÃ®te
                     </label>
                     <label className=\"flex items-center gap-2 cursor-pointer font-medium hover:text-amber-500 transition-colors\">
-                        <input type=\"checkbox\" checked={"'!!data.receivedItems?.hasEcrin} onChange={() => handleItemToggle('"'hasEcrin')} className=\"w-5 h-5 accent-amber-500\" /> 
+                        <input type=\"checkbox\" checked={!!data.receivedItems?.hasEcrin} onChange={() => handleItemToggle('hasEcrin')} className=\"w-5 h-5 accent-amber-500\" /> 
                         Ecrin
                     </label>
                     <label className=\"flex items-center gap-2 cursor-pointer font-medium hover:text-amber-500 transition-colors\">
-                        <input type=\"checkbox\" checked={"'!!data.receivedItems?.hasCertAuth} onChange={() => handleItemToggle('"'hasCertAuth')} className=\"w-5 h-5 accent-amber-500\" /> 
+                        <input type=\"checkbox\" checked={!!data.receivedItems?.hasCertAuth} onChange={() => handleItemToggle('hasCertAuth')} className=\"w-5 h-5 accent-amber-500\" /> 
                         Certificat d'authenticitÃ©
                     </label>
                     <label className=\"flex items-center gap-2 cursor-pointer font-medium hover:text-amber-500 transition-colors\">
-                        <input type=\"checkbox\" checked={"'!!data.receivedItems?.hasInvoice} onChange={() => handleItemToggle('"'hasInvoice')} className=\"w-5 h-5 accent-amber-500\" /> 
+                        <input type=\"checkbox\" checked={!!data.receivedItems?.hasInvoice} onChange={() => handleItemToggle('hasInvoice')} className=\"w-5 h-5 accent-amber-500\" /> 
                         Facture d'achat
                     </label>
                     <label className=\"flex items-center gap-2 cursor-pointer font-medium hover:text-amber-500 transition-colors\">
-                        <input type=\"checkbox\" checked={"'!!data.receivedItems?.hasWarrantyCard} onChange={() => handleItemToggle('"'hasWarrantyCard')} className=\"w-5 h-5 accent-amber-500\" /> 
+                        <input type=\"checkbox\" checked={!!data.receivedItems?.hasWarrantyCard} onChange={() => handleItemToggle('hasWarrantyCard')} className=\"w-5 h-5 accent-amber-500\" /> 
                         Carte de garantie
                     </label>
                 </div>
 
-                <div className={"'`p-4 rounded-lg border ${bgHighlightAmber} border-amber-200`}>
+                <div className={`p-4 rounded-lg border ${bgHighlightAmber} border-amber-200`}>
                     <div className="flex items-start gap-3">
                        <div className="p-2 bg-amber-100 rounded-full text-amber-600"><FileCheck size={20}/></div>
                        <div>
                           <h4 className="text-sm font-bold text-amber-800 uppercase mb-1">ProcÃ©dure de vÃ©rification documentaire</h4>
                           <p className="text-xs text-amber-700 leading-relaxed mb-3">
-                             Le personnel du SAV doit examiner soigneusement les documents fournis (certificats, factures, cartes) pour vÃ©rifier l'"'authenticitÃ© de la montre et dÃ©terminer avec prÃ©cision le statut de la garantie (validitÃ©, couverture gÃ©ographique).
+                             Le personnel du SAV doit examiner soigneusement les documents fournis (certificats, factures, cartes) pour vÃ©rifier l'authenticitÃ© de la montre et dÃ©terminer avec prÃ©cision le statut de la garantie (validitÃ©, couverture gÃ©ographique).
                           </p>
                           <label className=\"flex items-center gap-2 cursor-pointer text-xs font-bold text-amber-900\">
-                              <input type=\"checkbox\" checked={"'!!data.receivedItems?.docsVerified} onChange={() => handleItemToggle('"'docsVerified')} className=\"w-4 h-4 accent-amber-600\" />
+                              <input type=\"checkbox\" checked={!!data.receivedItems?.docsVerified} onChange={() => handleItemToggle('docsVerified')} className=\"w-4 h-4 accent-amber-600\" />
                               J'atteste avoir vÃ©rifiÃ© l'authenticitÃ© et la validitÃ© des documents.
                           </label>
                        </div>
@@ -612,19 +613,19 @@
               
               <PhotoManager title=\"Photos de rÃ©ception / diagnostic\" category=\"receipt\" photos={data.photos || []} updatePhotos={p => updateData({...data, photos: p})} />
 
-              <div className={"'`${panelBg} p-6 rounded-xl border ${panelBorder} mb-6`}>
+              <div className={`${panelBg} p-6 rounded-xl border ${panelBorder} mb-6`}>
                  <h4 className="font-bold border-b pb-2 mb-4 text-xs uppercase tracking-widest text-slate-400">Observations initiales (Avant ouverture)</h4>
                  <textarea 
                     rows={4} 
-                    value={data.initialObservations || '"'"''"'} 
+                    value={data.initialObservations || ''} 
                     onChange={e => updateData({...data, initialObservations: e.target.value})} 
-                    className={"'`w-full ${inputBg} border ${inputBorder} rounded p-3 text-sm outline-none focus:border-amber-500 mb-4`} 
-                    placeholder="Noter ici l'"'Ã©tat gÃ©nÃ©ral, les rayures visibles, l'oxydation, etc...\" 
+                    className={`w-full ${inputBg} border ${inputBorder} rounded p-3 text-sm outline-none focus:border-amber-500 mb-4`} 
+                    placeholder="Noter ici l'Ã©tat gÃ©nÃ©ral, les rayures visibles, l'oxydation, etc...\" 
                  />
               </div>
 
               <div className=\"grid grid-cols-1 md:grid-cols-2 gap-6\">
-                <div className={"'`${panelBg} p-6 rounded-xl border ${panelBorder}`}><h4 className="font-bold border-b pb-2 mb-4 text-xs uppercase tracking-widest text-slate-400">Ã‰tat esthÃ©tique (0-5)</h4><div className="space-y-4">{CHECKLIST_ITEMS.visual.map(item => (<div key={item} className="flex items-center justify-between"><span className="text-sm">{item}</span><div className="flex gap-1">{[0,1,2,3,4,5].map(v => (<button key={v} onClick={() => setRating(item,v)} className={`w-8 h-8 rounded text-xs font-bold transition-colors ${data.checklists?.visual?.[item] === v ? '"'bg-amber-500 text-white' : 'bg-slate-100 hover:bg-slate-200'}"'`}>{v}</button>))}</div></div>))}</div></div>
+                <div className={`${panelBg} p-6 rounded-xl border ${panelBorder}`}><h4 className="font-bold border-b pb-2 mb-4 text-xs uppercase tracking-widest text-slate-400">Ã‰tat esthÃ©tique (0-5)</h4><div className="space-y-4">{CHECKLIST_ITEMS.visual.map(item => (<div key={item} className="flex items-center justify-between"><span className="text-sm">{item}</span><div className="flex gap-1">{[0,1,2,3,4,5].map(v => (<button key={v} onClick={() => setRating(item,v)} className={`w-8 h-8 rounded text-xs font-bold transition-colors ${data.checklists?.visual?.[item] === v ? 'bg-amber-500 text-white' : 'bg-slate-100 hover:bg-slate-200'}`}>{v}</button>))}</div></div>))}</div></div>
                 
                 <div>
                     <MeasureTable 
@@ -664,9 +665,9 @@
               });
           };
 
-          const [selectedGamme, setSelectedGamme] = useState('"'"''"');
-          const [selectedPartToAdd, setSelectedPartToAdd] = useState('"''"');
-          const [newOpData, setNewOpData] = useState({ description: '"''"', department: 'Atelier Technique', stdTime: '0.50' });
+          const [selectedGamme, setSelectedGamme] = useState('');
+          const [selectedPartToAdd, setSelectedPartToAdd] = useState('');
+          const [newOpData, setNewOpData] = useState({ description: '', department: 'Atelier Technique', stdTime: '0.50' });
           const [editingPartId, setEditingPartId] = useState(null);
           
           const GAMMES_OPERATOIRES = {
@@ -680,21 +681,21 @@
           }));
 
           const partsToReplace = (data.quote?.mandatory || []).filter(item => item.type === 'part');
-          const availablePartsToAdd = PRICING_DB.filter(p => p.type === 'part' && "'!partsToReplace.some(existing => existing.id === p.id));
+          const availablePartsToAdd = PRICING_DB.filter(p => p.type === 'part' && !partsToReplace.some(existing => existing.id === p.id));
 
           const launchGamme = (key) => {
               const gamme = GAMMES_OPERATOIRES[key];
               if (!gamme) return;
               const currentMax = operations.length > 0 ? Math.max(...operations.map(o => o.opNumber)) : 0;
               const newOps = gamme.ops.map((op, idx) => ({
-                  id: Date.now() + idx, opNumber: currentMax + ((idx + 1) * 10), department: '"'Atelier', description: op.desc, stdTime: op.time, status: 'Ã€ rÃ©aliser', isGamme: true
+                  id: Date.now() + idx, opNumber: currentMax + ((idx + 1) * 10), department: 'Atelier', description: op.desc, stdTime: op.time, status: 'Ã€ rÃ©aliser', isGamme: true
               }));
               updateData({ ...data, operations: [...operations, ...newOps] });
-              setSelectedGamme('"''"');
+              setSelectedGamme('');
           };
 
           const addManualOperation = () => {
-            if ("'!newOpData.description) return;
+            if (!newOpData.description) return;
             const maxOpNum = operations.length > 0 ? Math.max(...operations.map(o => o.opNumber)) : 0;
             const manualOp = {
               id: `manual-${Date.now()}`,
@@ -702,11 +703,11 @@
               department: newOpData.department,
               description: newOpData.description,
               stdTime: newOpData.stdTime,
-              status: '"'Ã€ rÃ©aliser',
+              status: 'Ã€ rÃ©aliser',
               isGamme: false, isManual: true
             };
             updateData({ ...data, operations: [...operations, manualOp] });
-            setNewOpData({ description: '"''"', department: 'Atelier Technique', stdTime: '0.50' });
+            setNewOpData({ description: '', department: 'Atelier Technique', stdTime: '0.50' });
           };
 
           const updateOperation = (id, field, value) => {
@@ -717,13 +718,13 @@
           };
 
           const deleteOperation = (id) => {
-            const updatedOps = operations.filter(op => op.id "'!== id);
+            const updatedOps = operations.filter(op => op.id !== id);
             updateData({ ...data, operations: updatedOps });
           };
           
           const toggleOpStatus = (opId) => {
             const newOps = operations.map(op => {
-                if (op.id === opId) return { ...op, status: op.status === '"'TerminÃ©' ? 'Ã€ rÃ©aliser' : 'TerminÃ©' };
+                if (op.id === opId) return { ...op, status: op.status === 'TerminÃ©' ? 'Ã€ rÃ©aliser' : 'TerminÃ©' };
                 return op;
             });
             updateData({ ...data, operations: newOps });
@@ -732,10 +733,10 @@
           const addPartToReplace = () => {
             const partToAdd = PRICING_DB.find(p => p.id === selectedPartToAdd);
             if (partToAdd) {
-                const newPartItem = { ...partToAdd, uuid: "'`workshop-added-${Date.now()}`, priceHT: partToAdd.priceHT, isMatrix: false, type: '"'part' };
+                const newPartItem = { ...partToAdd, uuid: `workshop-added-${Date.now()}`, priceHT: partToAdd.priceHT, isMatrix: false, type: 'part' };
                 const newMandatory = [...(data.quote?.mandatory || []), newPartItem];
                 updateData({ ...data, quote: { ...data.quote, mandatory: newMandatory } });
-                setSelectedPartToAdd('"''"');
+                setSelectedPartToAdd('');
             }
           };
 
@@ -756,7 +757,7 @@
           };
 
           const removePartToReplace = (uuid) => {
-            const newMandatory = (data.quote?.mandatory || []).filter(item => item.uuid "'!== uuid);
+            const newMandatory = (data.quote?.mandatory || []).filter(item => item.uuid !== uuid);
             updateData({ ...data, quote: { ...data.quote, mandatory: newMandatory } });
           };
 
@@ -783,7 +784,7 @@
                        <h4 className={`text-sm font-bold ${accentText} uppercase flex items-center gap-2`}><Package size={16} /> Composants Ã  remplacer</h4>
                        <div className="flex items-center gap-2 no-print">
                            <select value={selectedPartToAdd} onChange={(e) => setSelectedPartToAdd(e.target.value)} className={`text-xs p-2 rounded border ${inputBorder} ${inputBg} ${textMain} outline-none w-48`}><option value="">+ Ajouter un composant...</option>{availablePartsToAdd.map(part => (<option key={part.id} value={part.id}>{part.name} ({part.priceHT} CHF)</option>))}</select>
-                           <button onClick={addPartToReplace} disabled={!selectedPartToAdd} className={`p-2 rounded transition-colors ${selectedPartToAdd ? '"'bg-blue-600 text-white hover:bg-blue-500' : 'bg-slate-700 text-slate-500 cursor-not-allowed'}"'`}><Plus size={14} /></button>
+                           <button onClick={addPartToReplace} disabled={!selectedPartToAdd} className={`p-2 rounded transition-colors ${selectedPartToAdd ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-slate-700 text-slate-500 cursor-not-allowed'}`}><Plus size={14} /></button>
                        </div>
                    </div>
                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -791,8 +792,8 @@
                          const isReplaced = data.completedTasks?.includes(part.uuid);
                          
                          return (
-                            <div key={part.uuid} className={`flex items-center gap-3 p-3 rounded border transition-all ${isReplaced ? '"'bg-green-500/10 border-green-500/30' : "'`${panelBg} ${inputBorder} hover:border-amber-500`}`}>
-                               <div onClick={() => togglePartStatus(part.uuid)} className={`cursor-pointer w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${isReplaced ? '"'bg-green-500 border-green-500 text-white' : 'border-gray-400'}"'`}>{isReplaced && <CheckSquare size={12} />}</div>
+                            <div key={part.uuid} className={`flex items-center gap-3 p-3 rounded border transition-all ${isReplaced ? 'bg-green-500/10 border-green-500/30' : `${panelBg} ${inputBorder} hover:border-amber-500`}`}>
+                               <div onClick={() => togglePartStatus(part.uuid)} className={`cursor-pointer w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${isReplaced ? 'bg-green-500 border-green-500 text-white' : 'border-gray-400'}`}>{isReplaced && <CheckSquare size={12} />}</div>
                                
                                <div className="flex-1 min-w-0">
                                    <input 
@@ -821,10 +822,10 @@
                 </div>
 
                 <div className={`mb-8 p-4 rounded-lg border border-dashed ${panelBorder} bg-slate-50 dark:bg-slate-900/50 no-print`}>
-                   <h4 className={`text-sm font-bold ${accentText} uppercase mb-3 flex items-center gap-2`}><Settings size={14} /> Gammes opÃ©ratoires (GÃ©nÃ©rer l'"'OF)</h4>
+                   <h4 className={`text-sm font-bold ${accentText} uppercase mb-3 flex items-center gap-2`}><Settings size={14} /> Gammes opÃ©ratoires (GÃ©nÃ©rer l'OF)</h4>
                    <p className=\"text-xs text-slate-400 mb-2\">SÃ©lectionnez une gamme standard pour prÃ©-remplir l'ordre de fabrication.</p>
                    <div className=\"flex gap-4\">
-                      <select value={selectedGamme} onChange={(e) => setSelectedGamme(e.target.value)} className={"'`flex-1 ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none`}><option value="">-- Choisir une gamme --</option>{Object.entries(GAMMES_OPERATOIRES).map(([k, v]) => (<option key={k} value={k}>{v.label}</option>))}</select>
+                      <select value={selectedGamme} onChange={(e) => setSelectedGamme(e.target.value)} className={`flex-1 ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none`}><option value="">-- Choisir une gamme --</option>{Object.entries(GAMMES_OPERATOIRES).map(([k, v]) => (<option key={k} value={k}>{v.label}</option>))}</select>
                       <button onClick={() => launchGamme(selectedGamme)} disabled={!selectedGamme} className="bg-amber-500 text-white px-4 py-2 rounded font-bold text-sm">GÃ©nÃ©rer OF</button>
                    </div>
                 </div>
@@ -834,22 +835,22 @@
                       <thead className="bg-gray-100 text-xs uppercase font-bold text-gray-500"><tr><th className="p-3 text-center">Op NÂ°</th><th className="p-3">Description (Editable)</th><th className="p-3 w-32">DÃ©partement</th><th className="p-3 w-20 text-right">Temps</th><th className="p-3 text-center w-24 no-print">Action</th></tr></thead>
                       <tbody className="divide-y divide-gray-100">
                          {operations.map(op => {
-                           const isDone = op.status === '"'TerminÃ©';
+                           const isDone = op.status === 'TerminÃ©';
                            return (
-                            <tr key={op.id} className={isDone ? 'bg-green-50' : '"''"'}>
+                            <tr key={op.id} className={isDone ? 'bg-green-50' : ''}>
                                <td className=\"p-3 text-center font-mono text-xs\">{op.opNumber}</td>
                                <td className=\"p-3\">
                                  <input 
                                    type=\"text\" 
                                    value={op.description} 
                                    onChange={(e) => updateOperation(op.id, 'description', e.target.value)}
-                                   className={"'`bg-transparent w-full outline-none border-b border-transparent hover:border-gray-300 focus:border-amber-500 ${isDone ? '"'text-slate-500 font-medium' : 'font-medium'}"'`} 
+                                   className={`bg-transparent w-full outline-none border-b border-transparent hover:border-gray-300 focus:border-amber-500 ${isDone ? 'text-slate-500 font-medium' : 'font-medium'}`} 
                                  />
                                </td>
                                <td className="p-3">
                                  <select 
                                    value={op.department} 
-                                   onChange={(e) => updateOperation(op.id, '"'department', e.target.value)}
+                                   onChange={(e) => updateOperation(op.id, 'department', e.target.value)}
                                    className=\"bg-transparent text-xs w-full outline-none\"
                                  >
                                     <option value=\"Atelier Technique\">Atelier Technique</option>
@@ -870,7 +871,7 @@
                                  />
                                </td>
                                <td className=\"p-3 flex items-center justify-center gap-2 no-print\">
-                                  <button onClick={() => toggleOpStatus(op.id)} className={"'`w-6 h-6 rounded flex items-center justify-center border ${isDone ? '"'bg-green-500 border-green-500 text-white' : 'border-gray-300 text-gray-300 hover:border-green-500 hover:text-green-500'}"'`}><Check size={14}/></button>
+                                  <button onClick={() => toggleOpStatus(op.id)} className={`w-6 h-6 rounded flex items-center justify-center border ${isDone ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 text-gray-300 hover:border-green-500 hover:text-green-500'}`}><Check size={14}/></button>
                                   <button onClick={() => deleteOperation(op.id)} className="text-red-400 hover:text-red-600"><Trash2 size={16}/></button>
                                </td>
                             </tr>
@@ -914,9 +915,9 @@
                           {FINAL_CONTROL_ITEMS.identity.map(item => {
                             const checked = (data.finalControls?.identity || []).includes(item);
                             return (
-                              <div key={item} onClick={() => toggleFinalControl('"'identity', item)} className={"'`flex items-center gap-3 p-2 rounded cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors`}>
-                                <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 ${checked ? '"'bg-blue-600 border-blue-600 text-white' : 'border-gray-300'}"'`}>{checked && <Check size={12}/>}</div>
-                                <span className={`text-sm ${checked ? '"'text-slate-900 dark:text-white font-medium' : 'text-slate-500'}"'`}>{item}</span>
+                              <div key={item} onClick={() => toggleFinalControl('identity', item)} className={`flex items-center gap-3 p-2 rounded cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors`}>
+                                <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 ${checked ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300'}`}>{checked && <Check size={12}/>}</div>
+                                <span className={`text-sm ${checked ? 'text-slate-900 dark:text-white font-medium' : 'text-slate-500'}`}>{item}</span>
                               </div>
                             );
                           })}
@@ -929,9 +930,9 @@
                           {FINAL_CONTROL_ITEMS.aesthetic.map(item => {
                             const checked = (data.finalControls?.aesthetic || []).includes(item);
                             return (
-                              <div key={item} onClick={() => toggleFinalControl('"'aesthetic', item)} className={"'`flex items-center gap-3 p-2 rounded cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors`}>
-                                <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 ${checked ? '"'bg-amber-500 border-amber-500 text-white' : 'border-gray-300'}"'`}>{checked && <Check size={12}/>}</div>
-                                <span className={`text-sm ${checked ? '"'text-slate-900 dark:text-white font-medium' : 'text-slate-500'}"'`}>{item}</span>
+                              <div key={item} onClick={() => toggleFinalControl('aesthetic', item)} className={`flex items-center gap-3 p-2 rounded cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors`}>
+                                <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 ${checked ? 'bg-amber-500 border-amber-500 text-white' : 'border-gray-300'}`}>{checked && <Check size={12}/>}</div>
+                                <span className={`text-sm ${checked ? 'text-slate-900 dark:text-white font-medium' : 'text-slate-500'}`}>{item}</span>
                               </div>
                             );
                           })}
@@ -944,9 +945,9 @@
                           {FINAL_CONTROL_ITEMS.technical.map(item => {
                             const checked = (data.finalControls?.technical || []).includes(item);
                             return (
-                              <div key={item} onClick={() => toggleFinalControl('"'technical', item)} className={"'`flex items-center gap-3 p-2 rounded cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors`}>
-                                <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 ${checked ? '"'bg-green-600 border-green-600 text-white' : 'border-gray-300'}"'`}>{checked && <Check size={12}/>}</div>
-                                <span className={`text-sm ${checked ? '"'text-slate-900 dark:text-white font-medium' : 'text-slate-500'}"'`}>{item}</span>
+                              <div key={item} onClick={() => toggleFinalControl('technical', item)} className={`flex items-center gap-3 p-2 rounded cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors`}>
+                                <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 ${checked ? 'bg-green-600 border-green-600 text-white' : 'border-gray-300'}`}>{checked && <Check size={12}/>}</div>
+                                <span className={`text-sm ${checked ? 'text-slate-900 dark:text-white font-medium' : 'text-slate-500'}`}>{item}</span>
                               </div>
                             );
                           })}
@@ -962,9 +963,9 @@
                             <label className={`text-xs font-bold ${textMain}`}>RÃ©serve de marche (h) :</label>
                             <input 
                                 type="number" 
-                                value={data.powerReserve || '"'"''"'}
+                                value={data.powerReserve || ''}
                                 onChange={(e) => updateData({ ...data, powerReserve: e.target.value })}
-                                className={"'`w-20 p-1 text-center rounded border ${inputBorder} ${inputBg} outline-none focus:border-amber-500 font-mono text-sm`}
+                                className={`w-20 p-1 text-center rounded border ${inputBorder} ${inputBg} outline-none focus:border-amber-500 font-mono text-sm`}
                                 placeholder="ex: 48"
                             />
                         </div>
@@ -976,7 +977,7 @@
                     />
                 </div>
 
-                <div><label className="text-[10px] font-bold uppercase text-slate-400 mb-2 block tracking-widest">Observations techniques de l'"'horloger</label><textarea rows={4} value={data.workshopNotes || '"''"'} onChange={e => updateData({...data, workshopNotes: e.target.value})} className={"'`w-full p-4 rounded-lg border ${inputBorder} ${inputBg} text-sm focus:border-amber-500 outline-none shadow-inner`} placeholder="Saisir les notes..." /></div>
+                <div><label className="text-[10px] font-bold uppercase text-slate-400 mb-2 block tracking-widest">Observations techniques de l'horloger</label><textarea rows={4} value={data.workshopNotes || ''} onChange={e => updateData({...data, workshopNotes: e.target.value})} className={`w-full p-4 rounded-lg border ${inputBorder} ${inputBg} text-sm focus:border-amber-500 outline-none shadow-inner`} placeholder="Saisir les notes..." /></div>
               </div>
               <div className={`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-between items-center z-30 md:pl-64 shadow-xl`}>
                  {/* SUPPRESSION BOUTON IMPRIMER */}
@@ -990,7 +991,7 @@
           const { panelBg, panelBorder, accentText } = useTheme();
           
           const entryItems = [
-            { key: '"'hasEcrin', label: 'Ecrin' },
+            { key: 'hasEcrin', label: 'Ecrin' },
             { key: 'hasCertAuth', label: 'Certificat d\\'authenticitÃ©' },
             { key: 'hasInvoice', label: 'Facture d\\'achat' },
             { key: 'hasWarrantyCard', label: 'Carte de garantie' }
@@ -1001,7 +1002,7 @@
                 ...data, 
                 deliveryReturnChecks: { 
                     ...(data.deliveryReturnChecks || {}), 
-                    [key]: "'!data.deliveryReturnChecks?.[key] 
+                    [key]: !data.deliveryReturnChecks?.[key] 
                 } 
             });
           };
@@ -1017,7 +1018,7 @@
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8">
                    <div className="space-y-4">
                       <h4 className="font-bold text-xs uppercase text-slate-400 border-b pb-2 tracking-widest">ContrÃ´le sortie</h4>
-                      <div className="space-y-3">{['"'Nettoyage final effectuÃ©', 'Mise Ã  l\\'heure & calendrier', 'Documents de garantie signÃ©s'].map(i => (<div key={i} className=\"flex items-center gap-3 text-sm font-medium\"><CheckCircle size={18} className=\"text-green-500 shadow-sm\"/>{i}</div>))}</div>
+                      <div className="space-y-3">{['Nettoyage final effectuÃ©', 'Mise Ã  l\\'heure & calendrier', 'Documents de garantie signÃ©s'].map(i => (<div key={i} className=\"flex items-center gap-3 text-sm font-medium\"><CheckCircle size={18} className=\"text-green-500 shadow-sm\"/>{i}</div>))}</div>
                    </div>
                    
                    <div className=\"space-y-4\">
@@ -1025,12 +1026,12 @@
                       <div className=\"space-y-2\">
                         {entryItems.map(item => {
                             const wasReceived = data.receivedItems?.[item.key];
-                            if ("'!wasReceived) return null;
+                            if (!wasReceived) return null;
                             
                             const isChecked = data.deliveryReturnChecks?.[item.key];
 
                             return (
-                                <label key={item.key} className={`flex items-center gap-3 p-3 rounded border cursor-pointer transition-all ${isChecked ? '"'bg-green-50 border-green-200 text-green-800' : 'bg-white border-gray-200 text-gray-600'}"'`}>
+                                <label key={item.key} className={`flex items-center gap-3 p-3 rounded border cursor-pointer transition-all ${isChecked ? 'bg-green-50 border-green-200 text-green-800' : 'bg-white border-gray-200 text-gray-600'}`}>
                                     <input 
                                         type="checkbox" 
                                         checked={!!isChecked} 
@@ -1042,7 +1043,7 @@
                                 </label>
                             );
                         })}
-                        {!Object.values(data.receivedItems || {}).some(v => v === true) && <p className="text-xs text-slate-400 italic">Aucun Ã©lÃ©ment spÃ©cifique notÃ© Ã  l'"'entrÃ©e.</p>}
+                        {!Object.values(data.receivedItems || {}).some(v => v === true) && <p className="text-xs text-slate-400 italic">Aucun Ã©lÃ©ment spÃ©cifique notÃ© Ã  l'entrÃ©e.</p>}
                       </div>
                    </div>
 
@@ -1052,7 +1053,7 @@
                    </div>
                 </div>
               </div>
-              <div className={"'`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-end z-30 md:pl-64 shadow-xl`}><button onClick={onValidateStep} className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg"><CheckCircle size={18}/> Valider livraison & gÃ©nÃ©rer rapport</button></div>
+              <div className={`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-end z-30 md:pl-64 shadow-xl`}><button onClick={onValidateStep} className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg"><CheckCircle size={18}/> Valider livraison & gÃ©nÃ©rer rapport</button></div>
             </div>
           );
         };
@@ -1093,7 +1094,7 @@
                             {mandatory.length > 0 ? mandatory.map((item, idx) => (
                                <tr key={idx}>
                                   <td className="py-2">{item.name}</td>
-                                  <td className="py-2 text-right font-mono">{item.priceHT === 0 ? '"'Inclus/Gar.' : "'`${item.priceHT.toFixed(2)} CHF`}</td>
+                                  <td className="py-2 text-right font-mono">{item.priceHT === 0 ? 'Inclus/Gar.' : `${item.priceHT.toFixed(2)} CHF`}</td>
                                </tr>
                             )) : <tr><td colSpan="2" className="py-2 text-slate-400 italic">Aucun travaux obligatoire spÃ©cifique.</td></tr>}
                          </tbody>
@@ -1109,7 +1110,7 @@
                    {optional.length > 0 && (
                      <div>
                         <h3 className="font-bold text-sm uppercase text-blue-600 mb-3 border-b border-blue-200 pb-1">Travaux EsthÃ©tiques (Optionnels)</h3>
-                        <p className="text-xs text-slate-500 mb-3 italic">Ces interventions sont recommandÃ©es pour redonner l'"'Ã©clat d'origine mais ne sont pas techniques.</p>
+                        <p className="text-xs text-slate-500 mb-3 italic">Ces interventions sont recommandÃ©es pour redonner l'Ã©clat d'origine mais ne sont pas techniques.</p>
                         <table className=\"w-full text-sm\">
                            <tbody className=\"divide-y divide-gray-100\">
                               {optional.map((item, idx) => (
@@ -1118,7 +1119,7 @@
                                        <input type=\"checkbox\" className=\"accent-blue-600\" defaultChecked />
                                        {item.name}
                                     </td>
-                                    <td className=\"py-2 text-right font-mono\">{item.priceHT === 0 ? 'Offert' : "'`${item.priceHT.toFixed(2)} CHF`}</td>
+                                    <td className=\"py-2 text-right font-mono\">{item.priceHT === 0 ? 'Offert' : `${item.priceHT.toFixed(2)} CHF`}</td>
                                  </tr>
                               ))}
                            </tbody>
@@ -1128,7 +1129,7 @@
 
                    <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg flex justify-between items-center mt-6">
                       <div className="text-xs text-slate-500 max-w-md">
-                         * Les prix sont indiquÃ©s en CHF Hors Taxes. La TVA de 8.1% sera ajoutÃ©e Ã  la facturation finale. Garantie de 2 ans sur l'"'intervention.
+                         * Les prix sont indiquÃ©s en CHF Hors Taxes. La TVA de 8.1% sera ajoutÃ©e Ã  la facturation finale. Garantie de 2 ans sur l'intervention.
                       </div>
                       <div className=\"text-right\">
                          <div className=\"text-sm uppercase text-slate-500 font-bold\">Total EstimÃ© HT</div>
@@ -1138,7 +1139,7 @@
                 </div>
               </div>
 
-              <div className={"'`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-between z-30 md:pl-64 shadow-xl`}>
+              <div className={`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-between z-30 md:pl-64 shadow-xl`}>
                  <button className="text-red-500 font-bold text-sm px-4 py-2 hover:bg-red-50 rounded">Refuser le devis</button>
                  <div className="flex gap-4">
                      {/* SUPPRESSION BOUTON IMPRIMER */}
@@ -1152,11 +1153,11 @@
         const FinalReportSheet = ({ data, onValidateStep }) => {
           const { panelBg, panelBorder, accentText } = useTheme();
           
-          const receiptPhotos = (data.photos || []).filter(p => p.category === '"'receipt');
+          const receiptPhotos = (data.photos || []).filter(p => p.category === 'receipt');
           const partsPhotos = (data.photos || []).filter(p => p.category === 'parts');
           const finalPhotos = (data.photos || []).filter(p => p.category === 'final');
 
-          const operationsPerformed = (data.operations || []).filter(op => op.status === 'TerminÃ©' || "'!op.status); 
+          const operationsPerformed = (data.operations || []).filter(op => op.status === 'TerminÃ©' || !op.status); 
 
           const calculateAverages = () => {
               if (!data.finalMeasures) return null;
@@ -1164,14 +1165,14 @@
               let minRate = Infinity, maxRate = -Infinity;
 
               Object.values(data.finalMeasures).forEach(m => {
-                  if (m.rate && m.rate !== '"'"''"') {
+                  if (m.rate && m.rate !== '') {
                       const r = parseFloat(m.rate);
                       totalRate += r;
                       if (r < minRate) minRate = r;
                       if (r > maxRate) maxRate = r;
                       count++;
                   }
-                  if (m.amp && m.amp "'!== '"'"''"') totalAmp += parseFloat(m.amp);
+                  if (m.amp && m.amp !== '') totalAmp += parseFloat(m.amp);
               });
 
               if (count === 0) return null;
@@ -1276,19 +1277,19 @@
                                 <tbody>
                                     <tr className=\"border-b border-slate-100\">
                                         <td className=\"p-2 font-medium bg-slate-50\">Marche Moyenne</td>
-                                        <td className=\"p-2 text-right font-mono font-bold text-slate-700\">{averages ? "'`${averages.avgRate} s/j` : '"'-'}</td>
+                                        <td className=\"p-2 text-right font-mono font-bold text-slate-700\">{averages ? `${averages.avgRate} s/j` : ''-'}</td>
                                     </tr>
                                     <tr className=\"border-b border-slate-100\">
                                         <td className=\"p-2 font-medium bg-slate-50\">Amplitude Moyenne</td>
-                                        <td className=\"p-2 text-right font-mono text-slate-700\">{averages ? "'`${averages.avgAmp}Â°` : '"'-'}</td>
+                                        <td className=\"p-2 text-right font-mono text-slate-700\">{averages ? `${averages.avgAmp}Â°` : ''-'}</td>
                                     </tr>
                                     <tr className=\"border-b border-slate-100\">
                                         <td className=\"p-2 font-medium bg-slate-50\">Delta (Max-Min)</td>
-                                        <td className=\"p-2 text-right font-mono text-slate-700\">{averages ? "'`${averages.delta} s` : '"'-'}</td>
+                                        <td className=\"p-2 text-right font-mono text-slate-700\">{averages ? `${averages.delta} s` : ''-'}</td>
                                     </tr>
                                     <tr className=\"border-b border-slate-100\">
                                         <td className=\"p-2 font-bold bg-amber-50 text-amber-900\">RÃ©serve de Marche</td>
-                                        <td className=\"p-2 text-right font-mono font-bold text-amber-700\">{data.powerReserve ? "'`${data.powerReserve} Heures` : '"'-'}</td>
+                                        <td className=\"p-2 text-right font-mono font-bold text-amber-700\">{data.powerReserve ? `${data.powerReserve} Heures` : ''-'}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1299,7 +1300,7 @@
                                 {data.finalMeasures && Object.entries(data.finalMeasures).map(([key, val]) => (
                                     <div key={key} className=\"bg-slate-50 p-1 border rounded flex justify-between items-center\">
                                         <span className=\"font-bold uppercase text-slate-400\">{key}</span>
-                                        <span className=\"font-mono\">{val.rate ? "'`${val.rate}s` : '"'-'} / {val.amp ? "'`${val.amp}Â°` : '"'-'}</span>
+                                        <span className=\"font-mono\">{val.rate ? `${val.rate}s` : ''-'} / {val.amp ? `${val.amp}Â°` : ''-'}</span>
                                     </div>
                                 ))}
                             </div>
@@ -1323,7 +1324,7 @@
                 </div>
 
               </div>
-              <div className={"'`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-between z-30 md:pl-64 shadow-xl`}>
+              <div className={`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-between z-30 md:pl-64 shadow-xl`}>
                  {/* SUPPRESSION BOUTON IMPRIMER */}
                  <button onClick={onValidateStep} className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg"><CheckCircle size={18}/> Aller Ã  la facturation</button>
               </div>
@@ -1360,7 +1361,7 @@
                            <p className="text-sm">{data.clientZip} {data.clientCity}</p>
                        </div>
                        <div className="text-sm text-slate-500">
-                          <span className="font-bold uppercase mr-2">NÂ° Facture:</span> {data.id.replace('"'RO', 'FAC')}
+                          <span className="font-bold uppercase mr-2">NÂ° Facture:</span> {data.id.replace('RO', 'FAC')}
                        </div>
                        <div className=\"text-sm text-slate-500\">
                           <span className=\"font-bold uppercase mr-2\">Date:</span> {new Date().toLocaleDateString()}
@@ -1419,7 +1420,7 @@
                  </div>
               </div>
               
-              <div className={"'`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-between z-30 md:pl-64 shadow-xl`}>
+              <div className={`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-between z-30 md:pl-64 shadow-xl`}>
                  <button onClick={onValidateStep} className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg"><CheckCircle size={18}/> ClÃ´turer le dossier</button>
               </div>
             </div>
@@ -1439,7 +1440,7 @@
               const diffTime = deposit - sale;
               const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
               if (diffDays >= 0 && diffDays <= 730) {
-                setSuggestedCoverage({ type: '"'warranty_sales', reason: "'`< 2 ans d'"'achat ("'${diffDays} jours)` });
+                setSuggestedCoverage({ type: 'warranty_sales', reason: `< 2 ans d'achat ('${diffDays} jours)` });
                 return;
               }
             }
@@ -1449,12 +1450,12 @@
               const diffTime = deposit - repair;
               const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
               if (diffDays >= 0 && diffDays <= 365) {
-                setSuggestedCoverage({ type: '"'warranty_repair', reason: "'`< 1 an derniÃ¨re rÃ©paration (${diffDays} jours)` });
+                setSuggestedCoverage({ type: 'warranty_repair', reason: `< 1 an derniÃ¨re rÃ©paration (${diffDays} jours)` });
                 return;
               }
             }
 
-            setSuggestedCoverage({ type: '"'paid', reason: 'Hors dÃ©lais de garantie' });
+            setSuggestedCoverage({ type: 'paid', reason: 'Hors dÃ©lais de garantie' });
           }, [data.saleDate, data.lastRepairDate, data.depositDate]);
 
           const applySuggestion = () => {
@@ -1465,7 +1466,7 @@
 
           const handlePriceChange = (rowId, newPrice) => {
             const matrix = data.internalQuoteMatrix || {};
-            const row = matrix[rowId] || { oblig: false, opt: false, payant: true, gratuit: false, customPrice: '"''"' };
+            const row = matrix[rowId] || { oblig: false, opt: false, payant: true, gratuit: false, customPrice: '' };
             
             const updatedRow = { ...row, customPrice: newPrice };
             const newMatrix = { ...matrix, [rowId]: updatedRow };
@@ -1474,12 +1475,12 @@
             if (def && (updatedRow.oblig || updatedRow.opt)) {
                 const q = { ...data.quote } || { mandatory: [], optional: [] };
                 
-                q.mandatory = (q.mandatory || []).filter(i => i.id "'!== rowId);
+                q.mandatory = (q.mandatory || []).filter(i => i.id !== rowId);
                 q.optional = (q.optional || []).filter(i => i.id !== rowId);
                 
-                const finalPrice = updatedRow.gratuit ? 0 : (newPrice !== '"'"''"' ? parseFloat(newPrice) : def.priceHT);
+                const finalPrice = updatedRow.gratuit ? 0 : (newPrice !== '' ? parseFloat(newPrice) : def.priceHT);
                 
-                const item = { ...def, uuid: "'`matrix-${rowId}`, priceHT: finalPrice };
+                const item = { ...def, uuid: `matrix-${rowId}`, priceHT: finalPrice };
                 
                 if (updatedRow.oblig) q.mandatory.push(item);
                 else q.optional.push(item);
@@ -1492,7 +1493,7 @@
 
           const handleToggle = (rowId, field, val) => {
             const matrix = data.internalQuoteMatrix || {};
-            const row = matrix[rowId] || { oblig: false, opt: false, payant: true, gratuit: false, customPrice: '"'"''"' };
+            const row = matrix[rowId] || { oblig: false, opt: false, payant: true, gratuit: false, customPrice: '' };
             const updated = { ...row, [field]: val };
             
             if (field === 'oblig' && val) updated.opt = false;
@@ -1505,11 +1506,11 @@
             
             if (def) {
               const q = { ...data.quote } || { mandatory: [], optional: [] };
-              q.mandatory = (q.mandatory || []).filter(i => i.id "'!== rowId);
+              q.mandatory = (q.mandatory || []).filter(i => i.id !== rowId);
               q.optional = (q.optional || []).filter(i => i.id !== rowId);
               
               if (updated.oblig || updated.opt) {
-                const priceToUse = (updated.customPrice !== '"'"''"' && updated.customPrice "'!== undefined) ? parseFloat(updated.customPrice) : def.priceHT;
+                const priceToUse = (updated.customPrice !== '' && updated.customPrice !== undefined) ? parseFloat(updated.customPrice) : def.priceHT;
                 const finalPrice = updated.gratuit ? 0 : priceToUse;
                 
                 const item = { ...def, uuid: `matrix-${rowId}`, priceHT: finalPrice };
@@ -1531,7 +1532,7 @@
                 const newMatrix = { ...data.internalQuoteMatrix };
                 data.quote.mandatory.forEach(item => {
                     if (item.id) {
-                        const isFree = data.coverageType !== '"'paid' && "'!!data.coverageType;
+                        const isFree = data.coverageType !== 'paid' && !!data.coverageType;
                         newMatrix[item.id] = { 
                             oblig: true, 
                             opt: false, 
@@ -1550,10 +1551,10 @@
           const renderRow = (label, id) => {
             const row = data.internalQuoteMatrix?.[id] || {};
             const def = PRICING_DB.find(p => p.id === id);
-            const displayPrice = row.customPrice !== undefined && row.customPrice !== '"'"''"' ? row.customPrice : (def ? def.priceHT : 0);
+            const displayPrice = row.customPrice !== undefined && row.customPrice !== '' ? row.customPrice : (def ? def.priceHT : 0);
 
             return (
-              <tr key={id} className={"'`border-b ${panelBorder} ${tableRowHover}`}>
+              <tr key={id} className={`border-b ${panelBorder} ${tableRowHover}`}>
                 <td className="p-3 text-sm font-medium">{label}</td>
                 
                 <td className="p-2 text-center">
@@ -1569,10 +1570,10 @@
                     </div>
                 </td>
 
-                <td className="p-2 text-center"><input type="checkbox" checked={!!row.oblig} onChange={e => handleToggle(id, '"'oblig', e.target.checked)} className=\"w-4 h-4 accent-red-500\" /></td>
-                <td className=\"p-2 text-center\"><input type=\"checkbox\" checked={"'!!row.opt} onChange={e => handleToggle(id, '"'opt', e.target.checked)} className=\"w-4 h-4 accent-blue-500\" /></td>
-                <td className=\"p-2 text-center\"><input type=\"checkbox\" checked={"'!!row.payant} onChange={e => handleToggle(id, '"'payant', e.target.checked)} className=\"w-4 h-4 accent-green-500\" /></td>
-                <td className=\"p-2 text-center\"><input type=\"checkbox\" checked={"'!!row.gratuit} onChange={e => handleToggle(id, '"'gratuit', e.target.checked)} className=\"w-4 h-4 accent-slate-500\" /></td>
+                <td className="p-2 text-center"><input type="checkbox" checked={!!row.oblig} onChange={e => handleToggle(id, 'oblig', e.target.checked)} className=\"w-4 h-4 accent-red-500\" /></td>
+                <td className=\"p-2 text-center\"><input type=\"checkbox\" checked={!!row.opt} onChange={e => handleToggle(id, 'opt', e.target.checked)} className=\"w-4 h-4 accent-blue-500\" /></td>
+                <td className=\"p-2 text-center\"><input type=\"checkbox\" checked={!!row.payant} onChange={e => handleToggle(id, 'payant', e.target.checked)} className=\"w-4 h-4 accent-green-500\" /></td>
+                <td className=\"p-2 text-center\"><input type=\"checkbox\" checked={!!row.gratuit} onChange={e => handleToggle(id, 'gratuit', e.target.checked)} className=\"w-4 h-4 accent-slate-500\" /></td>
               </tr>
             );
           };
@@ -1580,7 +1581,7 @@
           return (
             <div className=\"p-6 max-w-5xl mx-auto space-y-6 pb-24\">
               {/* SECTION TYPE DE PRISE EN CHARGE */}
-              <div className={"'`${panelBg} p-6 rounded-xl border ${panelBorder} mb-6 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500`}>
+              <div className={`${panelBg} p-6 rounded-xl border ${panelBorder} mb-6 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500`}>
                   <div className="flex justify-between items-center mb-4">
                     <h3 className={`text-lg font-bold ${accentText} flex items-center gap-2`}>
                         <ShieldCheck size={20} /> Type de prise en charge
@@ -1597,24 +1598,24 @@
                   
                   <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
                       <select 
-                          value={data.coverageType || '"'paid'} 
+                          value={data.coverageType || 'paid'} 
                           onChange={handleCoverageChange}
-                          className={"'`flex-1 p-3 rounded-lg border ${inputBorder} ${inputBg} ${textMain} outline-none font-medium shadow-sm w-full md:w-auto`}
+                          className={`flex-1 p-3 rounded-lg border ${inputBorder} ${inputBg} ${textMain} outline-none font-medium shadow-sm w-full md:w-auto`}
                       >
                           {COVERAGE_TYPES.map(type => (
                               <option key={type.id} value={type.id}>{type.label}</option>
                           ))}
                       </select>
                       <div className={`p-3 rounded-lg border ${inputBorder} ${inputBg} text-sm flex-1 w-full`}>
-                           {data.coverageType === '"'warranty_sales' && <span className=\"text-green-600 flex items-center gap-2 font-bold\"><CheckCircle size={16}/> Les piÃ¨ces et la main d'Å“uvre devraient Ãªtre gratuits.</span>}
+                           {data.coverageType === 'warranty_sales' && <span className=\"text-green-600 flex items-center gap-2 font-bold\"><CheckCircle size={16}/> Les piÃ¨ces et la main d'Å“uvre devraient Ãªtre gratuits.</span>}
                            {data.coverageType === 'warranty_repair' && <span className=\"text-blue-600 flex items-center gap-2 font-bold\"><CheckCircle size={16}/> Garantie SAV prÃ©cÃ©dente appliquÃ©e.</span>}
                            {data.coverageType === 'goodwill' && <span className=\"text-amber-600 flex items-center gap-2 font-bold\"><Star size={16}/> Geste commercial total ou partiel.</span>}
-                           {("'!data.coverageType || data.coverageType === '"'paid') && <span className=\"text-slate-500 flex items-center gap-2\"><DollarSign size={16}/> Facturation standard au client.</span>}
+                           {(!data.coverageType || data.coverageType === 'paid') && <span className=\"text-slate-500 flex items-center gap-2\"><DollarSign size={16}/> Facturation standard au client.</span>}
                       </div>
                   </div>
               </div>
 
-              <div className={"'`${panelBg} border ${panelBorder} rounded-xl overflow-hidden shadow-lg animate-in slide-in-from-bottom-4 duration-500`}>
+              <div className={`${panelBg} border ${panelBorder} rounded-xl overflow-hidden shadow-lg animate-in slide-in-from-bottom-4 duration-500`}>
                 <table className="w-full text-left border-collapse">
                   <thead className="bg-slate-100 dark:bg-slate-700 text-[10px] font-bold uppercase tracking-widest text-slate-500">
                       <tr>
@@ -1718,7 +1719,7 @@
         // --- CORE APP ---
 
         const App = () => {
-          const [activeTab, setActiveTab] = useState('"'dashboard');
+          const [activeTab, setActiveTab] = useState('dashboard');
           const [isSidebarOpen, setSidebarOpen] = useState(false);
           const [isDark, setIsDark] = useState(false);
           const isOnline = true; // SimulÃ© pour compatibilitÃ©, plus de hook
@@ -1913,7 +1914,7 @@
 
           // ON LOAD: Select first repair by default
           useEffect(() => {
-             if ("'!currentRepair && repairs.length > 0) {
+             if (!currentRepair && repairs.length > 0) {
                  setCurrentRepair(repairs[0]);
              }
           }, []);
@@ -1924,7 +1925,7 @@
           };
 
           const createNewRepair = () => {
-            const nr = { id: `RO-2026-${Math.floor(Math.random()*1000)}`, client: '"'"''"', model: '"''"', serial: '"''"', statusStep: 0, depositDate: new Date().toISOString().split('T')[0], invoiceDiscount: undefined, invoiceShipping: 0, quote: { mandatory: [], optional: [] }, coverageType: 'paid', photos: [], receivedItems: {}, internalQuoteMatrix: {} }; 
+            const nr = { id: `RO-2026-${Math.floor(Math.random()*1000)}`, client: '', model: '', serial: '', statusStep: 0, depositDate: new Date().toISOString().split('T')[0], invoiceDiscount: undefined, invoiceShipping: 0, quote: { mandatory: [], optional: [] }, coverageType: 'paid', photos: [], receivedItems: {}, internalQuoteMatrix: {} }; 
             setRepairs([nr, ...repairs]);
             setCurrentRepair(nr);
             setActiveTab('client_request');
@@ -1939,7 +1940,7 @@
           // Define these functions for use in the return statement
           const handleNextRepair = () => {
               const currentIndex = repairs.findIndex(r => r.id === currentRepair?.id);
-              if (currentIndex "'!== -1 && currentIndex < repairs.length - 1) {
+              if (currentIndex !== -1 && currentIndex < repairs.length - 1) {
                   const nextRepair = repairs[currentIndex + 1];
                   setCurrentRepair(nextRepair);
               }
@@ -1961,11 +1962,11 @@
           const themeValues = getThemeClasses(isDark);
 
           const renderContent = () => {
-            if (activeTab === '"'dashboard') return <Dashboard repairs={repairs} selectRepair={r => { setCurrentRepair(r); setActiveTab('client_request'); }} createNewRepair={createNewRepair} />;
-            if ("'!currentRepair) return <div className="p-20 text-center text-slate-400 font-bold uppercase tracking-widest opacity-40 select-none">SÃ©lectionner un dossier SAV</div>;
+            if (activeTab === 'dashboard') return <Dashboard repairs={repairs} selectRepair={r => { setCurrentRepair(r); setActiveTab('client_request'); }} createNewRepair={createNewRepair} />;
+            if (!currentRepair) return <div className="p-20 text-center text-slate-400 font-bold uppercase tracking-widest opacity-40 select-none">SÃ©lectionner un dossier SAV</div>;
 
             switch (activeTab) {
-              case '"'client_request': return <ClientRequestForm data={currentRepair} updateData={handleUpdateRepair} onValidateStep={() => navNext(1, 'inspection')} />;
+              case 'client_request': return <ClientRequestForm data={currentRepair} updateData={handleUpdateRepair} onValidateStep={() => navNext(1, 'inspection')} />;
               case 'inspection': return <InspectionForm data={currentRepair} updateData={handleUpdateRepair} onValidateStep={() => navNext(2, 'internal_quote')} />;
               case 'internal_quote': return <InternalQuoteSheet data={currentRepair} updateData={handleUpdateRepair} onValidateStep={() => navNext(3, 'quote')} />;
               case 'quote': return <QuoteBuilder data={currentRepair} updateData={handleUpdateRepair} onValidateStep={() => navNext(5, 'workshop')} />;
@@ -1979,7 +1980,7 @@
 
           return (
             <ThemeContext.Provider value={themeValues}>
-              <div className={"'`flex h-screen ${themeValues.appBg} ${themeValues.textMain} overflow-hidden font-sans antialiased`}>
+              <div className={`flex h-screen ${themeValues.appBg} ${themeValues.textMain} overflow-hidden font-sans antialiased`}>
                 <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isOpen={isSidebarOpen} toggleSidebar={() => setSidebarOpen(!isSidebarOpen)} currentRepair={currentRepair} />
                 <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
                   <header className={`${themeValues.headerBg} border-b ${themeValues.headerBorder} p-4 flex justify-between items-center shadow-sm z-10`}>
@@ -1987,13 +1988,13 @@
                       <button onClick={() => setSidebarOpen(true)} className="md:hidden text-slate-500 hover:bg-slate-100 p-2 rounded-lg transition-colors"><Menu size={20}/></button>
                     </div>
                     
-                    {currentRepair && activeTab !== '"'dashboard' && (
+                    {currentRepair && activeTab !== 'dashboard' && (
                         <div className=\"flex items-center gap-4\">
                             <div className=\"flex items-center gap-2\">
                                 <button 
                                     onClick={handlePrevRepair} 
-                                    disabled={"'!prevRepair}
-                                    className={`p-2 rounded-full transition-colors ${prevRepair ? '"'hover:bg-slate-100 text-slate-600' : 'text-slate-300 cursor-not-allowed'}"'`}
+                                    disabled={!prevRepair}
+                                    className={`p-2 rounded-full transition-colors ${prevRepair ? 'hover:bg-slate-100 text-slate-600' : 'text-slate-300 cursor-not-allowed'}`}
                                 >
                                     <ArrowLeftCircle size={20} />
                                 </button>
@@ -2005,22 +2006,22 @@
                                 <button 
                                     onClick={handleNextRepair} 
                                     disabled={!nextRepair}
-                                    className={`p-2 rounded-full transition-colors ${nextRepair ? '"'hover:bg-slate-100 text-slate-600' : 'text-slate-300 cursor-not-allowed'}"'`}
+                                    className={`p-2 rounded-full transition-colors ${nextRepair ? 'hover:bg-slate-100 text-slate-600' : 'text-slate-300 cursor-not-allowed'}`}
                                 >
                                     <ArrowRightCircle size={20} />
                                 </button>
                             </div>
 
-                            <div className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${currentRepair.statusStep >= 8 ? '"'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}"'`}>
-                                <div className={`w-2 h-2 rounded-full ${currentRepair.statusStep >= 8 ? '"'bg-green-500' : 'bg-blue-500'}"'`}></div>
+                            <div className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${currentRepair.statusStep >= 8 ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                <div className={`w-2 h-2 rounded-full ${currentRepair.statusStep >= 8 ? 'bg-green-500' : 'bg-blue-500'}`}></div>
                                 {STATUS_STEPS[currentRepair.statusStep]}
                             </div>
                         </div>
                     )}
 
                     <div className="flex items-center gap-3">
-                       <button onClick={() => setIsDark(!isDark)} className={`p-2 rounded-lg transition-colors ${isDark ? '"'bg-slate-800 text-amber-400' : 'bg-slate-100 text-slate-500'}"'`}>{isDark ? <Sun size={18}/> : <Moon size={18}/>}</button>
-                       {currentRepair && activeTab !== '"'dashboard' && <button onClick={() => { setCurrentRepair(null); setActiveTab('dashboard'); }} className=\"text-[10px] font-bold text-slate-400 hover:text-slate-600 uppercase border-l pl-4 border-slate-300 ml-2 tracking-widest\">Fermer Dossier</button>}
+                       <button onClick={() => setIsDark(!isDark)} className={`p-2 rounded-lg transition-colors ${isDark ? 'bg-slate-800 text-amber-400' : 'bg-slate-100 text-slate-500'}`}>{isDark ? <Sun size={18}/> : <Moon size={18}/>}</button>
+                       {currentRepair && activeTab !== 'dashboard' && <button onClick={() => { setCurrentRepair(null); setActiveTab('dashboard'); }} className=\"text-[10px] font-bold text-slate-400 hover:text-slate-600 uppercase border-l pl-4 border-slate-300 ml-2 tracking-widest\">Fermer Dossier</button>}
                     </div>
                   </header>
                   <div className=\"flex-1 overflow-y-auto\">{renderContent()}</div>
@@ -2036,5 +2037,11 @@
 
       startApp();
     </script>
-  </body>
+  </body> -->
 </html>
+
+
+
+
+
+
