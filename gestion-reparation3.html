@@ -1806,179 +1806,1037 @@
             
             // Initial Repairs - Expanded List for Testing
            const initialRepairs = [
-    // --- CAS 1 : VACHERON CONSTANTIN "CORNES DE VACHE" 1956 ---
-    { 
-        id: 'RO-VC-1956', 
-        client: 'Famille du Propriétaire (via Phillips)', 
-        model: 'VC Chronographe Ref. 6087 « Cornes de Vache »', 
-        serial: 'VC-489000', 
-        statusStep: 8, // Dossier Clôturé
-        depositDate: '2018-09-10', 
-        saleDate: '1957-11-05', 
-        productionDate: '1956-03-10',
-        coverageType: 'paid',
-        clientAddress: 'Genève, Suisse', 
-        clientZip: '1204', 
-        clientCity: 'Genève',
-        customerRequestText: "Restauration complète en vue d'une vente aux enchères. Remise en état de marche impérative tout en préservant l'authenticité historique (ne pas polir, garder la patine).",
-        issue: "Montre 'dans son jus', jamais restaurée. Poussoirs grippés. Mouvement complet mais huiles figées, encrassement général. Boîtier or jaune oxydé mais sans chocs majeurs.",
-        workshopNotes: "Démontage intégral et nettoyage. Mouvement recalibré. Nettoyage ultrasons. Aucun rhabillage du boîtier pour conserver les arêtes d'origine.",
-        quote: { 
-            mandatory: [
-                { id: 'srv_restau_compl', name: 'Restauration complète (Patrimoine)', priceHT: 15000.00, uuid: 'q1-1', type: 'labor' },
-                { id: 'fab_cadran', name: 'Fabrication cadran neuf (identique)', priceHT: 8500.00, uuid: 'q1-2', type: 'part' },
-                { id: 'srv_etanche_na', name: 'Contrôle étanchéité', priceHT: 0.00, uuid: 'q1-3', type: 'labor' }
-            ], 
-            optional: [] 
-        },
-        internalQuoteMatrix: { srv_restau_compl: { oblig: true, customPrice: 15000.00 } },
-        checklists: { visual: { 'Carrure': 3, 'Cadran': 2, 'Aiguilles': 2 }, functional: { 'Sonnerie': 0, 'Réglage': 0 } },
-        receivedItems: { hasEcrin: false, hasCertAuth: true, docsVerified: true }, 
-        finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
-        invoiceDiscount: 0, invoiceShipping: 500,
-        powerReserve: 34,
-        inspectionMeasures: {
-            ch: { rate: 12, amp: 230 },
-            cb: { rate: 9, amp: 225 },
-            '3h': { rate: 18, amp: 195 },
-            '9h': { rate: 10, amp: 185 },
-            '12h': { rate: 22, amp: 178 },
-            '6h': { rate: 14, amp: 190 }
-        },
-        finalMeasures: {
-            ch: { rate: 2, amp: 295 },
-            cb: { rate: 1, amp: 288 },
-            '3h': { rate: 0, amp: 255 },
-            '9h': { rate: 3, amp: 248 },
-            '12h': { rate: 4, amp: 242 },
-            '6h': { rate: 1, amp: 250 }
-        },
-        operations: [
-            { id: 'op1', opNumber: 10, department: 'Atelier Technique', description: 'Démontage complet & décontamination Radium', stdTime: '4.00', status: 'Terminé' },
-            { id: 'op2', opNumber: 20, department: 'Atelier Technique', description: 'Nettoyage & rhabillage mouvement', stdTime: '8.00', status: 'Terminé' },
-            { id: 'op3', opNumber: 30, department: 'Atelier Habillage', description: 'Fabrication cadran copie conforme', stdTime: '12.00', status: 'Terminé' },
-            { id: 'op4', opNumber: 40, department: 'Atelier Technique', description: 'Réglage chronographe', stdTime: '6.00', status: 'Terminé' }
-        ]
-    },
+  // =========================================================
+  // ===================== TES 3 CAS INITIAUX =================
+  // =========================================================
 
-    // --- CAS 2 : AUDEMARS PIGUET QP 1957 ---
-    { 
-        id: 'RO-AP-1957', 
-        client: 'Collection Privée (M. Goldberger)', 
-        model: 'AP Ref. 5516 Quantième Perpétuel', 
-        serial: 'AP-5516-009', 
-        statusStep: 7, // Rapport généré
-        depositDate: '2012-03-15', 
-        saleDate: '1957-02-15', 
-        productionDate: '1955-06-20',
-        coverageType: 'paid', // Projet spécial
-        clientAddress: 'Via Montenapoleone 12', 
-        clientZip: '20121', 
-        clientCity: 'Milano',
-        customerRequestText: "Restauration complète. Le mécanisme de calendrier perpétuel bloque au passage de l'année bissextile. Le boîtier nécessite un rafraîchissement respectueux.",
-        issue: "Boîtier avec oxydation. Cadran légèrement piqué. Mécanisme de sauts de quantième dur. Huiles figées.",
-        workshopNotes: "Restauration complète du calibre. Ajustement des cames de QP. Nettoyage boîtier sans polissage agressif.",
-        quote: { 
-            mandatory: [
-                { id: 'srv_restau_master', name: 'Restauration Grande Complication (26f)', priceHT: 45000.00, uuid: 'q2-1', type: 'labor' },
-                { id: 'fab_boitier', name: 'Fabrication Boîtier Or Rose (Conforme)', priceHT: 25000.00, uuid: 'q2-2', type: 'part' },
-                { id: 'fab_cadran_email', name: 'Fabrication Cadran Émail Historique', priceHT: 5000.00, uuid: 'q2-3', type: 'part' },
-                { id: 'fab_pieces', name: 'Refabrication composants (Pivots, Ressorts)', priceHT: 4500.00, uuid: 'q2-4', type: 'part' }
-            ], 
-            optional: [] 
-        },
-        internalQuoteMatrix: { srv_restau_master: { oblig: true, customPrice: 45000.00 } },
-        checklists: { visual: { 'Carrure': 5, 'Cadran': 5 }, functional: { 'Sonnerie': 1, 'Réglage': 1 } }, 
-        receivedItems: { hasEcrin: false, docsVerified: true }, 
-        finalControls: { 
-            identity: FINAL_CONTROL_ITEMS.identity, 
-            aesthetic: FINAL_CONTROL_ITEMS.aesthetic, 
-            technical: FINAL_CONTROL_ITEMS.technical 
-        },
-        powerReserve: 42,
-        inspectionMeasures: {
-            ch: { rate: -145, amp: 160 },
-            cb: { rate: -158, amp: 155 },
-            '3h': { rate: -190, amp: 140 },
-            '9h': { rate: -185, amp: 142 },
-            '12h': { rate: -210, amp: 135 },
-            '6h': { rate: -175, amp: 145 }
-        },
-        finalMeasures: {
-            ch: { rate: 6, amp: 275 },
-            cb: { rate: 4, amp: 268 },
-            '3h': { rate: 1, amp: 235 },
-            '9h': { rate: 8, amp: 228 },
-            '12h': { rate: 10, amp: 220 },
-            '6h': { rate: 3, amp: 230 }
-        },
-        operations: [
-             { id: 'op21', opNumber: 10, department: 'Atelier Technique', description: 'Étude archives & plans 1899', stdTime: '20.00', status: 'Terminé' },
-             { id: 'op22', opNumber: 20, department: 'Atelier Habillage', description: 'Usinage & décoration boîtier Or Rose', stdTime: '50.00', status: 'Terminé' },
-             { id: 'op23', opNumber: 30, department: 'Atelier Technique', description: 'Restauration Grande Sonnerie & Chrono', stdTime: '40.00', status: 'Terminé' }
-        ]
+  // --- CAS 1 : VACHERON CONSTANTIN "CORNES DE VACHE" 1956 ---
+  { 
+    id: 'RO-VC-1956', 
+    client: 'Famille du Propriétaire (via Phillips)', 
+    model: 'VC Chronographe Ref. 6087 « Cornes de Vache »', 
+    serial: 'VC-489000', 
+    statusStep: 8, // Dossier Clôturé
+    depositDate: '2018-09-10', 
+    saleDate: '1957-11-05', 
+    productionDate: '1956-03-10',
+    coverageType: 'paid',
+    clientAddress: 'Genève, Suisse', 
+    clientZip: '1204', 
+    clientCity: 'Genève',
+    customerRequestText: "Restauration complète en vue d'une vente aux enchères. Remise en état de marche impérative tout en préservant l'authenticité historique (ne pas polir, garder la patine).",
+    issue: "Montre 'dans son jus', jamais restaurée. Poussoirs grippés. Mouvement complet mais huiles figées, encrassement général. Boîtier or jaune oxydé mais sans chocs majeurs.",
+    workshopNotes: "Démontage intégral et nettoyage. Mouvement recalibré. Nettoyage ultrasons. Aucun rhabillage du boîtier pour conserver les arêtes d'origine.",
+    quote: { 
+      mandatory: [
+        { id: 'srv_restau_compl', name: 'Restauration complète (Patrimoine)', priceHT: 15000.00, uuid: 'q1-1', type: 'labor' },
+        { id: 'fab_cadran', name: 'Fabrication cadran neuf (identique)', priceHT: 8500.00, uuid: 'q1-2', type: 'part' },
+        { id: 'srv_etanche_na', name: 'Contrôle étanchéité', priceHT: 0.00, uuid: 'q1-3', type: 'labor' }
+      ], 
+      optional: [] 
     },
+    internalQuoteMatrix: { srv_restau_compl: { oblig: true, customPrice: 15000.00 } },
+    checklists: { visual: { 'Carrure': 3, 'Cadran': 2, 'Aiguilles': 2 }, functional: { 'Sonnerie': 0, 'Réglage': 0 } },
+    receivedItems: { hasEcrin: false, hasCertAuth: true, docsVerified: true }, 
+    finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
+    invoiceDiscount: 0, invoiceShipping: 500,
+    powerReserve: 34,
+    inspectionMeasures: {
+      ch: { rate: 12, amp: 230 },
+      cb: { rate: 9, amp: 225 },
+      '3h': { rate: 18, amp: 195 },
+      '9h': { rate: 10, amp: 185 },
+      '12h': { rate: 22, amp: 178 },
+      '6h': { rate: 14, amp: 190 }
+    },
+    finalMeasures: {
+      ch: { rate: 2, amp: 295 },
+      cb: { rate: 1, amp: 288 },
+      '3h': { rate: 0, amp: 255 },
+      '9h': { rate: 3, amp: 248 },
+      '12h': { rate: 4, amp: 242 },
+      '6h': { rate: 1, amp: 250 }
+    },
+    operations: [
+      { id: 'op1', opNumber: 10, department: 'Atelier Technique', description: 'Démontage complet & décontamination Radium', stdTime: '4.00', status: 'Terminé' },
+      { id: 'op2', opNumber: 20, department: 'Atelier Technique', description: 'Nettoyage & rhabillage mouvement', stdTime: '8.00', status: 'Terminé' },
+      { id: 'op3', opNumber: 30, department: 'Atelier Habillage', description: 'Fabrication cadran copie conforme', stdTime: '12.00', status: 'Terminé' },
+      { id: 'op4', opNumber: 40, department: 'Atelier Technique', description: 'Réglage chronographe', stdTime: '6.00', status: 'Terminé' }
+    ]
+  },
 
-    // --- CAS 3 : PATEK PHILIPPE 2499/101J ---
-    { 
-        id: 'RO-PP-2450', 
-        client: 'M. Tony Kavak', 
-        model: 'Patek Philippe 2499/101J', 
-        serial: 'PP-Unique-Integrated', 
-        statusStep: 6, // En livraison
-        depositDate: '2025-06-20', 
-        saleDate: '1955-01-01', 
-        productionDate: '1954-01-01',
-        coverageType: 'paid',
-        clientAddress: 'Bahnhofstrasse 30', 
-        clientZip: '8001', 
-        clientCity: 'Zürich',
-        customerRequestText: "Restauration de la configuration d'origine. Le bracelet intégré a été coupé par un ancien propriétaire et des cornes ont été soudées. Demande de suppression des cornes et recréation du bracelet or 'grains de riz'.",
-        issue: "Cornes ajoutées visibles (brasures). Carrure légèrement polie. Mouvement CH 27-70 Q en bon état mais huiles vieillissantes. Risque majeur sur poinçons lors de la désoudure.",
-        workshopNotes: "Chauffe contrôlée pour retrait cornes. Laser pour effacer traces brasure sans toucher les poinçons. Fabrication maillon par maillon du bracelet or intégré. Révision mouvement standard.",
-        quote: { 
-            mandatory: [
-                { id: 'fab_bracelet_or', name: 'Fabrication Bracelet Or Intégré (Grains de riz)', priceHT: 18000.00, uuid: 'q3-1', type: 'part' },
-                { id: 'srv_restau_hab', name: 'Restauration Carrure (Suppression cornes)', priceHT: 12000.00, uuid: 'q3-2', type: 'labor' },
-                { id: 'srv_rev_mvt_compl', name: 'Révision Mouvement QP Chrono', priceHT: 3500.00, uuid: 'q3-3', type: 'labor' }
-            ], 
-            optional: [
-                 { id: 'srv_pol_boite', name: 'Léger avivage final', priceHT: 180.00, uuid: 'q3-opt-1', type: 'labor' }
-            ] 
-        },
-        internalQuoteMatrix: { fab_bracelet_or: { oblig: true, customPrice: 18000.00 } },
-        checklists: { visual: { 'Carrure': 1, 'Bracelet': 0 }, functional: { 'Réglage': 3, 'Étanchéité': 2 } },
-        receivedItems: { hasEcrin: true, hasCertAuth: true, docsVerified: true }, // MODIFIE: hasBox removed
-        finalControls: { 
-            identity: FINAL_CONTROL_ITEMS.identity, 
-            aesthetic: FINAL_CONTROL_ITEMS.aesthetic, 
-            technical: FINAL_CONTROL_ITEMS.technical 
-        },
-        deliveryReturnChecks: { hasEcrin: true, hasCertAuth: true }, // MODIFIE: hasBox removed
-        powerReserve: 58,
-        inspectionMeasures: {
-            ch: { rate: 3, amp: 285 },
-            cb: { rate: 2, amp: 278 },
-            '3h': { rate: 6, amp: 235 },
-            '9h': { rate: 8, amp: 225 },
-            '12h': { rate: 10, amp: 220 },
-            '6h': { rate: 5, amp: 228 }
-        },
-        finalMeasures: {
-            ch: { rate: 1, amp: 300 },
-            cb: { rate: 2, amp: 292 },
-            '3h': { rate: -1, amp: 260 },
-            '9h': { rate: 3, amp: 252 },
-            '12h': { rate: 4, amp: 248 },
-            '6h': { rate: 0, amp: 255 }
-        },
-        operations: [
-             { id: 'op31', opNumber: 10, department: 'Atelier Polissage', description: 'Désoudure cornes & reprise laser', stdTime: '15.00', status: 'Terminé' },
-             { id: 'op32', opNumber: 20, department: 'Atelier Habillage', description: 'Fabrication & assemblage bracelet', stdTime: '30.00', status: 'Terminé' },
-             { id: 'op33', opNumber: 30, department: 'Atelier Technique', description: 'Rhabillage mouvement QP', stdTime: '6.00', status: 'Terminé' }
-        ]
-    }
-  ];
+  // --- CAS 2 : AUDEMARS PIGUET QP 1957 ---
+  { 
+    id: 'RO-AP-1957', 
+    client: 'Collection Privée (M. Goldberger)', 
+    model: 'AP Ref. 5516 Quantième Perpétuel', 
+    serial: 'AP-5516-009', 
+    statusStep: 7, // Rapport généré
+    depositDate: '2012-03-15', 
+    saleDate: '1957-02-15', 
+    productionDate: '1955-06-20',
+    coverageType: 'paid', // Projet spécial
+    clientAddress: 'Via Montenapoleone 12', 
+    clientZip: '20121', 
+    clientCity: 'Milano',
+    customerRequestText: "Restauration complète. Le mécanisme de calendrier perpétuel bloque au passage de l'année bissextile. Le boîtier nécessite un rafraîchissement respectueux.",
+    issue: "Boîtier avec oxydation. Cadran légèrement piqué. Mécanisme de sauts de quantième dur. Huiles figées.",
+    workshopNotes: "Restauration complète du calibre. Ajustement des cames de QP. Nettoyage boîtier sans polissage agressif.",
+    quote: { 
+      mandatory: [
+        { id: 'srv_restau_master', name: 'Restauration Grande Complication (26f)', priceHT: 45000.00, uuid: 'q2-1', type: 'labor' },
+        { id: 'fab_boitier', name: 'Fabrication Boîtier Or Rose (Conforme)', priceHT: 25000.00, uuid: 'q2-2', type: 'part' },
+        { id: 'fab_cadran_email', name: 'Fabrication Cadran Émail Historique', priceHT: 5000.00, uuid: 'q2-3', type: 'part' },
+        { id: 'fab_pieces', name: 'Refabrication composants (Pivots, Ressorts)', priceHT: 4500.00, uuid: 'q2-4', type: 'part' }
+      ], 
+      optional: [] 
+    },
+    internalQuoteMatrix: { srv_restau_master: { oblig: true, customPrice: 45000.00 } },
+    checklists: { visual: { 'Carrure': 5, 'Cadran': 5 }, functional: { 'Sonnerie': 1, 'Réglage': 1 } }, 
+    receivedItems: { hasEcrin: false, docsVerified: true }, 
+    finalControls: { 
+      identity: FINAL_CONTROL_ITEMS.identity, 
+      aesthetic: FINAL_CONTROL_ITEMS.aesthetic, 
+      technical: FINAL_CONTROL_ITEMS.technical 
+    },
+    powerReserve: 42,
+    inspectionMeasures: {
+      ch: { rate: -145, amp: 160 },
+      cb: { rate: -158, amp: 155 },
+      '3h': { rate: -190, amp: 140 },
+      '9h': { rate: -185, amp: 142 },
+      '12h': { rate: -210, amp: 135 },
+      '6h': { rate: -175, amp: 145 }
+    },
+    finalMeasures: {
+      ch: { rate: 6, amp: 275 },
+      cb: { rate: 4, amp: 268 },
+      '3h': { rate: 1, amp: 235 },
+      '9h': { rate: 8, amp: 228 },
+      '12h': { rate: 10, amp: 220 },
+      '6h': { rate: 3, amp: 230 }
+    },
+    operations: [
+      { id: 'op21', opNumber: 10, department: 'Atelier Technique', description: 'Étude archives & plans 1899', stdTime: '20.00', status: 'Terminé' },
+      { id: 'op22', opNumber: 20, department: 'Atelier Habillage', description: 'Usinage & décoration boîtier Or Rose', stdTime: '50.00', status: 'Terminé' },
+      { id: 'op23', opNumber: 30, department: 'Atelier Technique', description: 'Restauration Grande Sonnerie & Chrono', stdTime: '40.00', status: 'Terminé' }
+    ]
+  },
+
+  // --- CAS 3 : PATEK PHILIPPE 2499/101J ---
+  { 
+    id: 'RO-PP-2499', 
+    client: 'M. Tony Kavak', 
+    model: 'Patek Philippe 2499/101J', 
+    serial: 'PP-Unique-Integrated', 
+    statusStep: 6, // En livraison
+    depositDate: '2015-06-20', 
+    saleDate: '1955-01-01', 
+    productionDate: '1954-01-01',
+    coverageType: 'paid',
+    clientAddress: 'Bahnhofstrasse 30', 
+    clientZip: '8001', 
+    clientCity: 'Zürich',
+    customerRequestText: "Restauration de la configuration d'origine. Le bracelet intégré a été coupé par un ancien propriétaire et des cornes ont été soudées. Demande de suppression des cornes et recréation du bracelet or 'grains de riz'.",
+    issue: "Cornes ajoutées visibles (brasures). Carrure légèrement polie. Mouvement CH 27-70 Q en bon état mais huiles vieillissantes. Risque majeur sur poinçons lors de la désoudure.",
+    workshopNotes: "Chauffe contrôlée pour retrait cornes. Laser pour effacer traces brasure sans toucher les poinçons. Fabrication maillon par maillon du bracelet or intégré. Révision mouvement standard.",
+    quote: { 
+      mandatory: [
+        { id: 'fab_bracelet_or', name: 'Fabrication Bracelet Or Intégré (Grains de riz)', priceHT: 18000.00, uuid: 'q3-1', type: 'part' },
+        { id: 'srv_restau_hab', name: 'Restauration Carrure (Suppression cornes)', priceHT: 12000.00, uuid: 'q3-2', type: 'labor' },
+        { id: 'srv_rev_mvt_compl', name: 'Révision Mouvement QP Chrono', priceHT: 3500.00, uuid: 'q3-3', type: 'labor' }
+      ], 
+      optional: [
+        { id: 'srv_pol_boite', name: 'Léger avivage final', priceHT: 180.00, uuid: 'q3-opt-1', type: 'labor' }
+      ] 
+    },
+    internalQuoteMatrix: { fab_bracelet_or: { oblig: true, customPrice: 18000.00 } },
+    checklists: { visual: { 'Carrure': 1, 'Bracelet': 0 }, functional: { 'Réglage': 3, 'Étanchéité': 2 } },
+    receivedItems: { hasEcrin: true, hasCertAuth: true, docsVerified: true },
+    finalControls: { 
+      identity: FINAL_CONTROL_ITEMS.identity, 
+      aesthetic: FINAL_CONTROL_ITEMS.aesthetic, 
+      technical: FINAL_CONTROL_ITEMS.technical 
+    },
+    deliveryReturnChecks: { hasEcrin: true, hasCertAuth: true },
+    powerReserve: 58,
+    inspectionMeasures: {
+      ch: { rate: 3, amp: 285 },
+      cb: { rate: 2, amp: 278 },
+      '3h': { rate: 6, amp: 235 },
+      '9h': { rate: 8, amp: 225 },
+      '12h': { rate: 10, amp: 220 },
+      '6h': { rate: 5, amp: 228 }
+    },
+    finalMeasures: {
+      ch: { rate: 1, amp: 300 },
+      cb: { rate: 2, amp: 292 },
+      '3h': { rate: -1, amp: 260 },
+      '9h': { rate: 3, amp: 252 },
+      '12h': { rate: 4, amp: 248 },
+      '6h': { rate: 0, amp: 255 }
+    },
+    operations: [
+      { id: 'op31', opNumber: 10, department: 'Atelier Polissage', description: 'Désoudure cornes & reprise laser', stdTime: '15.00', status: 'Terminé' },
+      { id: 'op32', opNumber: 20, department: 'Atelier Habillage', description: 'Fabrication & assemblage bracelet', stdTime: '30.00', status: 'Terminé' },
+      { id: 'op33', opNumber: 30, department: 'Atelier Technique', description: 'Rhabillage mouvement QP', stdTime: '6.00', status: 'Terminé' }
+    ]
+  },
+
+  // =========================================================
+  // ================= 10 DOSSIERS DE RESTAURATION =============
+  // =========================================================
+
+  // --- CAS 4 : ROLEX SUBMARINER 5513 (1967) ---
+  {
+    id: 'RO-RX-5513-1967',
+    client: 'Succession familiale (Notaire - Lausanne)',
+    model: 'Rolex Submariner Ref. 5513 (Meters First)',
+    serial: 'RX-1.68M-5513',
+    statusStep: 7, // Rapport généré
+    depositDate: '2023-02-06',
+    saleDate: '1968-04-12',
+    productionDate: '1967-10-18',
+    coverageType: 'paid',
+    clientAddress: 'Avenue d’Ouchy 18',
+    clientZip: '1006',
+    clientCity: 'Lausanne',
+    customerRequestText: "Remise en état de marche fiable pour transmission. Conserver cadran et aiguilles d’origine (patine tritium), éviter polissage. Étanchéité minimale souhaitée (usage quotidien prudent).",
+    issue: "Montre arrêtée depuis des années. Traces d’humidité anciennes au fond. Couronne/tube fatigués. Amplitude très faible, huiles sèches, marche instable. Lunette dure. Plexi rayé.",
+    workshopNotes: "Service complet calibre. Désoxydation contrôlée. Remplacement tube + couronne OEM. Conservation cadran/aiguilles (pas de relume). Changement joints + test étanchéité (usage limité). Plexi remplacé (pièce service), plexi d’origine conservé en sachet.",
+    quote: {
+      mandatory: [
+        { id: 'srv_full_service_auto', name: 'Révision complète mouvement automatique', priceHT: 1200.00, uuid: 'q4-1', type: 'labor' },
+        { id: 'rep_crown_tube', name: 'Remplacement couronne + tube (OEM)', priceHT: 420.00, uuid: 'q4-2', type: 'part' },
+        { id: 'rep_crystal', name: 'Remplacement plexi + conservation ancien', priceHT: 180.00, uuid: 'q4-3', type: 'part' },
+        { id: 'srv_pressure_test', name: 'Test étanchéité + joints', priceHT: 120.00, uuid: 'q4-4', type: 'labor' }
+      ],
+      optional: [
+        { id: 'opt_bracelet_service', name: 'Nettoyage bracelet + micro-ajustements', priceHT: 160.00, uuid: 'q4-opt-1', type: 'labor' }
+      ]
+    },
+    internalQuoteMatrix: { srv_full_service_auto: { oblig: true, customPrice: 1200.00 } },
+    checklists: { visual: { 'Carrure': 2, 'Cadran': 1, 'Aiguilles': 1, 'Bracelet': 2 }, functional: { 'Réglage': 1, 'Étanchéité': 2 } },
+    receivedItems: { hasEcrin: false, hasCertAuth: false, docsVerified: true },
+    finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
+    invoiceDiscount: 0,
+    invoiceShipping: 80,
+    powerReserve: 44,
+    inspectionMeasures: {
+      ch: { rate: -85, amp: 165 },
+      cb: { rate: -92, amp: 160 },
+      '3h': { rate: -120, amp: 150 },
+      '9h': { rate: -115, amp: 148 },
+      '12h': { rate: -130, amp: 145 },
+      '6h': { rate: -105, amp: 152 }
+    },
+    finalMeasures: {
+      ch: { rate: 4, amp: 285 },
+      cb: { rate: 2, amp: 278 },
+      '3h': { rate: 3, amp: 248 },
+      '9h': { rate: 5, amp: 242 },
+      '12h': { rate: 6, amp: 238 },
+      '6h': { rate: 2, amp: 252 }
+    },
+    operations: [
+      { id: 'op41', opNumber: 10, department: 'Atelier Technique', description: 'Diagnostic + démontage + nettoyage ultrasons', stdTime: '3.50', status: 'Terminé' },
+      { id: 'op42', opNumber: 20, department: 'Atelier Technique', description: 'Révision complète + remplacement pièces d’usure', stdTime: '4.50', status: 'Terminé' },
+      { id: 'op43', opNumber: 30, department: 'Atelier Habillage', description: 'Remplacement tube/couronne + joints + test étanchéité', stdTime: '1.80', status: 'Terminé' },
+      { id: 'op44', opNumber: 40, department: 'Contrôle Qualité', description: 'Réglage final + contrôle marche multi-positions', stdTime: '1.20', status: 'Terminé' }
+    ]
+  },
+
+  // --- CAS 5 : OMEGA SPEEDMASTER 105.012 (1966) ---
+  {
+    id: 'RO-OM-105012-1966',
+    client: 'Collection Privée (Paris - dépôt boutique)',
+    model: 'Omega Speedmaster 105.012-66 “Professional”',
+    serial: 'OM-24.32M-105012',
+    statusStep: 6, // En livraison
+    depositDate: '2022-11-21',
+    saleDate: '1967-03-08',
+    productionDate: '1966-07-14',
+    coverageType: 'paid',
+    clientAddress: 'Rue de la Paix 9',
+    clientZip: '75002',
+    clientCity: 'Paris',
+    customerRequestText: "Restauration fonctionnelle en conservant l’aspect d’origine. Chronographe doit repartir (aiguilles et remise à zéro). Ne pas toucher au cadran tritium. Remplacer seulement ce qui est nécessaire.",
+    issue: "Chronographe ne démarre plus. Remise à zéro aléatoire. Poussoirs durs, friction anormale. Hésalite fendu. Traces de poussière dans le mouvement. Réserve de marche faible.",
+    workshopNotes: "Service complet calibre chrono manuel. Remplacement poussoirs + joints. Remplacement hésalite (ancien conservé). Réglage chrono (embrayage / marteaux). Contrôle amplitude et stabilité.",
+    quote: {
+      mandatory: [
+        { id: 'srv_rev_chrono', name: 'Révision chronographe manuel (calibre vintage)', priceHT: 1450.00, uuid: 'q5-1', type: 'labor' },
+        { id: 'rep_pushers', name: 'Remplacement poussoirs + joints', priceHT: 260.00, uuid: 'q5-2', type: 'part' },
+        { id: 'rep_hesalite', name: 'Remplacement verre hésalite (OEM)', priceHT: 140.00, uuid: 'q5-3', type: 'part' }
+      ],
+      optional: [
+        { id: 'opt_bracelet_refit', name: 'Nettoyage + remise en forme bracelet', priceHT: 220.00, uuid: 'q5-opt-1', type: 'labor' }
+      ]
+    },
+    internalQuoteMatrix: { srv_rev_chrono: { oblig: true, customPrice: 1450.00 } },
+    checklists: { visual: { 'Carrure': 2, 'Cadran': 1, 'Aiguilles': 1, 'Bracelet': 2 }, functional: { 'Réglage': 2, 'Chronographe': 0, 'Étanchéité': 3 } },
+    receivedItems: { hasEcrin: false, hasCertAuth: false, docsVerified: true },
+    finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
+    invoiceDiscount: 50,
+    invoiceShipping: 100,
+    powerReserve: 48,
+    inspectionMeasures: {
+      ch: { rate: -35, amp: 190 },
+      cb: { rate: -42, amp: 185 },
+      '3h': { rate: -60, amp: 175 },
+      '9h': { rate: -55, amp: 172 },
+      '12h': { rate: -65, amp: 168 },
+      '6h': { rate: -50, amp: 178 }
+    },
+    finalMeasures: {
+      ch: { rate: 3, amp: 285 },
+      cb: { rate: 2, amp: 280 },
+      '3h': { rate: 4, amp: 250 },
+      '9h': { rate: 5, amp: 248 },
+      '12h': { rate: 6, amp: 242 },
+      '6h': { rate: 3, amp: 255 }
+    },
+    operations: [
+      { id: 'op51', opNumber: 10, department: 'Atelier Technique', description: 'Démontage chrono + contrôle organes de commande', stdTime: '3.00', status: 'Terminé' },
+      { id: 'op52', opNumber: 20, department: 'Atelier Technique', description: 'Nettoyage + rhabillage + lubrification', stdTime: '5.00', status: 'Terminé' },
+      { id: 'op53', opNumber: 30, department: 'Atelier Habillage', description: 'Remplacement verre + poussoirs + joints', stdTime: '1.20', status: 'Terminé' },
+      { id: 'op54', opNumber: 40, department: 'Contrôle Qualité', description: 'Réglage chrono + tests 24h + contrôle remise à zéro', stdTime: '1.50', status: 'Terminé' }
+    ]
+  },
+
+  // --- CAS 6 : JAEGER-LECOULTRE MEMOVOX POLARIS (1968) ---
+  {
+    id: 'RO-JLC-POLARIS-1968',
+    client: 'M. R. (Genève)',
+    model: 'Jaeger-LeCoultre Memovox Polaris E859',
+    serial: 'JLC-E859-0112',
+    statusStep: 5, // Contrôle final
+    depositDate: '2024-03-18',
+    saleDate: '1969-01-22',
+    productionDate: '1968-05-09',
+    coverageType: 'paid',
+    clientAddress: 'Quai du Mont-Blanc 7',
+    clientZip: '1201',
+    clientCity: 'Genève',
+    customerRequestText: "Remise en état complète du réveil + révision. Conserver cadran d’origine, pas de polissage. Étanchéité de base après joints (pas plongée).",
+    issue: "Réveil ne sonne plus. Couronnes dures. Mouvement encrassé. Traces d’oxydation légères sous fond. Lunette interne grippée. Joint fond cuit.",
+    workshopNotes: "Révision complète + restauration module Memovox. Dégrippage lunette interne. Remplacement joints + test pression faible. Conservation esthétique.",
+    quote: {
+      mandatory: [
+        { id: 'srv_rev_alarm', name: 'Révision complète + module réveil Memovox', priceHT: 1650.00, uuid: 'q6-1', type: 'labor' },
+        { id: 'rep_seals_set', name: 'Kit joints (fond/couronnes/verre) + contrôle', priceHT: 180.00, uuid: 'q6-2', type: 'part' }
+      ],
+      optional: [
+        { id: 'opt_crown_replace', name: 'Remplacement couronne (si non conforme)', priceHT: 220.00, uuid: 'q6-opt-1', type: 'part' }
+      ]
+    },
+    internalQuoteMatrix: { srv_rev_alarm: { oblig: true, customPrice: 1650.00 } },
+    checklists: { visual: { 'Carrure': 2, 'Cadran': 1, 'Aiguilles': 1 }, functional: { 'Réglage': 2, 'Sonnerie': 0, 'Étanchéité': 3 } },
+    receivedItems: { hasEcrin: false, hasCertAuth: false, docsVerified: true },
+    finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
+    invoiceDiscount: 0,
+    invoiceShipping: 0,
+    powerReserve: 42,
+    inspectionMeasures: {
+      ch: { rate: -70, amp: 175 },
+      cb: { rate: -78, amp: 170 },
+      '3h': { rate: -85, amp: 165 },
+      '9h': { rate: -80, amp: 163 },
+      '12h': { rate: -95, amp: 158 },
+      '6h': { rate: -82, amp: 162 }
+    },
+    finalMeasures: {
+      ch: { rate: 4, amp: 275 },
+      cb: { rate: 3, amp: 268 },
+      '3h': { rate: 5, amp: 240 },
+      '9h': { rate: 6, amp: 238 },
+      '12h': { rate: 7, amp: 232 },
+      '6h': { rate: 3, amp: 245 }
+    },
+    operations: [
+      { id: 'op61', opNumber: 10, department: 'Atelier Technique', description: 'Diagnostic + démontage + nettoyage', stdTime: '3.20', status: 'Terminé' },
+      { id: 'op62', opNumber: 20, department: 'Atelier Technique', description: 'Rhabillage + réglage module Memovox', stdTime: '4.80', status: 'Terminé' },
+      { id: 'op63', opNumber: 30, department: 'Atelier Habillage', description: 'Dégrippage lunette interne + joints', stdTime: '1.30', status: 'Terminé' },
+      { id: 'op64', opNumber: 40, department: 'Contrôle Qualité', description: 'Test réveil + contrôle marche multi-positions', stdTime: '1.40', status: 'En cours' }
+    ]
+  },
+
+  // --- CAS 7 : CARTIER TANK CINTRÉE (1928) ---
+  {
+    id: 'RO-CAR-TANK-1928',
+    client: 'Galerie / Antiquaire (Bruxelles)',
+    model: 'Cartier Tank Cintrée (art déco) - or jaune',
+    serial: 'CAR-TC-1928-044',
+    statusStep: 4, // En atelier
+    depositDate: '2021-05-03',
+    saleDate: '1929-02-14',
+    productionDate: '1928-09-22',
+    coverageType: 'paid',
+    clientAddress: 'Rue du Grand Sablon 48',
+    clientZip: '1000',
+    clientCity: 'Bruxelles',
+    customerRequestText: "Restauration patrimoniale pour vente de galerie. Stabiliser le cadran (micro-fissures) et fiabiliser le mouvement. Ne pas polir. Remettre une couronne conforme avec cabochon.",
+    issue: "Cadran présente craquelures + pertes de matière localisées. Mouvement fragile, huiles figées, échappement sec. Couronne non d’origine, tige usée. Verre rayé.",
+    workshopNotes: "Service complet manuel. Stabilisation cadran (consolidation, pas de repeinture invasive). Fabrication/pose couronne conforme + cabochon. Remplacement verre. Réglage fin faible couple.",
+    quote: {
+      mandatory: [
+        { id: 'srv_restau_vintage_manual', name: 'Restauration mouvement manuel (patrimoine)', priceHT: 2200.00, uuid: 'q7-1', type: 'labor' },
+        { id: 'srv_cadran_stab', name: 'Stabilisation cadran ancien (conservation)', priceHT: 950.00, uuid: 'q7-2', type: 'labor' },
+        { id: 'fab_crown_cab', name: 'Fabrication couronne conforme + cabochon', priceHT: 680.00, uuid: 'q7-3', type: 'part' },
+        { id: 'rep_glass', name: 'Remplacement verre (forme spécifique)', priceHT: 240.00, uuid: 'q7-4', type: 'part' }
+      ],
+      optional: []
+    },
+    internalQuoteMatrix: { srv_restau_vintage_manual: { oblig: true, customPrice: 2200.00 } },
+    checklists: { visual: { 'Carrure': 2, 'Cadran': 0, 'Aiguilles': 2 }, functional: { 'Réglage': 1 } },
+    receivedItems: { hasEcrin: false, hasCertAuth: false, docsVerified: true },
+    finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
+    invoiceDiscount: 0,
+    invoiceShipping: 150,
+    powerReserve: 33,
+    inspectionMeasures: {
+      ch: { rate: -180, amp: 140 },
+      cb: { rate: -195, amp: 135 },
+      '3h': { rate: -220, amp: 128 },
+      '9h': { rate: -210, amp: 130 },
+      '12h': { rate: -235, amp: 125 },
+      '6h': { rate: -205, amp: 132 }
+    },
+    finalMeasures: {
+      ch: { rate: 8, amp: 255 },
+      cb: { rate: 6, amp: 248 },
+      '3h': { rate: 10, amp: 220 },
+      '9h': { rate: 9, amp: 218 },
+      '12h': { rate: 12, amp: 212 },
+      '6h': { rate: 7, amp: 225 }
+    },
+    operations: [
+      { id: 'op71', opNumber: 10, department: 'Atelier Technique', description: 'Démontage + nettoyage + contrôle usures', stdTime: '4.00', status: 'Terminé' },
+      { id: 'op72', opNumber: 20, department: 'Atelier Cadran', description: 'Consolidation cadran (micro-fissures) + retouches conservatoires', stdTime: '6.00', status: 'En cours' },
+      { id: 'op73', opNumber: 30, department: 'Atelier Habillage', description: 'Couronne conforme + cabochon + remplacement verre', stdTime: '2.50', status: 'À faire' },
+      { id: 'op74', opNumber: 40, department: 'Contrôle Qualité', description: 'Réglage + contrôle marche 48h', stdTime: '1.50', status: 'À faire' }
+    ]
+  },
+
+  // --- CAS 8 : IWC PORTUGIESER (1939) ---
+  {
+    id: 'RO-IWC-PORT-1939',
+    client: 'M. K. (Zürich) - héritage',
+    model: 'IWC Portugieser Réf. 325 (calibre 74)',
+    serial: 'IWC-74-1939-602',
+    statusStep: 3, // Devis validé
+    depositDate: '2024-10-07',
+    saleDate: '1940-03-05',
+    productionDate: '1939-11-19',
+    coverageType: 'paid',
+    clientAddress: 'Rennweg 22',
+    clientZip: '8001',
+    clientCity: 'Zürich',
+    customerRequestText: "Restauration complète pour porter occasionnellement. Conserver le cadran (patine), pas de polissage agressif. Remplacer uniquement les pièces mécaniques nécessaires.",
+    issue: "Marche très irrégulière, arrêt aléatoire. Axe de balancier suspect (chocs anciens). Pivots usés, jeu important. Couronne d’époque très fatiguée. Cadran patiné mais stable.",
+    workshopNotes: "Service complet. Remplacement axe balancier si confirmé. Reprise pivotage sur platine si nécessaire. Couronne remplacée par pièce conforme. Contrôle de précision raisonnable pour calibre ancien.",
+    quote: {
+      mandatory: [
+        { id: 'srv_restau_pocket_cal', name: 'Restauration calibre ancien type poche (IWC 74)', priceHT: 2800.00, uuid: 'q8-1', type: 'labor' },
+        { id: 'rep_balance_staff', name: 'Refabrication axe de balancier (si nécessaire)', priceHT: 520.00, uuid: 'q8-2', type: 'part' },
+        { id: 'rep_crown_vintage', name: 'Couronne conforme + étanchéité minimale', priceHT: 260.00, uuid: 'q8-3', type: 'part' }
+      ],
+      optional: [
+        { id: 'opt_hands_refinish', name: 'Nettoyage/aiguille (oxydation légère) sans remplacement', priceHT: 180.00, uuid: 'q8-opt-1', type: 'labor' }
+      ]
+    },
+    internalQuoteMatrix: { srv_restau_pocket_cal: { oblig: true, customPrice: 2800.00 } },
+    checklists: { visual: { 'Carrure': 3, 'Cadran': 1, 'Aiguilles': 2 }, functional: { 'Réglage': 1 } },
+    receivedItems: { hasEcrin: true, hasCertAuth: false, docsVerified: true },
+    finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
+    invoiceDiscount: 0,
+    invoiceShipping: 0,
+    powerReserve: 40,
+    inspectionMeasures: {
+      ch: { rate: -240, amp: 120 },
+      cb: { rate: -255, amp: 118 },
+      '3h': { rate: -270, amp: 112 },
+      '9h': { rate: -265, amp: 114 },
+      '12h': { rate: -290, amp: 110 },
+      '6h': { rate: -260, amp: 115 }
+    },
+    finalMeasures: {
+      ch: { rate: 12, amp: 240 },
+      cb: { rate: 10, amp: 235 },
+      '3h': { rate: 15, amp: 210 },
+      '9h': { rate: 14, amp: 208 },
+      '12h': { rate: 18, amp: 202 },
+      '6h': { rate: 11, amp: 215 }
+    },
+    operations: [
+      { id: 'op81', opNumber: 10, department: 'Atelier Technique', description: 'Expertise + contrôle axe balancier + pivotage', stdTime: '3.00', status: 'Terminé' },
+      { id: 'op82', opNumber: 20, department: 'Atelier Technique', description: 'Rhabillage complet + refabrication/ajustage axe', stdTime: '8.00', status: 'En cours' },
+      { id: 'op83', opNumber: 30, department: 'Atelier Habillage', description: 'Couronne + joints + contrôle fermeture', stdTime: '1.20', status: 'À faire' }
+    ]
+  },
+
+  // --- CAS 9 : BREGUET TYPE XX (1955) ---
+  {
+    id: 'RO-BRG-TYPEXX-1955',
+    client: 'Collection Privée (Monaco)',
+    model: 'Breguet Type XX (flyback) - militaire',
+    serial: 'BRG-20-1955-219',
+    statusStep: 4, // En atelier
+    depositDate: '2020-09-14',
+    saleDate: '1956-06-11',
+    productionDate: '1955-12-03',
+    coverageType: 'paid',
+    clientAddress: 'Boulevard des Moulins 12',
+    clientZip: '98000',
+    clientCity: 'Monaco',
+    customerRequestText: "Restauration chrono flyback (fonction impérative) + sécurisation luminescent ancien. Conserver l’esprit d’époque, pas de boîtier miroir.",
+    issue: "Flyback ne réinitialise pas correctement (retour incomplet). Poussoirs irréguliers. Huiles sèches. Traces de poussière + anciennes projections. Lume ancien instable (risque particules).",
+    workshopNotes: "Restauration chrono + mécanisme flyback. Sécurisation du luminescent (fixatif conservatoire). Remplacement joints. Réglage et contrôle longues durées.",
+    quote: {
+      mandatory: [
+        { id: 'srv_restau_flyback', name: 'Restauration chronographe flyback (vintage)', priceHT: 3600.00, uuid: 'q9-1', type: 'labor' },
+        { id: 'srv_lume_stabilize', name: 'Stabilisation luminescent ancien (conservatoire)', priceHT: 480.00, uuid: 'q9-2', type: 'labor' },
+        { id: 'rep_gaskets', name: 'Remplacement joints + contrôle fermeture', priceHT: 140.00, uuid: 'q9-3', type: 'part' }
+      ],
+      optional: [
+        { id: 'opt_crystal', name: 'Remplacement verre (si micro-fissures)', priceHT: 190.00, uuid: 'q9-opt-1', type: 'part' }
+      ]
+    },
+    internalQuoteMatrix: { srv_restau_flyback: { oblig: true, customPrice: 3600.00 } },
+    checklists: { visual: { 'Carrure': 2, 'Cadran': 2, 'Aiguilles': 2 }, functional: { 'Chronographe': 0, 'Réglage': 2, 'Étanchéité': 3 } },
+    receivedItems: { hasEcrin: false, hasCertAuth: false, docsVerified: true },
+    finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
+    invoiceDiscount: 0,
+    invoiceShipping: 200,
+    powerReserve: 38,
+    inspectionMeasures: {
+      ch: { rate: -110, amp: 170 },
+      cb: { rate: -125, amp: 165 },
+      '3h': { rate: -150, amp: 155 },
+      '9h': { rate: -145, amp: 152 },
+      '12h': { rate: -165, amp: 148 },
+      '6h': { rate: -138, amp: 158 }
+    },
+    finalMeasures: {
+      ch: { rate: 5, amp: 275 },
+      cb: { rate: 4, amp: 270 },
+      '3h': { rate: 7, amp: 242 },
+      '9h': { rate: 8, amp: 240 },
+      '12h': { rate: 9, amp: 235 },
+      '6h': { rate: 4, amp: 248 }
+    },
+    operations: [
+      { id: 'op91', opNumber: 10, department: 'Atelier Technique', description: 'Démontage chrono + analyse flyback (marteaux/embrayage)', stdTime: '4.00', status: 'Terminé' },
+      { id: 'op92', opNumber: 20, department: 'Atelier Technique', description: 'Nettoyage + remplacement pièces usées + lubrification', stdTime: '6.00', status: 'En cours' },
+      { id: 'op93', opNumber: 30, department: 'Atelier Cadran', description: 'Fixation conservatoire luminescent ancien', stdTime: '2.00', status: 'À faire' },
+      { id: 'op94', opNumber: 40, department: 'Contrôle Qualité', description: 'Réglage + tests chrono 72h', stdTime: '2.00', status: 'À faire' }
+    ]
+  },
+
+  // --- CAS 10 : BLANCPAIN FIFTY FATHOMS (1960) ---
+  {
+    id: 'RO-BP-FF-1960',
+    client: 'Collection Privée (Milan)',
+    model: 'Blancpain Fifty Fathoms (vintage) - plongée',
+    serial: 'BP-FF-60-784',
+    statusStep: 6, // En livraison
+    depositDate: '2019-04-12',
+    saleDate: '1961-08-30',
+    productionDate: '1960-02-17',
+    coverageType: 'paid',
+    clientAddress: 'Corso Venezia 14',
+    clientZip: '20121',
+    clientCity: 'Milano',
+    customerRequestText: "Restauration fonctionnelle + sécurisation lunette. Conserver cadran d’origine et patine. Étanchéité minimale uniquement.",
+    issue: "Montre irrégulière, arrêt la nuit. Lunette tourne trop librement (cliquet). Oxydation légère sous fond. Ressort barillet fatigué.",
+    workshopNotes: "Service complet. Remplacement ressort barillet. Réfection système cliquet lunette. Joints + tests faibles. Conservation esthétique.",
+    quote: {
+      mandatory: [
+        { id: 'srv_rev_auto_vintage', name: 'Révision complète automatique vintage', priceHT: 1600.00, uuid: 'q10-1', type: 'labor' },
+        { id: 'rep_mainspring', name: 'Remplacement ressort barillet', priceHT: 240.00, uuid: 'q10-2', type: 'part' },
+        { id: 'rep_bezel_click', name: 'Réfection système cliquet lunette', priceHT: 320.00, uuid: 'q10-3', type: 'labor' }
+      ],
+      optional: [
+        { id: 'opt_crystal_polish', name: 'Polissage verre (si acrylique)', priceHT: 90.00, uuid: 'q10-opt-1', type: 'labor' }
+      ]
+    },
+    internalQuoteMatrix: { srv_rev_auto_vintage: { oblig: true, customPrice: 1600.00 } },
+    checklists: { visual: { 'Carrure': 2, 'Cadran': 1, 'Lunette': 0 }, functional: { 'Réglage': 2, 'Étanchéité': 3 } },
+    receivedItems: { hasEcrin: false, hasCertAuth: false, docsVerified: true },
+    finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
+    invoiceDiscount: 0,
+    invoiceShipping: 130,
+    powerReserve: 46,
+    inspectionMeasures: {
+      ch: { rate: -95, amp: 160 },
+      cb: { rate: -105, amp: 155 },
+      '3h': { rate: -125, amp: 148 },
+      '9h': { rate: -118, amp: 150 },
+      '12h': { rate: -135, amp: 145 },
+      '6h': { rate: -110, amp: 152 }
+    },
+    finalMeasures: {
+      ch: { rate: 4, amp: 280 },
+      cb: { rate: 3, amp: 272 },
+      '3h': { rate: 6, amp: 240 },
+      '9h': { rate: 7, amp: 238 },
+      '12h': { rate: 8, amp: 232 },
+      '6h': { rate: 3, amp: 245 }
+    },
+    operations: [
+      { id: 'op101', opNumber: 10, department: 'Atelier Technique', description: 'Service complet + nettoyage + remplacement barillet', stdTime: '5.50', status: 'Terminé' },
+      { id: 'op102', opNumber: 20, department: 'Atelier Habillage', description: 'Réfection cliquet lunette + joints', stdTime: '2.00', status: 'Terminé' },
+      { id: 'op103', opNumber: 30, department: 'Contrôle Qualité', description: 'Réglage + test marche + contrôle étanchéité faible', stdTime: '1.50', status: 'Terminé' }
+    ]
+  },
+
+  // --- CAS 11 : ZENITH EL PRIMERO A386 (1969) ---
+  {
+    id: 'RO-ZEN-A386-1969',
+    client: 'Marchand (Genève - dépôt vente)',
+    model: 'Zenith El Primero A386 (chronographe)',
+    serial: 'ZEN-A386-69-041',
+    statusStep: 5, // Contrôle final
+    depositDate: '2023-09-04',
+    saleDate: '1970-02-19',
+    productionDate: '1969-06-28',
+    coverageType: 'paid',
+    clientAddress: 'Rue du Rhône 32',
+    clientZip: '1204',
+    clientCity: 'Genève',
+    customerRequestText: "Restauration complète avant mise en vente. Chronographe doit être parfaitement fonctionnel. Boîtier à rafraîchir très légèrement (récupérer alternance brossé/poli sans arrondir).",
+    issue: "Chrono fonctionne mais reset décalé. Rotor avec jeu (bruit). Marge de marche importante selon positions. Boîtier trop poli précédemment (angles mous).",
+    workshopNotes: "Révision complète El Primero. Remplacement roulement rotor + réglage chrono. Reprise finitions boîtier minimaliste (satinage directionnel + polissage ciblé).",
+    quote: {
+      mandatory: [
+        { id: 'srv_elprimero_full', name: 'Révision complète El Primero + chrono', priceHT: 1950.00, uuid: 'q11-1', type: 'labor' },
+        { id: 'rep_rotor_bearing', name: 'Remplacement roulement rotor', priceHT: 260.00, uuid: 'q11-2', type: 'part' },
+        { id: 'srv_case_refinish_light', name: 'Rafraîchissement boîtier léger (respect angles)', priceHT: 380.00, uuid: 'q11-3', type: 'labor' }
+      ],
+      optional: [
+        { id: 'opt_crown', name: 'Remplacement couronne (si non conforme)', priceHT: 210.00, uuid: 'q11-opt-1', type: 'part' }
+      ]
+    },
+    internalQuoteMatrix: { srv_elprimero_full: { oblig: true, customPrice: 1950.00 } },
+    checklists: { visual: { 'Carrure': 3, 'Cadran': 2, 'Aiguilles': 2 }, functional: { 'Chronographe': 2, 'Réglage': 2, 'Étanchéité': 3 } },
+    receivedItems: { hasEcrin: false, hasCertAuth: false, docsVerified: true },
+    finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
+    invoiceDiscount: 0,
+    invoiceShipping: 0,
+    powerReserve: 50,
+    inspectionMeasures: {
+      ch: { rate: -28, amp: 205 },
+      cb: { rate: -35, amp: 200 },
+      '3h': { rate: -55, amp: 188 },
+      '9h': { rate: -50, amp: 190 },
+      '12h': { rate: -60, amp: 184 },
+      '6h': { rate: -45, amp: 192 }
+    },
+    finalMeasures: {
+      ch: { rate: 3, amp: 295 },
+      cb: { rate: 2, amp: 290 },
+      '3h': { rate: 4, amp: 262 },
+      '9h': { rate: 5, amp: 260 },
+      '12h': { rate: 6, amp: 255 },
+      '6h': { rate: 2, amp: 268 }
+    },
+    operations: [
+      { id: 'op111', opNumber: 10, department: 'Atelier Technique', description: 'Démontage + diagnostic chrono + rotor', stdTime: '2.50', status: 'Terminé' },
+      { id: 'op112', opNumber: 20, department: 'Atelier Technique', description: 'Nettoyage + remplacement roulement rotor + réglage', stdTime: '5.50', status: 'Terminé' },
+      { id: 'op113', opNumber: 30, department: 'Atelier Habillage', description: 'Rafraîchissement boîtier léger (satinage/poli ciblé)', stdTime: '2.20', status: 'En cours' },
+      { id: 'op114', opNumber: 40, department: 'Contrôle Qualité', description: 'Contrôle marche + test chrono', stdTime: '1.50', status: 'À faire' }
+    ]
+  },
+
+  // --- CAS 12 : PATEK PHILIPPE CALATRAVA 2526 (1955) ---
+  {
+    id: 'RO-PP-2526-1955',
+    client: 'Collection Privée (New York via boutique)',
+    model: 'Patek Philippe Calatrava Ref. 2526 (cadran émail)',
+    serial: 'PP-2526-114XXX',
+    statusStep: 4, // En atelier
+    depositDate: '2018-01-22',
+    saleDate: '1956-05-10',
+    productionDate: '1955-08-01',
+    coverageType: 'paid',
+    clientAddress: 'Madison Ave 677',
+    clientZip: '10065',
+    clientCity: 'New York',
+    customerRequestText: "Restauration technique complète. Le cadran émail doit être préservé (pas de remplacement si possible). Demande d’un rapport détaillé + conservation des pièces remplacées.",
+    issue: "Montre fonctionne mais marche instable. Rotor micro-oscillant avec frottements. Traces d’humidité anciennes sur platine. Couronne usée. Cadran émail avec micro-cheveux (stable).",
+    workshopNotes: "Service complet calibre. Correction frottement rotor et remplacement pièces d’usure. Couronne neuve conforme. Cadran émail conservé, nettoyage doux uniquement. Pièces remplacées remises en sachet.",
+    quote: {
+      mandatory: [
+        { id: 'srv_pp_restau_auto', name: 'Restauration complète automatique (vintage)', priceHT: 4800.00, uuid: 'q12-1', type: 'labor' },
+        { id: 'rep_crown_pp', name: 'Couronne conforme + tube (si nécessaire)', priceHT: 680.00, uuid: 'q12-2', type: 'part' },
+        { id: 'srv_report_photo', name: 'Rapport détaillé + photos étapes clés', priceHT: 450.00, uuid: 'q12-3', type: 'labor' }
+      ],
+      optional: [
+        { id: 'opt_case_clean', name: 'Nettoyage boîtier sans polissage (conservatoire)', priceHT: 220.00, uuid: 'q12-opt-1', type: 'labor' }
+      ]
+    },
+    internalQuoteMatrix: { srv_pp_restau_auto: { oblig: true, customPrice: 4800.00 } },
+    checklists: { visual: { 'Carrure': 2, 'Cadran': 1, 'Aiguilles': 2 }, functional: { 'Réglage': 2, 'Étanchéité': 3 } },
+    receivedItems: { hasEcrin: true, hasCertAuth: true, docsVerified: true },
+    finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
+    invoiceDiscount: 0,
+    invoiceShipping: 250,
+    powerReserve: 44,
+    inspectionMeasures: {
+      ch: { rate: -55, amp: 185 },
+      cb: { rate: -60, amp: 180 },
+      '3h': { rate: -78, amp: 172 },
+      '9h': { rate: -70, amp: 174 },
+      '12h': { rate: -88, amp: 168 },
+      '6h': { rate: -65, amp: 176 }
+    },
+    finalMeasures: {
+      ch: { rate: 2, amp: 295 },
+      cb: { rate: 1, amp: 290 },
+      '3h': { rate: 3, amp: 258 },
+      '9h': { rate: 4, amp: 255 },
+      '12h': { rate: 5, amp: 250 },
+      '6h': { rate: 1, amp: 265 }
+    },
+    operations: [
+      { id: 'op121', opNumber: 10, department: 'Atelier Technique', description: 'Diagnostic + démontage + contrôle rotor micro-oscillant', stdTime: '4.00', status: 'Terminé' },
+      { id: 'op122', opNumber: 20, department: 'Atelier Technique', description: 'Nettoyage + rhabillage complet + corrections frottements', stdTime: '10.00', status: 'En cours' },
+      { id: 'op123', opNumber: 30, department: 'Atelier Habillage', description: 'Couronne conforme + joints', stdTime: '1.50', status: 'À faire' },
+      { id: 'op124', opNumber: 40, department: 'Documentation', description: 'Rapport + photos + mise sous sachet pièces remplacées', stdTime: '2.00', status: 'À faire' }
+    ]
+  },
+
+  // --- CAS 13 : AUDEMARS PIGUET ROYAL OAK 5402 (1972) ---
+  {
+    id: 'RO-AP-5402-1972',
+    client: 'Collection Privée (Londres)',
+    model: 'Audemars Piguet Royal Oak “A-Series” Ref. 5402',
+    serial: 'AP-5402-A-072',
+    statusStep: 7, // Rapport généré
+    depositDate: '2021-08-30',
+    saleDate: '1973-04-18',
+    productionDate: '1972-12-02',
+    coverageType: 'paid',
+    clientAddress: 'Bond Street 41',
+    clientZip: 'W1S',
+    clientCity: 'London',
+    customerRequestText: "Restauration complète + reprise finitions Genta (poli/brossé) très contrôlée. Remplacement cadran si instable uniquement. Étanchéité minimale.",
+    issue: "Cadran micro-écaillage. Étanchéité nulle. Réserve de marche faible. Boîtier/bracelet rayés avec angles estompés. Rotor avec jeu.",
+    workshopNotes: "Révision complète + remplacement roulement rotor. Cadran remplacé par stock conforme (l’ancien conservé). Reprise finitions brossé/poli directionnelles (atelier spécialisé). Joints + tests faibles.",
+    quote: {
+      mandatory: [
+        { id: 'srv_ap_vintage', name: 'Restauration complète vintage (calibre 2121)', priceHT: 5200.00, uuid: 'q13-1', type: 'labor' },
+        { id: 'rep_rotor_bearing_ap', name: 'Remplacement roulement rotor', priceHT: 340.00, uuid: 'q13-2', type: 'part' },
+        { id: 'rep_dial_ap', name: 'Cadran conforme (stock / refabrication)', priceHT: 2100.00, uuid: 'q13-3', type: 'part' },
+        { id: 'srv_finishing_ap', name: 'Reprise finitions boîtier/bracelet (poli/brossé)', priceHT: 1600.00, uuid: 'q13-4', type: 'labor' }
+      ],
+      optional: []
+    },
+    internalQuoteMatrix: { srv_ap_vintage: { oblig: true, customPrice: 5200.00 } },
+    checklists: { visual: { 'Carrure': 5, 'Bracelet': 4, 'Cadran': 0 }, functional: { 'Réglage': 2, 'Étanchéité': 3 } },
+    receivedItems: { hasEcrin: false, hasCertAuth: false, docsVerified: true },
+    finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
+    invoiceDiscount: 0,
+    invoiceShipping: 180,
+    powerReserve: 40,
+    inspectionMeasures: {
+      ch: { rate: -15, amp: 190 },
+      cb: { rate: -18, amp: 185 },
+      '3h': { rate: -25, amp: 175 },
+      '9h': { rate: -22, amp: 178 },
+      '12h': { rate: -30, amp: 172 },
+      '6h': { rate: -20, amp: 180 }
+    },
+    finalMeasures: {
+      ch: { rate: 4, amp: 285 },
+      cb: { rate: 3, amp: 280 },
+      '3h': { rate: 6, amp: 250 },
+      '9h': { rate: 7, amp: 248 },
+      '12h': { rate: 8, amp: 242 },
+      '6h': { rate: 3, amp: 255 }
+    },
+    operations: [
+      { id: 'op131', opNumber: 10, department: 'Atelier Technique', description: 'Démontage + nettoyage ultrasons + contrôle rotor', stdTime: '4.00', status: 'Terminé' },
+      { id: 'op132', opNumber: 20, department: 'Atelier Technique', description: 'Rhabillage + remplacement roulement + réglage', stdTime: '6.50', status: 'Terminé' },
+      { id: 'op133', opNumber: 30, department: 'Atelier Habillage', description: 'Remplacement cadran + joints', stdTime: '2.00', status: 'Terminé' },
+      { id: 'op134', opNumber: 40, department: 'Atelier Polissage', description: 'Finitions Genta (poli/brossé directionnels)', stdTime: '6.00', status: 'Terminé' }
+    ]
+  },
+
+  // =========================================================
+  // =============== 5 CAS DE RÉPARATION SIMPLE ===============
+  // =========================================================
+
+  // --- CAS 14 : TISSOT PRX QUARTZ (Pile + joints) ---
+  {
+    id: 'RS-TIS-PRX-2022',
+    client: 'Mme C. (Annecy)',
+    model: 'Tissot PRX Quartz 40',
+    serial: 'TIS-PRX-2022-771',
+    statusStep: 8, // Dossier clôturé
+    depositDate: '2025-01-10',
+    saleDate: '2022-07-01',
+    productionDate: '2022-05-20',
+    coverageType: 'paid',
+    clientAddress: 'Avenue d’Albigny 6',
+    clientZip: '74000',
+    clientCity: 'Annecy',
+    customerRequestText: "Changement pile + contrôle étanchéité (usage quotidien).",
+    issue: "Montre arrêtée. Joint fond sec. Léger voile sous verre après forte humidité (sans corrosion visible).",
+    workshopNotes: "Remplacement pile + joint fond. Séchage contrôlé. Test étanchéité basique. Nettoyage extérieur.",
+    quote: {
+      mandatory: [
+        { id: 'srv_battery', name: 'Remplacement pile', priceHT: 35.00, uuid: 'q14-1', type: 'labor' },
+        { id: 'rep_gasket_caseback', name: 'Joint fond', priceHT: 12.00, uuid: 'q14-2', type: 'part' },
+        { id: 'srv_water_test_basic', name: 'Test étanchéité basique', priceHT: 18.00, uuid: 'q14-3', type: 'labor' }
+      ],
+      optional: []
+    },
+    internalQuoteMatrix: { srv_battery: { oblig: true, customPrice: 35.00 } },
+    checklists: { visual: { 'Carrure': 3, 'Cadran': 4 }, functional: { 'Réglage': 4, 'Étanchéité': 3 } },
+    receivedItems: { hasEcrin: false, hasCertAuth: false, docsVerified: true },
+    finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
+    invoiceDiscount: 0,
+    invoiceShipping: 0,
+    powerReserve: 0,
+    inspectionMeasures: {
+      ch: { rate: 0, amp: 0 },
+      cb: { rate: 0, amp: 0 },
+      '3h': { rate: 0, amp: 0 },
+      '9h': { rate: 0, amp: 0 },
+      '12h': { rate: 0, amp: 0 },
+      '6h': { rate: 0, amp: 0 }
+    },
+    finalMeasures: {
+      ch: { rate: 0, amp: 0 },
+      cb: { rate: 0, amp: 0 },
+      '3h': { rate: 0, amp: 0 },
+      '9h': { rate: 0, amp: 0 },
+      '12h': { rate: 0, amp: 0 },
+      '6h': { rate: 0, amp: 0 }
+    },
+    operations: [
+      { id: 'op141', opNumber: 10, department: 'Atelier SAV', description: 'Remplacement pile + joint fond', stdTime: '0.30', status: 'Terminé' },
+      { id: 'op142', opNumber: 20, department: 'Contrôle Qualité', description: 'Test étanchéité basique + contrôle fonctionnel', stdTime: '0.20', status: 'Terminé' }
+    ]
+  },
+
+  // --- CAS 15 : SEIKO SKX007 (ressort cliquet lunette) ---
+  {
+    id: 'RS-SEI-SKX007',
+    client: 'M. L. (Genève)',
+    model: 'Seiko Diver SKX007',
+    serial: 'SEI-SKX-007-209',
+    statusStep: 8,
+    depositDate: '2025-02-03',
+    saleDate: '2016-05-12',
+    productionDate: '2016-03-01',
+    coverageType: 'paid',
+    clientAddress: 'Route de Chêne 21',
+    clientZip: '1208',
+    clientCity: 'Genève',
+    customerRequestText: "Lunette tourne trop librement + cliquet “mou”. Réparer sans révision complète.",
+    issue: "Ressort cliquet usé/déformé. Accumulation de saletés sous lunette.",
+    workshopNotes: "Démontage lunette, nettoyage, remplacement ressort cliquet, graissage adapté.",
+    quote: {
+      mandatory: [
+        { id: 'rep_bezel_spring', name: 'Remplacement ressort cliquet lunette', priceHT: 18.00, uuid: 'q15-1', type: 'part' },
+        { id: 'srv_bezel_service', name: 'Démontage/Nettoyage/Graissage lunette', priceHT: 65.00, uuid: 'q15-2', type: 'labor' }
+      ],
+      optional: []
+    },
+    internalQuoteMatrix: { srv_bezel_service: { oblig: true, customPrice: 65.00 } },
+    checklists: { visual: { 'Carrure': 3, 'Lunette': 1 }, functional: { 'Réglage': 3, 'Étanchéité': 3 } },
+    receivedItems: { hasEcrin: false, hasCertAuth: false, docsVerified: true },
+    finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
+    invoiceDiscount: 0,
+    invoiceShipping: 0,
+    powerReserve: 38,
+    inspectionMeasures: {
+      ch: { rate: -12, amp: 240 },
+      cb: { rate: -15, amp: 235 },
+      '3h': { rate: -20, amp: 225 },
+      '9h': { rate: -18, amp: 228 },
+      '12h': { rate: -22, amp: 220 },
+      '6h': { rate: -16, amp: 232 }
+    },
+    finalMeasures: {
+      ch: { rate: -10, amp: 245 },
+      cb: { rate: -12, amp: 240 },
+      '3h': { rate: -18, amp: 230 },
+      '9h': { rate: -15, amp: 232 },
+      '12h': { rate: -20, amp: 225 },
+      '6h': { rate: -12, amp: 235 }
+    },
+    operations: [
+      { id: 'op151', opNumber: 10, department: 'Atelier SAV', description: 'Démontage lunette + nettoyage', stdTime: '0.40', status: 'Terminé' },
+      { id: 'op152', opNumber: 20, department: 'Atelier SAV', description: 'Remplacement ressort cliquet + graissage', stdTime: '0.30', status: 'Terminé' }
+    ]
+  },
+
+  // --- CAS 16 : TAG HEUER CARRERA (couronne/tige) ---
+  {
+    id: 'RS-TAG-CARRERA-2019',
+    client: 'M. P. (Lyon)',
+    model: 'TAG Heuer Carrera Calibre 5',
+    serial: 'TAG-CAR-2019-114',
+    statusStep: 8,
+    depositDate: '2025-03-11',
+    saleDate: '2019-10-02',
+    productionDate: '2019-08-14',
+    coverageType: 'paid',
+    clientAddress: 'Rue de la République 88',
+    clientZip: '69002',
+    clientCity: 'Lyon',
+    customerRequestText: "Couronne tourne dans le vide, impossible de régler l’heure.",
+    issue: "Tige de remontoir usée + filetage couronne endommagé. Risque de casse lors manipulation.",
+    workshopNotes: "Remplacement tige + couronne, contrôle mise à l’heure, test fonctionnel.",
+    quote: {
+      mandatory: [
+        { id: 'rep_stem', name: 'Remplacement tige de remontoir', priceHT: 55.00, uuid: 'q16-1', type: 'part' },
+        { id: 'rep_crown', name: 'Remplacement couronne', priceHT: 95.00, uuid: 'q16-2', type: 'part' },
+        { id: 'srv_setting_check', name: 'Montage + contrôle réglage', priceHT: 60.00, uuid: 'q16-3', type: 'labor' }
+      ],
+      optional: []
+    },
+    internalQuoteMatrix: { srv_setting_check: { oblig: true, customPrice: 60.00 } },
+    checklists: { visual: { 'Carrure': 4, 'Cadran': 4 }, functional: { 'Réglage': 1 } },
+    receivedItems: { hasEcrin: false, hasCertAuth: false, docsVerified: true },
+    finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
+    invoiceDiscount: 0,
+    invoiceShipping: 0,
+    powerReserve: 38,
+    inspectionMeasures: {
+      ch: { rate: 6, amp: 255 },
+      cb: { rate: 7, amp: 250 },
+      '3h': { rate: 9, amp: 240 },
+      '9h': { rate: 8, amp: 242 },
+      '12h': { rate: 10, amp: 238 },
+      '6h': { rate: 7, amp: 245 }
+    },
+    finalMeasures: {
+      ch: { rate: 6, amp: 255 },
+      cb: { rate: 7, amp: 250 },
+      '3h': { rate: 9, amp: 240 },
+      '9h': { rate: 8, amp: 242 },
+      '12h': { rate: 10, amp: 238 },
+      '6h': { rate: 7, amp: 245 }
+    },
+    operations: [
+      { id: 'op161', opNumber: 10, department: 'Atelier SAV', description: 'Dépose couronne/tige + remplacement', stdTime: '0.60', status: 'Terminé' },
+      { id: 'op162', opNumber: 20, department: 'Contrôle Qualité', description: 'Contrôle réglage + test fonctionnel', stdTime: '0.20', status: 'Terminé' }
+    ]
+  },
+
+  // --- CAS 17 : ROLEX DATEJUST (réglage + contrôle étanchéité) ---
+  {
+    id: 'RS-RX-DJ-16234',
+    client: 'M. S. (Genève)',
+    model: 'Rolex Datejust 36 Ref. 16234',
+    serial: 'RX-DJ-16234-U96',
+    statusStep: 8,
+    depositDate: '2025-04-22',
+    saleDate: '1998-06-05',
+    productionDate: '1998-02-19',
+    coverageType: 'paid',
+    clientAddress: 'Rue de Carouge 33',
+    clientZip: '1205',
+    clientCity: 'Genève',
+    customerRequestText: "Montre avance fortement + contrôle étanchéité avant vacances.",
+    issue: "Dérive importante. Joints anciens. Couronne légèrement sèche. Pas de casse visible.",
+    workshopNotes: "Régulation simple + remplacement joints couronne/fond + test étanchéité.",
+    quote: {
+      mandatory: [
+        { id: 'srv_regulation', name: 'Régulation simple (sans révision complète)', priceHT: 180.00, uuid: 'q17-1', type: 'labor' },
+        { id: 'rep_seals', name: 'Remplacement joints (fond + couronne)', priceHT: 90.00, uuid: 'q17-2', type: 'part' },
+        { id: 'srv_pressure', name: 'Test étanchéité', priceHT: 60.00, uuid: 'q17-3', type: 'labor' }
+      ],
+      optional: []
+    },
+    internalQuoteMatrix: { srv_regulation: { oblig: true, customPrice: 180.00 } },
+    checklists: { visual: { 'Carrure': 4, 'Cadran': 4, 'Bracelet': 3 }, functional: { 'Réglage': 1, 'Étanchéité': 2 } },
+    receivedItems: { hasEcrin: false, hasCertAuth: false, docsVerified: true },
+    finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
+    invoiceDiscount: 0,
+    invoiceShipping: 0,
+    powerReserve: 48,
+    inspectionMeasures: {
+      ch: { rate: 38, amp: 265 },
+      cb: { rate: 42, amp: 260 },
+      '3h': { rate: 55, amp: 248 },
+      '9h': { rate: 50, amp: 250 },
+      '12h': { rate: 62, amp: 242 },
+      '6h': { rate: 45, amp: 252 }
+    },
+    finalMeasures: {
+      ch: { rate: 6, amp: 280 },
+      cb: { rate: 5, amp: 275 },
+      '3h': { rate: 7, amp: 252 },
+      '9h': { rate: 8, amp: 248 },
+      '12h': { rate: 10, amp: 245 },
+      '6h': { rate: 5, amp: 255 }
+    },
+    operations: [
+      { id: 'op171', opNumber: 10, department: 'Atelier SAV', description: 'Régulation simple + contrôle marche', stdTime: '0.80', status: 'Terminé' },
+      { id: 'op172', opNumber: 20, department: 'Atelier SAV', description: 'Remplacement joints + test étanchéité', stdTime: '0.50', status: 'Terminé' }
+    ]
+  },
+
+  // --- CAS 18 : CARTIER SANTOS (bracelet + boucle) ---
+  {
+    id: 'RS-CAR-SANTOS-2020',
+    client: 'Mme D. (Paris)',
+    model: 'Cartier Santos (automatique)',
+    serial: 'CAR-SAN-2020-550',
+    statusStep: 8,
+    depositDate: '2025-05-19',
+    saleDate: '2020-11-10',
+    productionDate: '2020-09-26',
+    coverageType: 'paid',
+    clientAddress: 'Boulevard Saint-Germain 102',
+    clientZip: '75006',
+    clientCity: 'Paris',
+    customerRequestText: "Changement bracelet cuir + contrôle fermeture boucle. Nettoyage extérieur.",
+    issue: "Bracelet cuir fendu, usure avancée. Boucle légèrement desserrée.",
+    workshopNotes: "Remplacement bracelet + contrôle/serrage boucle. Nettoyage boîtier sans polissage.",
+    quote: {
+      mandatory: [
+        { id: 'rep_strap', name: 'Remplacement bracelet cuir (OEM)', priceHT: 220.00, uuid: 'q18-1', type: 'part' },
+        { id: 'srv_buckle_check', name: 'Contrôle + serrage boucle', priceHT: 40.00, uuid: 'q18-2', type: 'labor' }
+      ],
+      optional: [
+        { id: 'opt_clean', name: 'Nettoyage extérieur (microfibre + dégraissage doux)', priceHT: 25.00, uuid: 'q18-opt-1', type: 'labor' }
+      ]
+    },
+    internalQuoteMatrix: { rep_strap: { oblig: true, customPrice: 220.00 } },
+    checklists: { visual: { 'Carrure': 4, 'Bracelet': 1 }, functional: { 'Réglage': 4 } },
+    receivedItems: { hasEcrin: false, hasCertAuth: false, docsVerified: true },
+    finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
+    invoiceDiscount: 0,
+    invoiceShipping: 0,
+    powerReserve: 42,
+    inspectionMeasures: {
+      ch: { rate: 4, amp: 275 },
+      cb: { rate: 3, amp: 270 },
+      '3h': { rate: 6, amp: 255 },
+      '9h': { rate: 5, amp: 258 },
+      '12h': { rate: 7, amp: 250 },
+      '6h': { rate: 3, amp: 260 }
+    },
+    finalMeasures: {
+      ch: { rate: 4, amp: 275 },
+      cb: { rate: 3, amp: 270 },
+      '3h': { rate: 6, amp: 255 },
+      '9h': { rate: 5, amp: 258 },
+      '12h': { rate: 7, amp: 250 },
+      '6h': { rate: 3, amp: 260 }
+    },
+    operations: [
+      { id: 'op181', opNumber: 10, department: 'Atelier SAV', description: 'Remplacement bracelet + contrôle boucle', stdTime: '0.40', status: 'Terminé' },
+      { id: 'op182', opNumber: 20, department: 'Atelier SAV', description: 'Nettoyage extérieur (sans polissage)', stdTime: '0.20', status: 'Terminé' }
+    ]
+  }
+];
 
             const [repairs, setRepairs] = useState(() => {
                 try {
