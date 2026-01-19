@@ -12,8 +12,7 @@
       body { margin: 0; }
     </style>
   </head>
-  <body>Hello</body>
-  <!-- <body>
+  <body>
     <div id="root"></div>
     <script type="text/babel" data-presets="env,react">
       const { useState, useEffect, useContext, createContext } = React;
@@ -136,11 +135,9 @@
 
         // --- CONSTANTS & DATA ---
         const VAT_RATE = 0.081; 
-        const STATUS_STEPS = [\"Demande enregistrÃ©e\", \"PiÃ¨ce rÃ©ceptionnÃ©e\", \"Diagnostic terminÃ©\", \"Devis rÃ©alisÃ©\", \"Accord client\", \"En rÃ©paration\", \"ContrÃ´le & livraison\", \"Rapport gÃ©nÃ©rÃ©\", \"Dossier clÃ´turÃ©\"];
+        const STATUS_STEPS = ["Demande enregistrée", "Pièce réceptionnée", "Diagnostic terminé", "Devis réalisé", "Accord client", "En réparation", "Contrôle & livraison", "Rapport généré", "Dossier clôturé"];
         const COVERAGE_TYPES = [
           { id: 'paid', label: 'Payant (Hors garantie)', icon: DollarSign, color: 'text-slate-600' },
-          { id: 'warranty_sales', label: 'Sous garantie de vente', icon: ShieldCheck, color: 'text-green-600' },
-          { id: 'warranty_repair', label: 'Garantie de rÃ©paration', icon: ShieldCheck, color: 'text-blue-600' },
           { id: 'goodwill', label: 'Geste commercial (Goodwill)', icon: ShieldAlert, color: 'text-amber-600' }
         ];
         const CHECKLIST_ITEMS = {
@@ -148,9 +145,9 @@
           functional: ['RÃ©glage', 'Ã‰tanchÃ©itÃ©', 'Ã‰tat des joints', 'Vis de bracelet', 'Armage / mise Ã  l\\'heure', 'MagnÃ©tisme']
         };
         const FINAL_CONTROL_ITEMS = {
-          identity: [\"ContrÃ´ler les documents remis par le client (Certificat, factureâ€¦)\", \"ContrÃ´ler la rÃ©fÃ©rence montre et conformitÃ© des composants\"],
-          aesthetic: [\"ContrÃ´ler l'esthÃ©tique (lunette, carrure, fond, cornes, fermoir)\", \"ContrÃ´ler vis de fond / orientation / olivette\", \"ContrÃ´ler la propretÃ© emboÃ®tage (poils, poussiÃ¨resâ€¦)\", \"ContrÃ´ler aiguilles / cadran / index / appliques\", \"ContrÃ´ler guichet / disque / dÃ©calque\"],
-          technical: [\"ContrÃ´ler lâ€™Ã©tanchÃ©itÃ©\", \"ContrÃ´ler la marche (prÃ©cision)\", \"ContrÃ´ler le placage de la couronne\", \"ContrÃ´ler le passage des fonctions et tenue de la tige\", \"ContrÃ´ler la friction en mise Ã  lâ€™heure\", \"ContrÃ´ler le stop seconde\", \"ContrÃ´ler le saut de date (minuit +/- tolÃ©rance)\", \"ContrÃ´ler l'alignement des aiguilles (12h, 6h...)\", \"ContrÃ´ler le parallÃ©lisme des aiguilles\", \"ContrÃ´ler le correcteur rapide de quantiÃ¨me\", \"ContrÃ´ler le centrage de la date\", \"ContrÃ´ler le remontage manuel (couronne)\", \"ContrÃ´ler le remontage automatique (masse)\", \"ContrÃ´ler la libertÃ© de rotation de la masse\"]
+          identity: ["Contrôler les documents remis par le client (Certificat, facture...)", "Contrôler la référence montre et conformité des composants"],
+          aesthetic: ["Contrôler l'esthétique (lunette, carrure, fond, cornes, fermoir)", "Contrôler vis de fond / orientation / olivette", "Contrôler la propreté emboîtage (poils, poussières...)", "Contrôler aiguilles / cadran / index / appliques", "Contrôler guichet / disque / décalque"],
+          technical: ["Contrôler l’étanchéité", "Contrôler la marche (précision)", "Contrôler le placage de la couronne", "Contrôler le passage des fonctions et tenue de la tige", "Contrôler la friction en mise à l’heure", "Contrôler le stop seconde", "Contrôler le saut de date (minuit +/- tolérance)", "Contrôler l'alignement des aiguilles (12h, 6h...)", "Contrôler le parallélisme des aiguilles", "Contrôler le correcteur rapide de quantième", "Contrôler le centrage de la date", "Contrôler le remontage manuel (couronne)", "Contrôler le remontage automatique (masse)", "Contrôler la liberté de rotation de la masse"]
         };
         const MEASURE_POSITIONS = [
           { id: 'ch', label: 'Cadran haut (CH)' },
@@ -163,19 +160,11 @@
 
         const PRICING_DB = [
           { id: 'srv_complet', name: 'Service complet', priceHT: 650.00, type: 'package' },
-          { id: 'srv_partiel', name: 'Service partiel', priceHT: 150.00, type: 'labor' },
-          { id: 'srv_ctrl', name: 'ContrÃ´le', priceHT: 50.00, type: 'labor' },
           { id: 'srv_rev_mvt', name: 'RÃ©vision du mouvement', priceHT: 350.00, type: 'labor' },
-          { id: 'srv_reglage', name: 'RÃ©glage de la marche', priceHT: 80.00, type: 'labor' },
           { id: 'srv_demag', name: 'DÃ©magnÃ©tisation', priceHT: 30.00, type: 'labor' },
-          { id: 'srv_etanche', name: 'Test dâ€™Ã©tanchÃ©itÃ©', priceHT: 40.00, type: 'labor' },
           { id: 'srv_restau', name: 'Restauration horlogÃ¨re (montres anciennes / vintage)', priceHT: 1200.00, type: 'labor' },
           { id: 'srv_pile', name: 'Remplacement de pile', priceHT: 25.00, type: 'labor' },
-          { id: 'srv_ctrl_elec', name: 'ContrÃ´le Ã©lectronique', priceHT: 35.00, type: 'labor' },
-          { id: 'srv_pol_boite', name: 'Polissage du boÃ®tier', priceHT: 180.00, type: 'labor' },
           { id: 'srv_pol_brac', name: 'Polissage du bracelet', priceHT: 120.00, type: 'labor' },
-          { id: 'srv_rhab_est', name: 'Rhabillage esthÃ©tique', priceHT: 250.00, type: 'labor' },
-          { id: 'srv_net_boite', name: 'Nettoyage du boÃ®tier', priceHT: 60.00, type: 'labor' },
           { id: 'srv_ajust_brac', name: 'Ajustement du bracelet', priceHT: 30.00, type: 'labor' },
           { id: 'srv_rep_brac', name: 'RÃ©paration de bracelet', priceHT: 90.00, type: 'labor' },
           { id: 'srv_remp_boucle', name: 'Remplacement de boucle / fermoir', priceHT: 20.00, type: 'labor' },
@@ -189,7 +178,6 @@
           { id: 'pm_autre1', name: 'Autre fourniture mouvement', priceHT: 0.00, type: 'part' },
           { id: 'ph_boite_comp', name: 'BoÃ®te complÃ¨te', priceHT: 1200.00, type: 'part' },
           { id: 'ph_fond', name: 'Fond', priceHT: 80.00, type: 'part' },
-          { id: 'ph_lunette', name: 'Lunette', priceHT: 120.00, type: 'part' },
           { id: 'ph_carrure', name: 'Carrure', priceHT: 350.00, type: 'part' },
           { id: 'ph_cadran', name: 'Cadran', priceHT: 250.00, type: 'part' },
           { id: 'ph_cadran_pieds', name: 'Cadran avec pieds', priceHT: 300.00, type: 'part' },
@@ -205,24 +193,18 @@
           { id: 'ph_poussoir_corr', name: 'Poussoir correcteur', priceHT: 60.00, type: 'part' },
           { id: 'ph_poussoir_chrono', name: 'Poussoir chrono', priceHT: 350.00, type: 'part' },
           { id: 'ph_boucle_ard', name: 'Boucle ardillon', priceHT: 60.00, type: 'part' },
-          { id: 'ph_boucle_dep', name: 'Boucle dÃ©ployante', priceHT: 250.00, type: 'part' },
           { id: 'ph_maillon', name: 'Maillon', priceHT: 50.00, type: 'part' },
-          { id: 'ph_fermoir', name: 'Fermoir de sÃ©curitÃ©', priceHT: 100.00, type: 'part' },
           { id: 'ph_coiffe', name: 'Coiffe', priceHT: 40.00, type: 'part' },
           { id: 'ph_vis', name: 'Vis maillons', priceHT: 10.00, type: 'part' },
           { id: 'ph_barrette', name: 'Barrette', priceHT: 5.00, type: 'part' },
           { id: 'ph_attache', name: 'Attache cuir', priceHT: 150.00, type: 'part' },
           { id: 'ph_entrecornes', name: 'Entre-cornes', priceHT: 50.00, type: 'part' },
           { id: 'ph_joints', name: 'Joints', priceHT: 15.00, type: 'part' },
-          { id: 'srv_restau_compl', name: 'Restauration complÃ¨te (Patrimoine)', priceHT: 15000.00, type: 'labor' },
           { id: 'fab_cadran', name: 'Fabrication cadran neuf (identique)', priceHT: 8500.00, type: 'part' },
           { id: 'srv_etanche_na', name: 'ContrÃ´le Ã©tanchÃ©itÃ©', priceHT: 0.00, type: 'labor' },
           { id: 'srv_restau_master', name: 'Restauration Grande Complication', priceHT: 45000.00, type: 'labor' },
           { id: 'fab_boitier', name: 'Reconstruction BoÃ®tier Or Rose', priceHT: 25000.00, type: 'part' },
-          { id: 'fab_cadran_email', name: 'Fabrication Cadran Ã‰mail', priceHT: 5000.00, type: 'part' },
           { id: 'srv_restau_hab', name: 'Restauration Habillage & OrfÃ¨vrerie', priceHT: 12000.00, type: 'labor' },
-          { id: 'fab_bracelet_or', name: 'Fabrication Bracelet Or IntÃ©grÃ©', priceHT: 18000.00, type: 'part' },
-          { id: 'srv_rev_mvt_compl', name: 'RÃ©vision Mouvement QP Chrono', priceHT: 3500.00, type: 'labor' },
           { id: 'srv_restau_mvt', name: 'Restauration Mouvement CompliquÃ©', priceHT: 8000.00, type: 'labor' },
           { id: 'fab_pieces', name: 'Fabrication PiÃ¨ces (Came, Ressort)', priceHT: 4500.00, type: 'part' },
           { id: 'srv_restau_sonnerie', name: 'Restauration RÃ©pÃ©tition Minutes', priceHT: 9500.00, type: 'labor' },
@@ -299,22 +281,22 @@
                                         <td className={`p-3 font-medium ${textMain}`}>{pos.label}</td>
                                         <td className="p-2">
                                             {readOnly ? (
-                                                <div className="text-center font-mono">{m.rate || ''-'}</div>
+                                                <div className="text-center font-mono">{m.rate || '-'}</div>
                                             ) : (
                                                 <input 
-                                                    type=\"number\" 
+                                                    type="number" 
                                                     className={`w-full text-center p-1 rounded ${inputBg} border ${inputBorder} outline-none focus:border-amber-500`}
                                                     value={m.rate}
                                                     onChange={(e) => updateMeasure(pos.id, 'rate', e.target.value)}
                                                 />
                                             )}
                                         </td>
-                                        <td className=\"p-2\">
+                                        <td className="p-2">
                                             {readOnly ? (
-                                                <div className=\"text-center font-mono\">{m.amp || '-'}</div>
+                                                <div className="text-center font-mono">{m.amp || '-'}</div>
                                             ) : (
                                                 <input 
-                                                    type=\"number\" 
+                                                    type="number" 
                                                     className={`w-full text-center p-1 rounded ${inputBg} border ${inputBorder} outline-none focus:border-amber-500`}
                                                     value={m.amp}
                                                     onChange={(e) => updateMeasure(pos.id, 'amp', e.target.value)}
@@ -332,15 +314,15 @@
 
         // --- LOGO ROBUSTE (SVG Inline) ---
         const FallbackLogo = () => (
-             <div className=\"relative flex items-center justify-center w-10 h-10 bg-amber-500 rounded-lg text-slate-900 shadow-sm overflow-hidden\">
-               <Watch size={24} strokeWidth={2} className=\"print:w-5 print:h-5\"/>
-               <div className=\"absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 print:p-0\">
-                 <Plus size={10} className=\"text-amber-600\" strokeWidth={4}/>
+             <div className="relative flex items-center justify-center w-10 h-10 bg-amber-500 rounded-lg text-slate-900 shadow-sm overflow-hidden">
+               <Watch size={24} strokeWidth={2} className="print:w-5 print:h-5"/>
+               <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 print:p-0">
+                 <Plus size={10} className="text-amber-600" strokeWidth={4}/>
                </div>
              </div>
         );
 
-        const BrandLogo = ({ className = \"\", src = null }) => {
+        const BrandLogo = ({ className = "", src = null }) => {
           const [imageError, setImageError] = useState(false);
 
           return (
@@ -419,13 +401,13 @@
                         className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors text-left group gap-3 ${activeTab === item.id ? `${accentLightBg} ${accentText} border ${accentLightBorder}` : `${textSec} ${menuItemHover}`}`}
                     >
                       {item.id === recommendedPage && item.id !== 'dashboard' ? (
-                          <ChevronsRight size={16} className=\"text-amber-500 animate-pulse shrink-0\" />
+                          <ChevronsRight size={16} className="text-amber-500 animate-pulse shrink-0" />
                       ) : (
-                          <div className=\"w-4 shrink-0\"></div>
+                          <div className="w-4 shrink-0"></div>
                       )}
                       
-                      <item.icon size={18} className=\"shrink-0\" />
-                      <span className=\"font-medium text-sm truncate\">{item.label}</span>
+                      <item.icon size={18} className="shrink-0" />
+                      <span className="font-medium text-sm truncate">{item.label}</span>
                     </button>
                   ))}
                 </nav>
@@ -437,7 +419,7 @@
         // --- PAGES ---
 
         const Dashboard = ({ repairs, selectRepair, createNewRepair }) => {
-          const { textMain, textSec, panelBg, panelBorder, inputBg, inputBorder, tableHeader, tableRowHover, divider, bgHighlightBlue, textOnHighlightBlue, bgHighlightAmber, textOnHighlightAmber, bgHighlightPurple, textOnHighlightPurple, bgHighlightGreen, textOnHighlightGreen, alertDangerBg, alertDangerBorder, alertDangerText, alertWarningBg, alertWarningBorder, alertWarningText } = useTheme();
+          const { textMain, textSec, panelBg, panelBorder, inputBg, inputBorder, tableHeader, tableRowHover, divider, bgHighlightBlue, textOnHighlightBlue, bgHighlightGreen, textOnHighlightGreen, alertDangerBg, alertDangerBorder, alertDangerText } = useTheme();
           const [searchTerm, setSearchTerm] = useState('');
           const filtered = repairs.filter(r => (r.client || '').toLowerCase().includes(searchTerm.toLowerCase()) || (r.id || '').toLowerCase().includes(searchTerm.toLowerCase()));
           const lateRepairs = repairs.filter(r => r.statusStep > 0 && r.statusStep < 7).slice(0, 2);
@@ -451,8 +433,8 @@
           }, {});
 
           return (
-            <div className=\"p-6 max-w-7xl mx-auto animate-in fade-in duration-500\">
-              <div className=\"flex justify-between items-center mb-8\">
+            <div className="p-6 max-w-7xl mx-auto animate-in fade-in duration-500">
+              <div className="flex justify-between items-center mb-8">
                 <div><h2 className={`text-2xl font-bold ${textMain} mb-2 uppercase tracking-widest`}>TABLEAU DE BORD</h2><p className={textSec}>AperÃ§u global des dossiers</p></div>
                 <button onClick={createNewRepair} className="bg-amber-500 hover:bg-amber-600 text-slate-900 px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-md"><Plus size={18} /> Nouveau dossier</button>
               </div>
@@ -481,8 +463,8 @@
               </div>
               <div className={`${panelBg} rounded-xl border ${panelBorder} overflow-hidden shadow-sm`}>
                 <div className={`p-4 border-b ${panelBorder} flex justify-between items-center`}>
-                  <h3 className={`font-bold ${textMain}`}>Dossiers rÃ©cents</h3>
-                  <div className="relative"><Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${textSec}`} size={16} /><input type="text" placeholder="Chercher client, numÃ©ro..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={`${inputBg} border ${inputBorder} ${textMain} pl-10 pr-4 py-1.5 rounded-lg text-sm outline-none w-64`} /></div>
+                  <h3 className={`font-bold ${textMain}`}>Dossiers récents</h3>
+                  <div className="relative"><Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${textSec}`} size={16} /><input type="text" placeholder="Chercher client, numéro..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={`${inputBg} border ${inputBorder} ${textMain} pl-10 pr-4 py-1.5 rounded-lg text-sm outline-none w-64`} /></div>
                 </div>
                 <div className="overflow-x-auto">
                   <table className={`w-full text-left text-sm ${textSec}`}>
@@ -493,8 +475,8 @@
                         const CoverageIcon = coverage.icon;
                         return (
                           <tr key={r.id} className={`${tableRowHover} transition-colors cursor-pointer`} onClick={() => selectRepair(r)}>
-                            <td className={`p-4 font-mono font-bold ${textMain}`}>{r.id}</td><td className="p-4 font-medium">{r.client || 'Client Inconnu'}</td><td className=\"p-4\">{r.model || 'N/A'}</td>
-                            <td className=\"p-4\"><div className={`flex items-center gap-2 text-xs font-bold ${coverage.color}`}><CoverageIcon size={14} /><span className="truncate max-w-[150px]">{coverage.label}</span></div></td>
+                            <td className={`p-4 font-mono font-bold ${textMain}`}>{r.id}</td><td className="p-4 font-medium">{r.client || 'Client Inconnu'}</td><td className="p-4">{r.model || 'N/A'}</td>
+                            <td className="p-4"><div className={`flex items-center gap-2 text-xs font-bold ${coverage.color}`}><CoverageIcon size={14} /><span className="truncate max-w-[150px]">{coverage.label}</span></div></td>
                             <td className="p-4"><span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${r.statusStep >= 7 ? `${bgHighlightGreen} ${textOnHighlightGreen}` : `${bgHighlightBlue} ${textOnHighlightBlue}`}`}>{STATUS_STEPS[r.statusStep]}</span></td>
                             <td className="p-4 text-right"><button className="p-2 rounded-full hover:bg-amber-500/10 text-amber-500"><ChevronRight size={18} /></button></td>
                           </tr>
@@ -515,7 +497,7 @@
               <div className={`${panelBg} p-6 rounded-xl border ${panelBorder}`}>
                 <h3 className={`text-lg font-bold ${accentText} mb-6 flex items-center gap-2`}><UserPlus size={20} /> Demande client & identification</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                  <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1 flex items-center`}>NÂ° Client</label><input type="text" value={data.clientId || ''} onChange={e => updateData({...data, clientId: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} placeholder="ex: CL-8890" /></div>
+                  <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1 flex items-center`}>N° Client</label><input type="text" value={data.clientId || ''} onChange={e => updateData({...data, clientId: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} placeholder="ex: CL-8890" /></div>
                   <div className="lg:col-span-2"><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>Nom du client</label><input type="text" value={data.client || ''} onChange={e => updateData({...data, client: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
                   
                   <div className="lg:col-span-3 grid grid-cols-3 gap-4">
@@ -524,20 +506,20 @@
                      <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>Ville</label><input type="text" value={data.clientCity || ''} onChange={e => updateData({...data, clientCity: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
                   </div>
                   
-                  <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>ModÃ¨le / RÃ©fÃ©rence</label><input type="text" value={data.model || ''} onChange={e => updateData({...data, model: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
-                  <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>NÂ° de sÃ©rie</label><input type="text" value={data.serial || ''} onChange={e => updateData({...data, serial: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
+                  <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>Modèle / Référence</label><input type="text" value={data.model || ''} onChange={e => updateData({...data, model: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
+                  <div><label className={`block text-[10px] uppercase font-bold ${textSec} mb-1`}>N° de série</label><input type="text" value={data.serial || ''} onChange={e => updateData({...data, serial: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none focus:border-amber-500`} /></div>
                 </div>
                 <div className={`p-5 rounded-lg border ${panelBorder} bg-slate-50 dark:bg-slate-900/30 mb-6 shadow-inner`}>
                   <h4 className="text-xs font-bold uppercase mb-4 flex items-center gap-2 text-slate-400 font-mono">CHRONOLOGIE DU DOSSIER</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
                     <div><label className="block text-[10px] font-bold mb-1 opacity-70">DATE DE VENTE</label><input type="date" value={data.saleDate || ''} onChange={e => updateData({...data, saleDate: e.target.value})} className={`w-full p-2 rounded border ${inputBorder} ${inputBg} text-xs`} /></div>
-                    <div><label className="block text-[10px] font-bold mb-1 opacity-70">DATE DERNIÃˆRE RÃ‰PARATION</label><input type="date" value={data.lastRepairDate || ''} onChange={e => updateData({...data, lastRepairDate: e.target.value})} className={`w-full p-2 rounded border ${inputBorder} ${inputBg} text-xs`} /></div>
-                    <div><label className={`block text-[10px] font-bold mb-1 ${accentText}`}>DATE DE RETOUR SAV</label><input type="date" value={data.depositDate || ''} onChange={e => updateData({...data, depositDate: e.target.value})} className=\"w-full p-2 rounded border border-amber-500 bg-amber-500/5 text-xs font-bold\" /></div>
+                    <div><label className="block text-[10px] font-bold mb-1 opacity-70">DATE DERNIÈRE RÉPARATION</label><input type="date" value={data.lastRepairDate || ''} onChange={e => updateData({...data, lastRepairDate: e.target.value})} className={`w-full p-2 rounded border ${inputBorder} ${inputBg} text-xs`} /></div>
+                    <div><label className={`block text-[10px] font-bold mb-1 ${accentText}`}>DATE DE RETOUR SAV</label><input type="date" value={data.depositDate || ''} onChange={e => updateData({...data, depositDate: e.target.value})} className="w-full p-2 rounded border border-amber-500 bg-amber-500/5 text-xs font-bold" /></div>
                   </div>
                 </div>
-                <div className=\"space-y-4\">
-                  <div><label className=\"block text-[10px] font-bold uppercase mb-1 opacity-70\">Demande client</label><textarea rows={3} value={data.customerRequestText || ''} onChange={e => updateData({...data, customerRequestText: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-3 text-sm outline-none focus:border-amber-500`} placeholder="Demande prÃ©cise du client..." /></div>
-                  <div><label className="block text-[10px] font-bold uppercase mb-1 opacity-70">ProblÃ¨me remontÃ© par le client</label><textarea rows={3} value={data.issue || ''} onChange={e => updateData({...data, issue: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-3 text-sm outline-none focus:border-amber-500`} placeholder="Adapte le contenu en te limitant Ã  une reformulation des mot du client qui explique le problÃ¨me tel qu'il le vit.\" /></div>
+                <div className="space-y-4">
+                  <div><label className="block text-[10px] font-bold uppercase mb-1 opacity-70">Demande client</label><textarea rows={3} value={data.customerRequestText || ''} onChange={e => updateData({...data, customerRequestText: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-3 text-sm outline-none focus:border-amber-500`} placeholder="Demande précise du client..." /></div>
+                  <div><label className="block text-[10px] font-bold uppercase mb-1 opacity-70">Problème remonté par le client</label><textarea rows={3} value={data.issue || ''} onChange={e => updateData({...data, issue: e.target.value})} className={`w-full ${inputBg} border ${inputBorder} rounded p-3 text-sm outline-none focus:border-amber-500`} placeholder="Adapte le contenu en te limitant à une reformulation des mot du client qui explique le problème tel qu'il le vit." /></div>
                 </div>
               </div>
               <div className={`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-end gap-4 z-30 md:pl-64 shadow-2xl`}><button onClick={onValidateStep} className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg hover:scale-105 transition-transform"><CheckCircle size={18}/> Valider & Suivant</button></div>
@@ -569,27 +551,27 @@
             <div className="p-6 max-w-5xl mx-auto space-y-6 pb-24 animate-in fade-in duration-500">
               
               <div className={`${panelBg} p-6 rounded-xl border ${panelBorder} shadow-sm`}>
-                <h3 className={`text-lg font-bold ${accentText} mb-4 flex items-center gap-2`}><Package size={20}/> Ã‰lÃ©ments remis par le client</h3>
+                <h3 className={`text-lg font-bold ${accentText} mb-4 flex items-center gap-2`}><Package size={20}/> Éléments remis par le client</h3>
                 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-6">
                     <label className="flex items-center gap-2 cursor-pointer font-medium hover:text-amber-500 transition-colors">
-                        <input type="checkbox" checked={!!data.receivedItems?.hasBox} onChange={() => handleItemToggle('hasBox')} className=\"w-5 h-5 accent-amber-500\" /> 
-                        BoÃ®te
+                        <input type="checkbox" checked={!!data.receivedItems?.hasBox} onChange={() => handleItemToggle('hasBox')} className="w-5 h-5 accent-amber-500" /> 
+                        Boîte
                     </label>
-                    <label className=\"flex items-center gap-2 cursor-pointer font-medium hover:text-amber-500 transition-colors\">
-                        <input type=\"checkbox\" checked={!!data.receivedItems?.hasEcrin} onChange={() => handleItemToggle('hasEcrin')} className=\"w-5 h-5 accent-amber-500\" /> 
+                    <label className="flex items-center gap-2 cursor-pointer font-medium hover:text-amber-500 transition-colors">
+                        <input type="checkbox" checked={!!data.receivedItems?.hasEcrin} onChange={() => handleItemToggle('hasEcrin')} className="w-5 h-5 accent-amber-500" /> 
                         Ecrin
                     </label>
-                    <label className=\"flex items-center gap-2 cursor-pointer font-medium hover:text-amber-500 transition-colors\">
-                        <input type=\"checkbox\" checked={!!data.receivedItems?.hasCertAuth} onChange={() => handleItemToggle('hasCertAuth')} className=\"w-5 h-5 accent-amber-500\" /> 
-                        Certificat d'authenticitÃ©
+                    <label className="flex items-center gap-2 cursor-pointer font-medium hover:text-amber-500 transition-colors">
+                        <input type="checkbox" checked={!!data.receivedItems?.hasCertAuth} onChange={() => handleItemToggle('hasCertAuth')} className="w-5 h-5 accent-amber-500" /> 
+                        Certificat d'authenticité
                     </label>
-                    <label className=\"flex items-center gap-2 cursor-pointer font-medium hover:text-amber-500 transition-colors\">
-                        <input type=\"checkbox\" checked={!!data.receivedItems?.hasInvoice} onChange={() => handleItemToggle('hasInvoice')} className=\"w-5 h-5 accent-amber-500\" /> 
+                    <label className="flex items-center gap-2 cursor-pointer font-medium hover:text-amber-500 transition-colors">
+                        <input type="checkbox" checked={!!data.receivedItems?.hasInvoice} onChange={() => handleItemToggle('hasInvoice')} className="w-5 h-5 accent-amber-500" /> 
                         Facture d'achat
                     </label>
-                    <label className=\"flex items-center gap-2 cursor-pointer font-medium hover:text-amber-500 transition-colors\">
-                        <input type=\"checkbox\" checked={!!data.receivedItems?.hasWarrantyCard} onChange={() => handleItemToggle('hasWarrantyCard')} className=\"w-5 h-5 accent-amber-500\" /> 
+                    <label className="flex items-center gap-2 cursor-pointer font-medium hover:text-amber-500 transition-colors">
+                        <input type="checkbox" checked={!!data.receivedItems?.hasWarrantyCard} onChange={() => handleItemToggle('hasWarrantyCard')} className="w-5 h-5 accent-amber-500" /> 
                         Carte de garantie
                     </label>
                 </div>
@@ -598,20 +580,20 @@
                     <div className="flex items-start gap-3">
                        <div className="p-2 bg-amber-100 rounded-full text-amber-600"><FileCheck size={20}/></div>
                        <div>
-                          <h4 className="text-sm font-bold text-amber-800 uppercase mb-1">ProcÃ©dure de vÃ©rification documentaire</h4>
+                          <h4 className="text-sm font-bold text-amber-800 uppercase mb-1">Procédure de vérification documentaire</h4>
                           <p className="text-xs text-amber-700 leading-relaxed mb-3">
-                             Le personnel du SAV doit examiner soigneusement les documents fournis (certificats, factures, cartes) pour vÃ©rifier l'authenticitÃ© de la montre et dÃ©terminer avec prÃ©cision le statut de la garantie (validitÃ©, couverture gÃ©ographique).
+                             Le personnel du SAV doit examiner soigneusement les documents fournis (certificats, factures, cartes) pour vérifier l'authenticité de la montre et déterminer avec précision le statut de la garantie (validité, couverture géographique).
                           </p>
-                          <label className=\"flex items-center gap-2 cursor-pointer text-xs font-bold text-amber-900\">
-                              <input type=\"checkbox\" checked={!!data.receivedItems?.docsVerified} onChange={() => handleItemToggle('docsVerified')} className=\"w-4 h-4 accent-amber-600\" />
-                              J'atteste avoir vÃ©rifiÃ© l'authenticitÃ© et la validitÃ© des documents.
+                          <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-amber-900">
+                              <input type="checkbox" checked={!!data.receivedItems?.docsVerified} onChange={() => handleItemToggle('docsVerified')} className="w-4 h-4 accent-amber-600" />
+                              J'atteste avoir vérifié l'authenticité et la validité des documents.
                           </label>
                        </div>
                     </div>
                 </div>
               </div>
               
-              <PhotoManager title=\"Photos de rÃ©ception / diagnostic\" category=\"receipt\" photos={data.photos || []} updatePhotos={p => updateData({...data, photos: p})} />
+              <PhotoManager title="Photos de réception / diagnostic" category="receipt" photos={data.photos || []} updatePhotos={p => updateData({...data, photos: p})} />
 
               <div className={`${panelBg} p-6 rounded-xl border ${panelBorder} mb-6`}>
                  <h4 className="font-bold border-b pb-2 mb-4 text-xs uppercase tracking-widest text-slate-400">Observations initiales (Avant ouverture)</h4>
@@ -620,22 +602,22 @@
                     value={data.initialObservations || ''} 
                     onChange={e => updateData({...data, initialObservations: e.target.value})} 
                     className={`w-full ${inputBg} border ${inputBorder} rounded p-3 text-sm outline-none focus:border-amber-500 mb-4`} 
-                    placeholder="Noter ici l'Ã©tat gÃ©nÃ©ral, les rayures visibles, l'oxydation, etc...\" 
+                    placeholder="Noter ici l'état général, les rayures visibles, l'oxydation, etc..." 
                  />
               </div>
 
-              <div className=\"grid grid-cols-1 md:grid-cols-2 gap-6\">
-                <div className={`${panelBg} p-6 rounded-xl border ${panelBorder}`}><h4 className="font-bold border-b pb-2 mb-4 text-xs uppercase tracking-widest text-slate-400">Ã‰tat esthÃ©tique (0-5)</h4><div className="space-y-4">{CHECKLIST_ITEMS.visual.map(item => (<div key={item} className="flex items-center justify-between"><span className="text-sm">{item}</span><div className="flex gap-1">{[0,1,2,3,4,5].map(v => (<button key={v} onClick={() => setRating(item,v)} className={`w-8 h-8 rounded text-xs font-bold transition-colors ${data.checklists?.visual?.[item] === v ? 'bg-amber-500 text-white' : 'bg-slate-100 hover:bg-slate-200'}`}>{v}</button>))}</div></div>))}</div></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className={`${panelBg} p-6 rounded-xl border ${panelBorder}`}><h4 className="font-bold border-b pb-2 mb-4 text-xs uppercase tracking-widest text-slate-400">État esthétique (0-5)</h4><div className="space-y-4">{CHECKLIST_ITEMS.visual.map(item => (<div key={item} className="flex items-center justify-between"><span className="text-sm">{item}</span><div className="flex gap-1">{[0,1,2,3,4,5].map(v => (<button key={v} onClick={() => setRating(item,v)} className={`w-8 h-8 rounded text-xs font-bold transition-colors ${data.checklists?.visual?.[item] === v ? 'bg-amber-500 text-white' : 'bg-slate-100 hover:bg-slate-200'}`}>{v}</button>))}</div></div>))}</div></div>
                 
                 <div>
                     <MeasureTable 
-                        title="Mesures initiales (ChronomÃ©trie)" 
+                        title="Mesures initiales (Chronométrie)" 
                         measures={data.inspectionMeasures} 
                         updateMeasure={updateInspectionMeasure} 
                     />
                 </div>
               </div>
-              <div className={`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-end z-30 md:pl-64 shadow-xl`}><button onClick={onValidateStep} className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2"><CheckCircle size={18}/> Valider Ã©tat & suivant</button></div>
+              <div className={`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-end z-30 md:pl-64 shadow-xl`}><button onClick={onValidateStep} className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2"><CheckCircle size={18}/> Valider état & suivant</button></div>
             </div>
           );
         };
@@ -671,13 +653,13 @@
           const [editingPartId, setEditingPartId] = useState(null);
           
           const GAMMES_OPERATOIRES = {
-              'service_complet_meca': { label: 'Service Complet (MÃ©c/Auto)', ops: [ { desc: 'DÃ©montage complet', time: '0.75' }, { desc: 'Lavage', time: '0.50' }, { desc: 'Remontage & Huilage', time: '1.00' }, { desc: 'RÃ©glage', time: '0.25' } ] },
-              'service_quartz': { label: 'Service Quartz', ops: [ { desc: 'ContrÃ´le circuit', time: '0.30' }, { desc: 'Remplacement pile', time: '0.15' } ] },
-              'polissage': { label: 'Polissage', ops: [ { desc: 'PrÃ©paration', time: '0.50' }, { desc: 'Polissage', time: '1.00' }, { desc: 'Lavage', time: '0.20' } ] }
+              'service_complet_meca': { label: 'Service Complet (Méc/Auto)', ops: [ { desc: 'Démontage complet', time: '0.75' }, { desc: 'Lavage', time: '0.50' }, { desc: 'Remontage & Huilage', time: '1.00' }, { desc: 'Réglage', time: '0.25' } ] },
+              'service_quartz': { label: 'Service Quartz', ops: [ { desc: 'Contrôle circuit', time: '0.30' }, { desc: 'Remplacement pile', time: '0.15' } ] },
+              'polissage': { label: 'Polissage', ops: [ { desc: 'Préparation', time: '0.50' }, { desc: 'Polissage', time: '1.00' }, { desc: 'Lavage', time: '0.20' } ] }
           };
 
           const operations = data.operations || (data.quote?.mandatory || []).map((item, index) => ({
-              id: item.uuid, opNumber: (index + 1) * 10, department: 'Atelier Horlogerie', description: item.name, stdTime: '1.00', status: 'Ã€ rÃ©aliser'
+              id: item.uuid, opNumber: (index + 1) * 10, department: 'Atelier Horlogerie', description: item.name, stdTime: '1.00', status: 'À réaliser'
           }));
 
           const partsToReplace = (data.quote?.mandatory || []).filter(item => item.type === 'part');
@@ -688,7 +670,7 @@
               if (!gamme) return;
               const currentMax = operations.length > 0 ? Math.max(...operations.map(o => o.opNumber)) : 0;
               const newOps = gamme.ops.map((op, idx) => ({
-                  id: Date.now() + idx, opNumber: currentMax + ((idx + 1) * 10), department: 'Atelier', description: op.desc, stdTime: op.time, status: 'Ã€ rÃ©aliser', isGamme: true
+                  id: Date.now() + idx, opNumber: currentMax + ((idx + 1) * 10), department: 'Atelier', description: op.desc, stdTime: op.time, status: 'À réaliser', isGamme: true
               }));
               updateData({ ...data, operations: [...operations, ...newOps] });
               setSelectedGamme('');
@@ -703,7 +685,7 @@
               department: newOpData.department,
               description: newOpData.description,
               stdTime: newOpData.stdTime,
-              status: 'Ã€ rÃ©aliser',
+              status: 'À réaliser',
               isGamme: false, isManual: true
             };
             updateData({ ...data, operations: [...operations, manualOp] });
@@ -724,7 +706,7 @@
           
           const toggleOpStatus = (opId) => {
             const newOps = operations.map(op => {
-                if (op.id === opId) return { ...op, status: op.status === 'TerminÃ©' ? 'Ã€ rÃ©aliser' : 'TerminÃ©' };
+                if (op.id === opId) return { ...op, status: op.status === 'Terminé' ? 'À réaliser' : 'Terminé' };
                 return op;
             });
             updateData({ ...data, operations: newOps });
@@ -825,6 +807,9 @@
                    <h4 className={`text-sm font-bold ${accentText} uppercase mb-3 flex items-center gap-2`}><Settings size={14} /> Gammes opÃ©ratoires (GÃ©nÃ©rer l'OF)</h4>
                    <p className=\"text-xs text-slate-400 mb-2\">SÃ©lectionnez une gamme standard pour prÃ©-remplir l'ordre de fabrication.</p>
                    <div className=\"flex gap-4\">
+                   <h4 className={`text-sm font-bold ${accentText} uppercase mb-3 flex items-center gap-2`}><Settings size={14} /> Gammes opératoires (Générer l'OF)</h4>
+                   <p className="text-xs text-slate-400 mb-2">Sélectionnez une gamme standard pour pré-remplir l'ordre de fabrication.</p>
+                   <div className="flex gap-4">
                       <select value={selectedGamme} onChange={(e) => setSelectedGamme(e.target.value)} className={`flex-1 ${inputBg} border ${inputBorder} rounded p-2 text-sm outline-none`}><option value="">-- Choisir une gamme --</option>{Object.entries(GAMMES_OPERATOIRES).map(([k, v]) => (<option key={k} value={k}>{v.label}</option>))}</select>
                       <button onClick={() => launchGamme(selectedGamme)} disabled={!selectedGamme} className="bg-amber-500 text-white px-4 py-2 rounded font-bold text-sm">GÃ©nÃ©rer OF</button>
                    </div>
@@ -836,12 +821,16 @@
                       <tbody className="divide-y divide-gray-100">
                          {operations.map(op => {
                            const isDone = op.status === 'TerminÃ©';
+                           const isDone = op.status === 'Terminé';
                            return (
                             <tr key={op.id} className={isDone ? 'bg-green-50' : ''}>
                                <td className=\"p-3 text-center font-mono text-xs\">{op.opNumber}</td>
                                <td className=\"p-3\">
+                               <td className="p-3 text-center font-mono text-xs">{op.opNumber}</td>
+                               <td className="p-3">
                                  <input 
                                    type=\"text\" 
+                                   type="text" 
                                    value={op.description} 
                                    onChange={(e) => updateOperation(op.id, 'description', e.target.value)}
                                    className={`bg-transparent w-full outline-none border-b border-transparent hover:border-gray-300 focus:border-amber-500 ${isDone ? 'text-slate-500 font-medium' : 'font-medium'}`} 
@@ -852,6 +841,7 @@
                                    value={op.department} 
                                    onChange={(e) => updateOperation(op.id, 'department', e.target.value)}
                                    className=\"bg-transparent text-xs w-full outline-none\"
+                                   className="bg-transparent text-xs w-full outline-none"
                                  >
                                     <option value=\"Atelier Technique\">Atelier Technique</option>
                                     <option value=\"Atelier Habillage\">Atelier Habillage</option>
@@ -859,18 +849,29 @@
                                     <option value=\"Atelier Lavage\">Atelier Lavage</option>
                                     <option value=\"ContrÃ´le QualitÃ©\">ContrÃ´le QualitÃ©</option>
                                     <option value=\"Sous-traitant\">Sous-traitant</option>
+                                    <option value="Atelier Technique">Atelier Technique</option>
+                                    <option value="Atelier Habillage">Atelier Habillage</option>
+                                    <option value="Atelier Polissage">Atelier Polissage</option>
+                                    <option value="Atelier Lavage">Atelier Lavage</option>
+                                    <option value="Contrôle Qualité">Contrôle Qualité</option>
+                                    <option value="Sous-traitant">Sous-traitant</option>
                                  </select>
                                </td>
                                <td className=\"p-3 text-right\">
+                               <td className="p-3 text-right">
                                  <input 
                                    type=\"number\" 
                                    step=\"0.1\" 
+                                   type="number" 
+                                   step="0.1" 
                                    value={op.stdTime} 
                                    onChange={(e) => updateOperation(op.id, 'stdTime', e.target.value)}
                                    className=\"w-12 text-right bg-transparent border-b border-transparent hover:border-gray-300 focus:border-amber-500 outline-none\"
+                                   className="w-12 text-right bg-transparent border-b border-transparent hover:border-gray-300 focus:border-amber-500 outline-none"
                                  />
                                </td>
                                <td className=\"p-3 flex items-center justify-center gap-2 no-print\">
+                               <td className="p-3 flex items-center justify-center gap-2 no-print">
                                   <button onClick={() => toggleOpStatus(op.id)} className={`w-6 h-6 rounded flex items-center justify-center border ${isDone ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 text-gray-300 hover:border-green-500 hover:text-green-500'}`}><Check size={14}/></button>
                                   <button onClick={() => deleteOperation(op.id)} className="text-red-400 hover:text-red-600"><Trash2 size={16}/></button>
                                </td>
@@ -880,6 +881,7 @@
                          <tr className="bg-slate-50 border-t-2 border-slate-100 no-print">
                             <td className="p-3 text-center font-bold text-slate-400">+</td>
                             <td className="p-3"><input type="text" placeholder="Ajouter une opÃ©ration manuelle..." value={newOpData.description} onChange={(e) => setNewOpData({...newOpData, description: e.target.value})} className="w-full bg-transparent border-b border-slate-300 focus:border-amber-500 outline-none" /></td>
+                            <td className="p-3"><input type="text" placeholder="Ajouter une opération manuelle..." value={newOpData.description} onChange={(e) => setNewOpData({...newOpData, description: e.target.value})} className="w-full bg-transparent border-b border-slate-300 focus:border-amber-500 outline-none" /></td>
                             <td className="p-3">
                                <select value={newOpData.department} onChange={(e) => setNewOpData({...newOpData, department: e.target.value})} className="bg-transparent text-xs outline-none">
                                   <option value="Atelier Technique">Atelier Technique</option>
@@ -896,10 +898,12 @@
                 </div>
 
                 <PhotoManager title="Photos composants dÃ©fectueux / remplacÃ©s" category="parts" photos={data.photos || []} updatePhotos={p => updateData({...data, photos: p})} />
+                <PhotoManager title="Photos composants défectueux / remplacés" category="parts" photos={data.photos || []} updatePhotos={p => updateData({...data, photos: p})} />
 
                 <div className="mb-8">
                   <div className="flex justify-between items-end mb-4 border-b pb-2">
                     <h4 className={`text-sm font-bold ${accentText} uppercase flex items-center gap-2`}><ListChecks size={18}/> ContrÃ´les & tests finaux</h4>
+                    <h4 className={`text-sm font-bold ${accentText} uppercase flex items-center gap-2`}><ListChecks size={18}/> Contrôles & tests finaux</h4>
                     <div className="text-xs font-bold text-slate-400">Avancement : {progress}%</div>
                   </div>
                   
@@ -911,6 +915,7 @@
                     
                     <div className={`${panelBg} border ${panelBorder} rounded-lg p-4`}>
                         <h5 className="font-bold text-xs uppercase text-slate-500 mb-3 border-b border-slate-100 pb-2">1. IdentitÃ© & conformitÃ©</h5>
+                        <h5 className="font-bold text-xs uppercase text-slate-500 mb-3 border-b border-slate-100 pb-2">1. Identité & conformité</h5>
                         <div className="space-y-2">
                           {FINAL_CONTROL_ITEMS.identity.map(item => {
                             const checked = (data.finalControls?.identity || []).includes(item);
@@ -926,6 +931,7 @@
 
                     <div className={`${panelBg} border ${panelBorder} rounded-lg p-4`}>
                         <h5 className="font-bold text-xs uppercase text-slate-500 mb-3 border-b border-slate-100 pb-2">2. EsthÃ©tique</h5>
+                        <h5 className="font-bold text-xs uppercase text-slate-500 mb-3 border-b border-slate-100 pb-2">2. Esthétique</h5>
                         <div className="space-y-2">
                           {FINAL_CONTROL_ITEMS.aesthetic.map(item => {
                             const checked = (data.finalControls?.aesthetic || []).includes(item);
@@ -959,8 +965,10 @@
                 <div className="mb-6">
                     <div className="flex justify-between items-center mb-2">
                         <h4 className="font-bold text-xs uppercase text-slate-500 tracking-widest">Mesures finales (ChronomÃ©trie)</h4>
+                        <h4 className="font-bold text-xs uppercase text-slate-500 tracking-widest">Mesures finales (Chronométrie)</h4>
                         <div className="flex items-center gap-2">
                             <label className={`text-xs font-bold ${textMain}`}>RÃ©serve de marche (h) :</label>
+                            <label className={`text-xs font-bold ${textMain}`}>Réserve de marche (h) :</label>
                             <input 
                                 type="number" 
                                 value={data.powerReserve || ''}
@@ -982,6 +990,7 @@
               <div className={`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-between items-center z-30 md:pl-64 shadow-xl`}>
                  {/* SUPPRESSION BOUTON IMPRIMER */}
                  <button onClick={onValidateStep} className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg"><CheckCircle size={18}/> Finir RÃ©paration & Suivant</button>
+                 <button onClick={onValidateStep} className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg"><CheckCircle size={18}/> Finir Réparation & Suivant</button>
               </div>
             </div>
           );
@@ -994,6 +1003,8 @@
             { key: 'hasEcrin', label: 'Ecrin' },
             { key: 'hasCertAuth', label: 'Certificat d\\'authenticitÃ©' },
             { key: 'hasInvoice', label: 'Facture d\\'achat' },
+            { key: 'hasCertAuth', label: 'Certificat d\'authenticité' },
+            { key: 'hasInvoice', label: 'Facture d\'achat' },
             { key: 'hasWarrantyCard', label: 'Carte de garantie' }
           ];
 
@@ -1014,16 +1025,22 @@
                 
                 {/* PHOTO MANAGER POUR LA MONTRE FINIE */}
                 <PhotoManager title="Photos montre terminÃ©e (EsthÃ©tique finale)" category="final" photos={data.photos || []} updatePhotos={p => updateData({...data, photos: p})} />
+                <PhotoManager title="Photos montre terminée (Esthétique finale)" category="final" photos={data.photos || []} updatePhotos={p => updateData({...data, photos: p})} />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8">
                    <div className="space-y-4">
                       <h4 className="font-bold text-xs uppercase text-slate-400 border-b pb-2 tracking-widest">ContrÃ´le sortie</h4>
                       <div className="space-y-3">{['Nettoyage final effectuÃ©', 'Mise Ã  l\\'heure & calendrier', 'Documents de garantie signÃ©s'].map(i => (<div key={i} className=\"flex items-center gap-3 text-sm font-medium\"><CheckCircle size={18} className=\"text-green-500 shadow-sm\"/>{i}</div>))}</div>
+                      <h4 className="font-bold text-xs uppercase text-slate-400 border-b pb-2 tracking-widest">Contrôle sortie</h4>
+                      <div className="space-y-3">{['Nettoyage final effectué', 'Mise à l\'heure & calendrier', 'Documents de garantie signés'].map(i => (<div key={i} className="flex items-center gap-3 text-sm font-medium"><CheckCircle size={18} className="text-green-500 shadow-sm"/>{i}</div>))}</div>
                    </div>
                    
                    <div className=\"space-y-4\">
                       <h4 className=\"font-bold text-xs uppercase text-slate-400 border-b pb-2 tracking-widest\">Ã‰lÃ©ments Ã  restituer (VÃ©rification entrÃ©e)</h4>
                       <div className=\"space-y-2\">
+                   <div className="space-y-4">
+                      <h4 className="font-bold text-xs uppercase text-slate-400 border-b pb-2 tracking-widest">Éléments à restituer (Vérification entrée)</h4>
+                      <div className="space-y-2">
                         {entryItems.map(item => {
                             const wasReceived = data.receivedItems?.[item.key];
                             if (!wasReceived) return null;
@@ -1040,20 +1057,26 @@
                                     />
                                     <span className="text-sm font-medium">{item.label}</span>
                                     <span className="text-[10px] uppercase bg-amber-100 text-amber-700 px-2 py-0.5 rounded ml-auto">ReÃ§u</span>
+                                    <span className="text-[10px] uppercase bg-amber-100 text-amber-700 px-2 py-0.5 rounded ml-auto">Reçu</span>
                                 </label>
                             );
                         })}
                         {!Object.values(data.receivedItems || {}).some(v => v === true) && <p className="text-xs text-slate-400 italic">Aucun Ã©lÃ©ment spÃ©cifique notÃ© Ã  l'entrÃ©e.</p>}
+                        {!Object.values(data.receivedItems || {}).some(v => v === true) && <p className="text-xs text-slate-400 italic">Aucun élément spécifique noté à l'entrée.</p>}
                       </div>
                    </div>
 
                    <div className=\"space-y-4 md:col-span-2\">
                       <h4 className=\"font-bold text-xs uppercase text-slate-400 border-b pb-2 tracking-widest\">Signature rÃ©ceptionnaire</h4>
                       <div className=\"w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center text-slate-300 text-xs italic shadow-inner\"><PenTool size={40} className=\"mb-2 opacity-10\"/><p>Signature numÃ©rique</p></div>
+                   <div className="space-y-4 md:col-span-2">
+                      <h4 className="font-bold text-xs uppercase text-slate-400 border-b pb-2 tracking-widest">Signature réceptionnaire</h4>
+                      <div className="w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center text-slate-300 text-xs italic shadow-inner"><PenTool size={40} className="mb-2 opacity-10"/><p>Signature numérique</p></div>
                    </div>
                 </div>
               </div>
               <div className={`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-end z-30 md:pl-64 shadow-xl`}><button onClick={onValidateStep} className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg"><CheckCircle size={18}/> Valider livraison & gÃ©nÃ©rer rapport</button></div>
+              <div className={`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-end z-30 md:pl-64 shadow-xl`}><button onClick={onValidateStep} className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg"><CheckCircle size={18}/> Valider livraison & générer rapport</button></div>
             </div>
           );
         };
@@ -1078,6 +1101,8 @@
                    <div>
                       <h1 className="text-2xl font-bold uppercase tracking-widest mb-1 text-slate-900 dark:text-white">Devis de RÃ©paration</h1>
                       <p className="text-sm text-slate-500 font-mono">RÃ‰F: {data.id} / DATE: {new Date().toLocaleDateString()}</p>
+                      <h1 className="text-2xl font-bold uppercase tracking-widest mb-1 text-slate-900 dark:text-white">Devis de Réparation</h1>
+                      <p className="text-sm text-slate-500 font-mono">RÉF: {data.id} / DATE: {new Date().toLocaleDateString()}</p>
                    </div>
                    <div className="text-right">
                       <h2 className="font-bold text-lg">{data.client}</h2>
@@ -1089,6 +1114,7 @@
                    <div>
                       <h3 className="font-bold text-sm uppercase text-amber-600 mb-3 border-b border-amber-200 pb-1">Travaux Indispensables (Obligatoires)</h3>
                       <p className="text-xs text-slate-500 mb-3 italic">Ces interventions sont nÃ©cessaires pour garantir le bon fonctionnement de votre garde-temps.</p>
+                      <p className="text-xs text-slate-500 mb-3 italic">Ces interventions sont nécessaires pour garantir le bon fonctionnement de votre garde-temps.</p>
                       <table className="w-full text-sm">
                          <tbody className="divide-y divide-gray-100">
                             {mandatory.length > 0 ? mandatory.map((item, idx) => (
@@ -1113,13 +1139,20 @@
                         <p className="text-xs text-slate-500 mb-3 italic">Ces interventions sont recommandÃ©es pour redonner l'Ã©clat d'origine mais ne sont pas techniques.</p>
                         <table className=\"w-full text-sm\">
                            <tbody className=\"divide-y divide-gray-100\">
+                        <h3 className="font-bold text-sm uppercase text-blue-600 mb-3 border-b border-blue-200 pb-1">Travaux Esthétiques (Optionnels)</h3>
+                        <p className="text-xs text-slate-500 mb-3 italic">Ces interventions sont recommandées pour redonner l'éclat d'origine mais ne sont pas techniques.</p>
+                        <table className="w-full text-sm">
+                           <tbody className="divide-y divide-gray-100">
                               {optional.map((item, idx) => (
                                  <tr key={idx}>
                                     <td className=\"py-2 flex items-center gap-2\">
                                        <input type=\"checkbox\" className=\"accent-blue-600\" defaultChecked />
+                                    <td className="py-2 flex items-center gap-2">
+                                       <input type="checkbox" className="accent-blue-600" defaultChecked />
                                        {item.name}
                                     </td>
                                     <td className=\"py-2 text-right font-mono\">{item.priceHT === 0 ? 'Offert' : `${item.priceHT.toFixed(2)} CHF`}</td>
+                                    <td className="py-2 text-right font-mono">{item.priceHT === 0 ? 'Offert' : `${item.priceHT.toFixed(2)} CHF`}</td>
                                  </tr>
                               ))}
                            </tbody>
@@ -1130,10 +1163,14 @@
                    <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg flex justify-between items-center mt-6">
                       <div className="text-xs text-slate-500 max-w-md">
                          * Les prix sont indiquÃ©s en CHF Hors Taxes. La TVA de 8.1% sera ajoutÃ©e Ã  la facturation finale. Garantie de 2 ans sur l'intervention.
+                         * Les prix sont indiqués en CHF Hors Taxes. La TVA de 8.1% sera ajoutée à la facturation finale. Garantie de 2 ans sur l'intervention.
                       </div>
                       <div className=\"text-right\">
                          <div className=\"text-sm uppercase text-slate-500 font-bold\">Total EstimÃ© HT</div>
                          <div className=\"text-2xl font-bold text-amber-600\">{(totalMandatory + totalOptional).toFixed(2)} CHF</div>
+                      <div className="text-right">
+                         <div className="text-sm uppercase text-slate-500 font-bold">Total Estimé HT</div>
+                         <div className="text-2xl font-bold text-amber-600">{(totalMandatory + totalOptional).toFixed(2)} CHF</div>
                       </div>
                    </div>
                 </div>
@@ -1144,6 +1181,7 @@
                  <div className="flex gap-4">
                      {/* SUPPRESSION BOUTON IMPRIMER */}
                      <button onClick={handleAccept} className="bg-green-600 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 shadow-lg hover:scale-105 transition-transform"><CheckCircle size={18}/> Accepter & Lancer rÃ©paration</button>
+                     <button onClick={handleAccept} className="bg-green-600 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 shadow-lg hover:scale-105 transition-transform"><CheckCircle size={18}/> Accepter & Lancer réparation</button>
                  </div>
               </div>
             </div>
@@ -1158,6 +1196,7 @@
           const finalPhotos = (data.photos || []).filter(p => p.category === 'final');
 
           const operationsPerformed = (data.operations || []).filter(op => op.status === 'TerminÃ©' || !op.status); 
+          const operationsPerformed = (data.operations || []).filter(op => op.status === 'Terminé' || !op.status); 
 
           const calculateAverages = () => {
               if (!data.finalMeasures) return null;
@@ -1188,55 +1227,85 @@
           return (
             <div className=\"p-6 max-w-5xl mx-auto space-y-8 pb-24 animate-in fade-in duration-700\">
               <div className=\"bg-white text-slate-900 shadow-2xl p-12 min-h-[1000px] flex flex-col font-serif rounded-sm border relative\" id=\"report-print\">
+            <div className="p-6 max-w-5xl mx-auto space-y-8 pb-24 animate-in fade-in duration-700">
+              <div className="bg-white text-slate-900 shadow-2xl p-12 min-h-[1000px] flex flex-col font-serif rounded-sm border relative" id="report-print">
                 
                 <div className=\"text-center border-b-4 border-double border-slate-900 pb-8 mb-12\">
                    <h1 className=\"text-4xl font-bold tracking-[0.2em] uppercase text-slate-900 mb-2\">Rapport de rÃ©paration</h1>
                    <p className=\"text-sm font-sans uppercase tracking-widest text-slate-500\">Watch Repair Plus - Atelier d'horlogerie</p>
+                <div className="text-center border-b-4 border-double border-slate-900 pb-8 mb-12">
+                   <h1 className="text-4xl font-bold tracking-[0.2em] uppercase text-slate-900 mb-2">Rapport de réparation</h1>
+                   <p className="text-sm font-sans uppercase tracking-widest text-slate-500">Watch Repair Plus - Atelier d'horlogerie</p>
                 </div>
 
                 <div className=\"flex justify-between items-start mb-12 font-sans\">
+                <div className="flex justify-between items-start mb-12 font-sans">
                    <div>
                       <p className=\"text-xs font-bold text-slate-400 uppercase tracking-widest mb-1\">Client</p>
                       <p className=\"font-bold text-lg\">{data.client}</p>
                       <p className=\"text-sm text-slate-600\">Dossier: {data.id}</p>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Client</p>
+                      <p className="font-bold text-lg">{data.client}</p>
+                      <p className="text-sm text-slate-600">Dossier: {data.id}</p>
                    </div>
                    <div className=\"text-right\">
                       <p className=\"text-xs font-bold text-slate-400 uppercase tracking-widest mb-1\">La montre</p>
                       <p className=\"font-bold text-lg\">{data.model}</p>
                       <p className=\"text-sm font-mono\">{data.serial}</p>
+                   <div className="text-right">
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">La montre</p>
+                      <p className="font-bold text-lg">{data.model}</p>
+                      <p className="text-sm font-mono">{data.serial}</p>
                    </div>
                 </div>
 
                 {/* SECTION 1: Ã‰TAT INITIAL */}
                 <div className=\"mb-10\">
                    <h3 className=\"font-sans font-bold text-sm uppercase tracking-widest border-b border-slate-200 pb-2 mb-4 text-amber-700\">1. Ã‰tat Ã  rÃ©ception & diagnostic</h3>
+                {/* SECTION 1: ÉTAT INITIAL */}
+                <div className="mb-10">
+                   <h3 className="font-sans font-bold text-sm uppercase tracking-widest border-b border-slate-200 pb-2 mb-4 text-amber-700">1. État à réception & diagnostic</h3>
                    
                    <div className=\"mb-4\">
                         <h4 className=\"font-bold text-xs uppercase text-slate-500 mb-1\">Demande client</h4>
                         <p className=\"text-sm text-slate-700 italic\">\"{data.customerRequestText || 'Pas de demande spÃ©cifique notÃ©e'}\"</p>
+                   <div className="mb-4">
+                        <h4 className="font-bold text-xs uppercase text-slate-500 mb-1">Demande client</h4>
+                        <p className="text-sm text-slate-700 italic">"{data.customerRequestText || 'Pas de demande spécifique notée'}"</p>
                    </div>
                    
                    <div className=\"mb-4\">
                         <h4 className=\"font-bold text-xs uppercase text-slate-500 mb-1\">ProblÃ¨me remontÃ©</h4>
                         <p className=\"text-sm text-slate-700\">\"{data.issue || 'Aucun problÃ¨me particulier signalÃ©'}\"</p>
+                   <div className="mb-4">
+                        <h4 className="font-bold text-xs uppercase text-slate-500 mb-1">Problème remonté</h4>
+                        <p className="text-sm text-slate-700">"{data.issue || 'Aucun problème particulier signalé'}"</p>
                    </div>
 
                    {receiptPhotos.length > 0 ? (
                      <div className=\"grid grid-cols-4 gap-4\">
+                     <div className="grid grid-cols-4 gap-4">
                         {receiptPhotos.map(p => (
                           <div key={p.id} className=\"aspect-square bg-slate-100 rounded overflow-hidden border\"><img src={p.url} className=\"w-full h-full object-cover\"/></div>
+                          <div key={p.id} className="aspect-square bg-slate-100 rounded overflow-hidden border"><img src={p.url} className="w-full h-full object-cover"/></div>
                         ))}
                      </div>
                    ) : <p className=\"text-xs text-slate-400\">Aucune photo Ã  rÃ©ception.</p>}
+                   ) : <p className="text-xs text-slate-400">Aucune photo à réception.</p>}
                 </div>
 
                 {/* SECTION 2: INTERVENTION */}
                 <div className=\"mb-10\">
                    <h3 className=\"font-sans font-bold text-sm uppercase tracking-widest border-b border-slate-200 pb-2 mb-4 text-amber-700\">2. Intervention technique</h3>
                    <div className=\"grid grid-cols-2 gap-8\">
+                <div className="mb-10">
+                   <h3 className="font-sans font-bold text-sm uppercase tracking-widest border-b border-slate-200 pb-2 mb-4 text-amber-700">2. Intervention technique</h3>
+                   <div className="grid grid-cols-2 gap-8">
                       <div>
                          <h4 className=\"font-bold text-xs uppercase mb-2\">OpÃ©rations rÃ©alisÃ©es</h4>
                          <ul className=\"list-disc list-inside text-sm text-slate-700 space-y-1\">
+                         <h4 className="font-bold text-xs uppercase mb-2">Opérations réalisées</h4>
+                         <ul className="list-disc list-inside text-sm text-slate-700 space-y-1">
                             {operationsPerformed.length > 0 ? operationsPerformed.map(op => (
                                 <li key={op.id}>{op.description}</li>
                             )) : <li>Service complet standard</li>}
@@ -1244,14 +1313,19 @@
                       </div>
                       <div>
                          <h4 className=\"font-bold text-xs uppercase mb-2\">Composants remplacÃ©s</h4>
+                         <h4 className="font-bold text-xs uppercase mb-2">Composants remplacés</h4>
                          {partsPhotos.length > 0 ? (
                            <div className=\"grid grid-cols-3 gap-2 mb-2\">
+                           <div className="grid grid-cols-3 gap-2 mb-2">
                               {partsPhotos.map(p => (
                                 <div key={p.id} className=\"aspect-square bg-slate-100 rounded overflow-hidden border\"><img src={p.url} className=\"w-full h-full object-cover\"/></div>
+                                <div key={p.id} className="aspect-square bg-slate-100 rounded overflow-hidden border"><img src={p.url} className="w-full h-full object-cover"/></div>
                               ))}
                            </div>
                          ) : <p className=\"text-xs text-slate-400 mb-2\">Aucune photo de composant.</p>}
                          <p className=\"text-xs text-slate-500 italic\">Toutes les piÃ¨ces remplacÃ©es sont d'origine certifiÃ©e.</p>
+                         ) : <p className="text-xs text-slate-400 mb-2">Aucune photo de composant.</p>}
+                         <p className="text-xs text-slate-500 italic">Toutes les pièces remplacées sont d'origine certifiée.</p>
                       </div>
                    </div>
                 </div>
@@ -1263,33 +1337,58 @@
                       <div className=\"flex-1\">
                          <p className=\"text-sm font-bold text-green-700 flex items-center gap-2\"><CheckCircle size={16}/> ContrÃ´le qualitÃ© validÃ©</p>
                          <p className=\"text-xs text-slate-500 mt-1\">Ã‰tanchÃ©itÃ©, Marche, RÃ©serve de marche, EsthÃ©tique.</p>
+                {/* SECTION 3: RÉSULTAT FINAL */}
+                <div className="mb-10">
+                   <h3 className="font-sans font-bold text-sm uppercase tracking-widest border-b border-slate-200 pb-2 mb-4 text-amber-700">3. Résultat final & Chronométrie</h3>
+                   <div className="flex gap-4 items-center bg-slate-50 p-4 rounded mb-4">
+                      <div className="flex-1">
+                         <p className="text-sm font-bold text-green-700 flex items-center gap-2"><CheckCircle size={16}/> Contrôle qualité validé</p>
+                         <p className="text-xs text-slate-500 mt-1">Étanchéité, Marche, Réserve de marche, Esthétique.</p>
                       </div>
                       <div className=\"text-right\">
                          <p className=\"text-xs font-bold uppercase text-slate-400\">Date de fin</p>
                          <p className=\"font-mono\">{new Date().toLocaleDateString()}</p>
+                      <div className="text-right">
+                         <p className="text-xs font-bold uppercase text-slate-400">Date de fin</p>
+                         <p className="font-mono">{new Date().toLocaleDateString()}</p>
                       </div>
                    </div>
                    
                    <div className=\"grid grid-cols-2 gap-8 mb-6\">
+                   <div className="grid grid-cols-2 gap-8 mb-6">
                         <div>
                             <h4 className=\"font-bold text-xs uppercase text-slate-500 mb-2\">SynthÃ¨se des Performances</h4>
                             <table className=\"w-full text-sm border-collapse border border-slate-200\">
+                            <h4 className="font-bold text-xs uppercase text-slate-500 mb-2">Synthèse des Performances</h4>
+                            <table className="w-full text-sm border-collapse border border-slate-200">
                                 <tbody>
                                     <tr className=\"border-b border-slate-100\">
                                         <td className=\"p-2 font-medium bg-slate-50\">Marche Moyenne</td>
                                         <td className=\"p-2 text-right font-mono font-bold text-slate-700\">{averages ? `${averages.avgRate} s/j` : ''-'}</td>
+                                    <tr className="border-b border-slate-100">
+                                        <td className="p-2 font-medium bg-slate-50">Marche Moyenne</td>
+                                        <td className="p-2 text-right font-mono font-bold text-slate-700">{averages ? `${averages.avgRate} s/j` : '-'}</td>
                                     </tr>
                                     <tr className=\"border-b border-slate-100\">
                                         <td className=\"p-2 font-medium bg-slate-50\">Amplitude Moyenne</td>
                                         <td className=\"p-2 text-right font-mono text-slate-700\">{averages ? `${averages.avgAmp}Â°` : ''-'}</td>
+                                    <tr className="border-b border-slate-100">
+                                        <td className="p-2 font-medium bg-slate-50">Amplitude Moyenne</td>
+                                        <td className="p-2 text-right font-mono text-slate-700">{averages ? `${averages.avgAmp}°` : '-'}</td>
                                     </tr>
                                     <tr className=\"border-b border-slate-100\">
                                         <td className=\"p-2 font-medium bg-slate-50\">Delta (Max-Min)</td>
                                         <td className=\"p-2 text-right font-mono text-slate-700\">{averages ? `${averages.delta} s` : ''-'}</td>
+                                    <tr className="border-b border-slate-100">
+                                        <td className="p-2 font-medium bg-slate-50">Delta (Max-Min)</td>
+                                        <td className="p-2 text-right font-mono text-slate-700">{averages ? `${averages.delta} s` : '-'}</td>
                                     </tr>
                                     <tr className=\"border-b border-slate-100\">
                                         <td className=\"p-2 font-bold bg-amber-50 text-amber-900\">RÃ©serve de Marche</td>
                                         <td className=\"p-2 text-right font-mono font-bold text-amber-700\">{data.powerReserve ? `${data.powerReserve} Heures` : ''-'}</td>
+                                    <tr className="border-b border-slate-100">
+                                        <td className="p-2 font-bold bg-amber-50 text-amber-900">Réserve de Marche</td>
+                                        <td className="p-2 text-right font-mono font-bold text-amber-700">{data.powerReserve ? `${data.powerReserve} Heures` : '-'}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1297,10 +1396,15 @@
                         <div>
                             <h4 className=\"font-bold text-xs uppercase text-slate-500 mb-2\">DÃ©tail par position</h4>
                             <div className=\"grid grid-cols-2 gap-2 text-[10px]\">
+                            <h4 className="font-bold text-xs uppercase text-slate-500 mb-2">Détail par position</h4>
+                            <div className="grid grid-cols-2 gap-2 text-[10px]">
                                 {data.finalMeasures && Object.entries(data.finalMeasures).map(([key, val]) => (
                                     <div key={key} className=\"bg-slate-50 p-1 border rounded flex justify-between items-center\">
                                         <span className=\"font-bold uppercase text-slate-400\">{key}</span>
                                         <span className=\"font-mono\">{val.rate ? `${val.rate}s` : ''-'} / {val.amp ? `${val.amp}Â°` : ''-'}</span>
+                                    <div key={key} className="bg-slate-50 p-1 border rounded flex justify-between items-center">
+                                        <span className="font-bold uppercase text-slate-400">{key}</span>
+                                        <span className="font-mono">{val.rate ? `${val.rate}s` : '-'} / {val.amp ? `${val.amp}°` : '-'}</span>
                                     </div>
                                 ))}
                             </div>
@@ -1309,15 +1413,20 @@
 
                    {finalPhotos.length > 0 ? (
                      <div className=\"grid grid-cols-2 gap-4\">
+                     <div className="grid grid-cols-2 gap-4">
                         {finalPhotos.map(p => (
                           <div key={p.id} className=\"aspect-video bg-slate-100 rounded overflow-hidden border shadow-sm\"><img src={p.url} className=\"w-full h-full object-cover\"/></div>
+                          <div key={p.id} className="aspect-video bg-slate-100 rounded overflow-hidden border shadow-sm"><img src={p.url} className="w-full h-full object-cover"/></div>
                         ))}
                      </div>
                    ) : <p className=\"text-xs text-slate-400\">Aucune photo finale.</p>}
+                   ) : <p className="text-xs text-slate-400">Aucune photo finale.</p>}
                 </div>
 
                 <div className=\"mt-auto pt-8 border-t border-slate-200 text-center\">
                    <div className=\"mt-8 flex justify-center gap-10 text-[10px] uppercase font-bold tracking-widest text-slate-500\">
+                <div className="mt-auto pt-8 border-t border-slate-200 text-center">
+                   <div className="mt-8 flex justify-center gap-10 text-[10px] uppercase font-bold tracking-widest text-slate-500">
                       <div>Signature de l'horloger</div>
                       <div>Cachet de l'atelier</div>
                    </div>
@@ -1327,6 +1436,7 @@
               <div className={`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-between z-30 md:pl-64 shadow-xl`}>
                  {/* SUPPRESSION BOUTON IMPRIMER */}
                  <button onClick={onValidateStep} className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg"><CheckCircle size={18}/> Aller Ã  la facturation</button>
+                 <button onClick={onValidateStep} className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg"><CheckCircle size={18}/> Aller à la facturation</button>
               </div>
             </div>
           );
@@ -1352,6 +1462,7 @@
                        <h1 className="text-4xl font-bold tracking-tighter uppercase mb-2 text-slate-900">Facture</h1>
                        <p className="text-slate-500 font-medium text-sm">Watch Repair Plus SA</p>
                        <p className="text-slate-500 text-xs">Rue du RhÃ´ne 100, 1204 GenÃ¨ve</p>
+                       <p className="text-slate-500 text-xs">Rue du Rhône 100, 1204 Genève</p>
                        <p className="text-slate-500 text-xs">TVA: CHE-123.456.789</p>
                     </div>
                     <div className="text-right">
@@ -1362,35 +1473,49 @@
                        </div>
                        <div className="text-sm text-slate-500">
                           <span className="font-bold uppercase mr-2">NÂ° Facture:</span> {data.id.replace('RO', 'FAC')}
+                          <span className="font-bold uppercase mr-2">N° Facture:</span> {data.id.replace('RO', 'FAC')}
                        </div>
                        <div className=\"text-sm text-slate-500\">
                           <span className=\"font-bold uppercase mr-2\">Date:</span> {new Date().toLocaleDateString()}
+                       <div className="text-sm text-slate-500">
+                          <span className="font-bold uppercase mr-2">Date:</span> {new Date().toLocaleDateString()}
                        </div>
                     </div>
                  </div>
 
                  <table className=\"w-full text-sm mb-8\">
                     <thead className=\"border-b-2 border-slate-900 uppercase text-xs font-bold tracking-widest text-slate-500\">
+                 <table className="w-full text-sm mb-8">
+                    <thead className="border-b-2 border-slate-900 uppercase text-xs font-bold tracking-widest text-slate-500">
                        <tr>
                           <th className=\"py-3 text-left\">Description</th>
                           <th className=\"py-3 text-right\">Montant HT</th>
+                          <th className="py-3 text-left">Description</th>
+                          <th className="py-3 text-right">Montant HT</th>
                        </tr>
                     </thead>
                     <tbody className=\"divide-y divide-gray-100\">
+                    <tbody className="divide-y divide-gray-100">
                        {[...mandatory, ...optional].map((item, i) => (
                           <tr key={i}>
                              <td className=\"py-3\">{item.name}</td>
                              <td className=\"py-3 text-right font-mono\">{item.priceHT === 0 ? '0.00' : item.priceHT.toFixed(2)}</td>
+                             <td className="py-3">{item.name}</td>
+                             <td className="py-3 text-right font-mono">{item.priceHT === 0 ? '0.00' : item.priceHT.toFixed(2)}</td>
                           </tr>
                        ))}
                        <tr>
                           <td className=\"py-3 text-slate-500 italic\">Frais de port et emballage sÃ©curisÃ©</td>
                           <td className=\"py-3 text-right font-mono\">{shipping.toFixed(2)}</td>
+                          <td className="py-3 text-slate-500 italic">Frais de port et emballage sécurisé</td>
+                          <td className="py-3 text-right font-mono">{shipping.toFixed(2)}</td>
                        </tr>
                        {discount > 0 && (
                            <tr>
                               <td className=\"py-3 text-green-600 italic\">Remise commerciale</td>
                               <td className=\"py-3 text-right font-mono text-green-600\">-{discount.toFixed(2)}</td>
+                              <td className="py-3 text-green-600 italic">Remise commerciale</td>
+                              <td className="py-3 text-right font-mono text-green-600">-{discount.toFixed(2)}</td>
                            </tr>
                        )}
                     </tbody>
@@ -1401,12 +1526,21 @@
                        <div className=\"flex justify-between py-1 text-sm\">
                           <span className=\"text-slate-500\">Total HT</span>
                           <span className=\"font-mono\">{(totalHT + shipping - discount).toFixed(2)}</span>
+                 <div className="flex justify-end mb-12">
+                    <div className="w-64">
+                       <div className="flex justify-between py-1 text-sm">
+                          <span className="text-slate-500">Total HT</span>
+                          <span className="font-mono">{(totalHT + shipping - discount).toFixed(2)}</span>
                        </div>
                        <div className=\"flex justify-between py-1 text-sm\">
                           <span className=\"text-slate-500\">TVA (8.1%)</span>
                           <span className=\"font-mono\">{tva.toFixed(2)}</span>
+                       <div className="flex justify-between py-1 text-sm">
+                          <span className="text-slate-500">TVA (8.1%)</span>
+                          <span className="font-mono">{tva.toFixed(2)}</span>
                        </div>
                        <div className=\"flex justify-between py-3 border-t-2 border-slate-900 mt-2 text-lg font-bold\">
+                       <div className="flex justify-between py-3 border-t-2 border-slate-900 mt-2 text-lg font-bold">
                           <span>Total TTC</span>
                           <span>{totalTTC.toFixed(2)} CHF</span>
                        </div>
@@ -1417,11 +1551,16 @@
                     <p className=\"mb-2\">Garantie de 24 mois sur les travaux effectuÃ©s.</p>
                     <p>Merci de votre confiance. Paiement Ã  30 jours net.</p>
                     <p className=\"font-mono mt-4\">IBAN: CH50 0900 0000 1234 5678 9</p>
+                 <div className="mt-auto text-center text-xs text-slate-400">
+                    <p className="mb-2">Garantie de 24 mois sur les travaux effectués.</p>
+                    <p>Merci de votre confiance. Paiement à 30 jours net.</p>
+                    <p className="font-mono mt-4">IBAN: CH50 0900 0000 1234 5678 9</p>
                  </div>
               </div>
               
               <div className={`fixed bottom-0 left-0 right-0 ${panelBg} border-t ${panelBorder} p-4 flex justify-between z-30 md:pl-64 shadow-xl`}>
                  <button onClick={onValidateStep} className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg"><CheckCircle size={18}/> ClÃ´turer le dossier</button>
+                 <button onClick={onValidateStep} className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg"><CheckCircle size={18}/> Clôturer le dossier</button>
               </div>
             </div>
           );
@@ -1440,7 +1579,7 @@
               const diffTime = deposit - sale;
               const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
               if (diffDays >= 0 && diffDays <= 730) {
-                setSuggestedCoverage({ type: 'warranty_sales', reason: `< 2 ans d'achat ('${diffDays} jours)` });
+                setSuggestedCoverage({ type: 'warranty_sales', reason: `< 2 ans d'achat (${diffDays} jours)` });
                 return;
               }
             }
@@ -1450,12 +1589,12 @@
               const diffTime = deposit - repair;
               const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
               if (diffDays >= 0 && diffDays <= 365) {
-                setSuggestedCoverage({ type: 'warranty_repair', reason: `< 1 an derniÃ¨re rÃ©paration (${diffDays} jours)` });
+                setSuggestedCoverage({ type: 'warranty_repair', reason: `< 1 an dernière réparation (${diffDays} jours)` });
                 return;
               }
             }
 
-            setSuggestedCoverage({ type: 'paid', reason: 'Hors dÃ©lais de garantie' });
+            setSuggestedCoverage({ type: 'paid', reason: 'Hors délais de garantie' });
           }, [data.saleDate, data.lastRepairDate, data.depositDate]);
 
           const applySuggestion = () => {
@@ -1570,10 +1709,10 @@
                     </div>
                 </td>
 
-                <td className="p-2 text-center"><input type="checkbox" checked={!!row.oblig} onChange={e => handleToggle(id, 'oblig', e.target.checked)} className=\"w-4 h-4 accent-red-500\" /></td>
-                <td className=\"p-2 text-center\"><input type=\"checkbox\" checked={!!row.opt} onChange={e => handleToggle(id, 'opt', e.target.checked)} className=\"w-4 h-4 accent-blue-500\" /></td>
-                <td className=\"p-2 text-center\"><input type=\"checkbox\" checked={!!row.payant} onChange={e => handleToggle(id, 'payant', e.target.checked)} className=\"w-4 h-4 accent-green-500\" /></td>
-                <td className=\"p-2 text-center\"><input type=\"checkbox\" checked={!!row.gratuit} onChange={e => handleToggle(id, 'gratuit', e.target.checked)} className=\"w-4 h-4 accent-slate-500\" /></td>
+                <td className="p-2 text-center"><input type="checkbox" checked={!!row.oblig} onChange={e => handleToggle(id, 'oblig', e.target.checked)} className="w-4 h-4 accent-red-500" /></td>
+                <td className="p-2 text-center"><input type="checkbox" checked={!!row.opt} onChange={e => handleToggle(id, 'opt', e.target.checked)} className="w-4 h-4 accent-blue-500" /></td>
+                <td className="p-2 text-center"><input type="checkbox" checked={!!row.payant} onChange={e => handleToggle(id, 'payant', e.target.checked)} className="w-4 h-4 accent-green-500" /></td>
+                <td className="p-2 text-center"><input type="checkbox" checked={!!row.gratuit} onChange={e => handleToggle(id, 'gratuit', e.target.checked)} className="w-4 h-4 accent-slate-500" /></td>
               </tr>
             );
           };
@@ -1607,10 +1746,10 @@
                           ))}
                       </select>
                       <div className={`p-3 rounded-lg border ${inputBorder} ${inputBg} text-sm flex-1 w-full`}>
-                           {data.coverageType === 'warranty_sales' && <span className=\"text-green-600 flex items-center gap-2 font-bold\"><CheckCircle size={16}/> Les piÃ¨ces et la main d'Å“uvre devraient Ãªtre gratuits.</span>}
-                           {data.coverageType === 'warranty_repair' && <span className=\"text-blue-600 flex items-center gap-2 font-bold\"><CheckCircle size={16}/> Garantie SAV prÃ©cÃ©dente appliquÃ©e.</span>}
-                           {data.coverageType === 'goodwill' && <span className=\"text-amber-600 flex items-center gap-2 font-bold\"><Star size={16}/> Geste commercial total ou partiel.</span>}
-                           {(!data.coverageType || data.coverageType === 'paid') && <span className=\"text-slate-500 flex items-center gap-2\"><DollarSign size={16}/> Facturation standard au client.</span>}
+                           {data.coverageType === 'warranty_sales' && <span className="text-green-600 flex items-center gap-2 font-bold"><CheckCircle size={16}/> Les pièces et la main d'œuvre devraient être gratuits.</span>}
+                           {data.coverageType === 'warranty_repair' && <span className="text-blue-600 flex items-center gap-2 font-bold"><CheckCircle size={16}/> Garantie SAV précédente appliquée.</span>}
+                           {data.coverageType === 'goodwill' && <span className="text-amber-600 flex items-center gap-2 font-bold"><Star size={16}/> Geste commercial total ou partiel.</span>}
+                           {(!data.coverageType || data.coverageType === 'paid') && <span className="text-slate-500 flex items-center gap-2"><DollarSign size={16}/> Facturation standard au client.</span>}
                       </div>
                   </div>
               </div>
@@ -1637,34 +1776,53 @@
                     {renderRow("DÃ©magnÃ©tisation", "srv_demag")}
                     {renderRow("Test dâ€™Ã©tanchÃ©itÃ©", "srv_etanche")}
                     {renderRow("Restauration horlogÃ¨re", "srv_restau")}
+                    {renderRow("Révision du mouvement", "srv_rev_mvt")}
+                    {renderRow("Contrôle", "srv_ctrl")}
+                    {renderRow("Réglage de la marche", "srv_reglage")}
+                    {renderRow("Démagnétisation", "srv_demag")}
+                    {renderRow("Test d’étanchéité", "srv_etanche")}
+                    {renderRow("Restauration horlogère", "srv_restau")}
 
                     {/* NOUVELLE SECTION SPECIALISEE */}
                     <tr className="bg-slate-50 dark:bg-slate-900/50 font-bold"><td colSpan="6" className="p-3 text-amber-600 text-[10px] uppercase tracking-widest mt-4">1bis. Services spÃ©cialisÃ©s / Restauration avancÃ©e</td></tr>
                     {renderRow("Restauration complÃ¨te (Patrimoine)", "srv_restau_compl")}
+                    <tr className="bg-slate-50 dark:bg-slate-900/50 font-bold"><td colSpan="6" className="p-3 text-amber-600 text-[10px] uppercase tracking-widest mt-4">1bis. Services spécialisés / Restauration avancée</td></tr>
+                    {renderRow("Restauration complète (Patrimoine)", "srv_restau_compl")}
                     {renderRow("Restauration Grande Complication", "srv_restau_master")}
                     {renderRow("Restauration Habillage & OrfÃ¨vrerie", "srv_restau_hab")}
                     {renderRow("Restauration Mouvement CompliquÃ©", "srv_restau_mvt")}
                     {renderRow("Restauration RÃ©pÃ©tition Minutes", "srv_restau_sonnerie")}
+                    {renderRow("Restauration Habillage & Orfèvrerie", "srv_restau_hab")}
+                    {renderRow("Restauration Mouvement Compliqué", "srv_restau_mvt")}
+                    {renderRow("Restauration Répétition Minutes", "srv_restau_sonnerie")}
                     {renderRow("Redressage Gongs & Accordage", "srv_redressage")}
                     {renderRow("ContrÃ´le Ã©tanchÃ©itÃ©", "srv_etanche_na")}
+                    {renderRow("Contrôle étanchéité", "srv_etanche_na")}
 
                     <tr className="bg-slate-50 dark:bg-slate-900/50 font-bold"><td colSpan="6" className="p-3 text-amber-600 text-[10px] uppercase tracking-widest mt-4">2. Services quartz</td></tr>
                     {renderRow("Remplacement de pile", "srv_pile")}
                     {renderRow("ContrÃ´le Ã©lectronique", "srv_ctrl_elec")}
+                    {renderRow("Contrôle électronique", "srv_ctrl_elec")}
 
                     <tr className="bg-slate-50 dark:bg-slate-900/50 font-bold"><td colSpan="6" className="p-3 text-amber-600 text-[10px] uppercase tracking-widest mt-4">3. Services esthÃ©tiques</td></tr>
                     {renderRow("Polissage du boÃ®tier", "srv_pol_boite")}
+                    <tr className="bg-slate-50 dark:bg-slate-900/50 font-bold"><td colSpan="6" className="p-3 text-amber-600 text-[10px] uppercase tracking-widest mt-4">3. Services esthétiques</td></tr>
+                    {renderRow("Polissage du boîtier", "srv_pol_boite")}
                     {renderRow("Polissage du bracelet", "srv_pol_brac")}
                     {renderRow("Rhabillage esthÃ©tique", "srv_rhab_est")}
                     {renderRow("Nettoyage du boÃ®tier", "srv_net_boite")}
+                    {renderRow("Rhabillage esthétique", "srv_rhab_est")}
+                    {renderRow("Nettoyage du boîtier", "srv_net_boite")}
 
                     <tr className="bg-slate-50 dark:bg-slate-900/50 font-bold"><td colSpan="6" className="p-3 text-amber-600 text-[10px] uppercase tracking-widest mt-4">4. Services bracelet</td></tr>
                     {renderRow("Ajustement du bracelet", "srv_ajust_brac")}
                     {renderRow("RÃ©paration de bracelet", "srv_rep_brac")}
+                    {renderRow("Réparation de bracelet", "srv_rep_brac")}
                     {renderRow("Remplacement de boucle / fermoir", "srv_remp_boucle")}
                     {renderRow("Nettoyage de bracelet", "srv_net_brac")}
 
                     <tr className="bg-slate-50 dark:bg-slate-900/50 font-bold"><td colSpan="6" className="p-3 text-blue-600 text-[10px] uppercase tracking-widest mt-4">PIÃˆCES MOUVEMENT</td></tr>
+                    <tr className="bg-slate-50 dark:bg-slate-900/50 font-bold"><td colSpan="6" className="p-3 text-blue-600 text-[10px] uppercase tracking-widest mt-4">PIÈCES MOUVEMENT</td></tr>
                     {renderRow("Mouvement complet", "pm_mouvement")}
                     {renderRow("Masse", "pm_masse")}
                     {renderRow("Balancier", "pm_balancier")}
@@ -1675,6 +1833,8 @@
 
                     <tr className="bg-slate-50 dark:bg-slate-900/50 font-bold"><td colSpan="6" className="p-3 text-blue-600 text-[10px] uppercase tracking-widest mt-4">PIÃˆCES HABILLEMENT</td></tr>
                     {renderRow("BoÃ®te complÃ¨te", "ph_boite_comp")}
+                    <tr className="bg-slate-50 dark:bg-slate-900/50 font-bold"><td colSpan="6" className="p-3 text-blue-600 text-[10px] uppercase tracking-widest mt-4">PIÈCES HABILLEMENT</td></tr>
+                    {renderRow("Boîte complète", "ph_boite_comp")}
                     {renderRow("Fond", "ph_fond")}
                     {renderRow("Lunette", "ph_lunette")}
                     {renderRow("Carrure", "ph_carrure")}
@@ -1703,11 +1863,16 @@
                     
                     {/* NOUVELLES PIECES SPECIALES */}
                     <tr className="bg-slate-50 dark:bg-slate-900/50 font-bold"><td colSpan="6" className="p-3 text-blue-600 text-[10px] uppercase tracking-widest mt-4">PIÃˆCES SPÃ‰CIALES (REFABRICATION)</td></tr>
+                    <tr className="bg-slate-50 dark:bg-slate-900/50 font-bold"><td colSpan="6" className="p-3 text-blue-600 text-[10px] uppercase tracking-widest mt-4">PIÈCES SPÉCIALES (REFABRICATION)</td></tr>
                     {renderRow("Fabrication cadran neuf (identique)", "fab_cadran")}
                     {renderRow("Reconstruction BoÃ®tier Or Rose", "fab_boitier")}
                     {renderRow("Fabrication Cadran Ã‰mail", "fab_cadran_email")}
                     {renderRow("Fabrication Bracelet Or IntÃ©grÃ©", "fab_bracelet_or")}
                     {renderRow("Fabrication PiÃ¨ces (Came, Ressort)", "fab_pieces")}
+                    {renderRow("Reconstruction Boîtier Or Rose", "fab_boitier")}
+                    {renderRow("Fabrication Cadran Émail", "fab_cadran_email")}
+                    {renderRow("Fabrication Bracelet Or Intégré", "fab_bracelet_or")}
+                    {renderRow("Fabrication Pièces (Came, Ressort)", "fab_pieces")}
                   </tbody>
                 </table>
               </div>
@@ -1731,28 +1896,39 @@
                 id: 'RO-VC-1956', 
                 client: 'Famille du PropriÃ©taire (via Phillips)', 
                 model: 'VC Chronographe Ref. 6087 Â« Cornes de Vache Â»', 
+                client: 'Famille du Propriétaire (via Phillips)', 
+                model: 'VC Chronographe Ref. 6087 « Cornes de Vache »', 
                 serial: 'VC-489000', 
                 statusStep: 8, // Dossier ClÃ´turÃ©
+                statusStep: 8, // Dossier Clôturé
                 depositDate: '2018-09-10', 
                 saleDate: '1957-11-05', 
                 productionDate: '1956-03-10',
                 coverageType: 'paid',
                 clientAddress: 'GenÃ¨ve, Suisse', 
+                clientAddress: 'Genève, Suisse', 
                 clientZip: '1204', 
                 clientCity: 'GenÃ¨ve',
                 customerRequestText: \"Restauration complÃ¨te en vue d'une vente aux enchÃ¨res. Remise en Ã©tat de marche impÃ©rative tout en prÃ©servant l'authenticitÃ© historique (ne pas polir, garder la patine).\",
                 issue: \"Montre 'dans son jus', jamais restaurÃ©e. Poussoirs grippÃ©s. Mouvement complet mais huiles figÃ©es, encrassement gÃ©nÃ©ral. BoÃ®tier or jaune oxydÃ© mais sans chocs majeurs.\",
                 workshopNotes: \"DÃ©montage intÃ©gral et nettoyage. Mouvement recalibrÃ©. Nettoyage ultrasons. Aucun rhabillage du boÃ®tier pour conserver les arÃªtes d'origine.\",
+                clientCity: 'Genève',
+                customerRequestText: "Restauration complète en vue d'une vente aux enchères. Remise en état de marche impérative tout en préservant l'authenticité historique (ne pas polir, garder la patine).",
+                issue: "Montre 'dans son jus', jamais restaurée. Poussoirs grippés. Mouvement complet mais huiles figées, encrassement général. Boîtier or jaune oxydé mais sans chocs majeurs.",
+                workshopNotes: "Démontage intégral et nettoyage. Mouvement recalibré. Nettoyage ultrasons. Aucun rhabillage du boîtier pour conserver les arêtes d'origine.",
                 quote: { 
                     mandatory: [
                         { id: 'srv_restau_compl', name: 'Restauration complÃ¨te (Patrimoine)', priceHT: 15000.00, uuid: 'q1-1', type: 'labor' },
+                        { id: 'srv_restau_compl', name: 'Restauration complète (Patrimoine)', priceHT: 15000.00, uuid: 'q1-1', type: 'labor' },
                         { id: 'fab_cadran', name: 'Fabrication cadran neuf (identique)', priceHT: 8500.00, uuid: 'q1-2', type: 'part' },
                         { id: 'srv_etanche_na', name: 'ContrÃ´le Ã©tanchÃ©itÃ©', priceHT: 0.00, uuid: 'q1-3', type: 'labor' }
+                        { id: 'srv_etanche_na', name: 'Contrôle étanchéité', priceHT: 0.00, uuid: 'q1-3', type: 'labor' }
                     ], 
                     optional: [] 
                 },
                 internalQuoteMatrix: { srv_restau_compl: { oblig: true, customPrice: 15000.00 } },
                 checklists: { visual: { 'Carrure': 3, 'Cadran': 2, 'Aiguilles': 2 }, functional: { 'Sonnerie': 0, 'RÃ©glage': 0 } },
+                checklists: { visual: { 'Carrure': 3, 'Cadran': 2, 'Aiguilles': 2 }, functional: { 'Sonnerie': 0, 'Réglage': 0 } },
                 receivedItems: { hasEcrin: false, hasCertAuth: true, docsVerified: true }, 
                 finalControls: { identity: FINAL_CONTROL_ITEMS.identity, aesthetic: FINAL_CONTROL_ITEMS.aesthetic, technical: FINAL_CONTROL_ITEMS.technical },
                 invoiceDiscount: 0, invoiceShipping: 500,
@@ -1778,6 +1954,10 @@
                     { id: 'op2', opNumber: 20, department: 'Atelier Technique', description: 'Nettoyage & rhabillage mouvement', stdTime: '8.00', status: 'TerminÃ©' },
                     { id: 'op3', opNumber: 30, department: 'Atelier Habillage', description: 'Fabrication cadran copie conforme', stdTime: '12.00', status: 'TerminÃ©' },
                     { id: 'op4', opNumber: 40, department: 'Atelier Technique', description: 'RÃ©glage chronographe', stdTime: '6.00', status: 'TerminÃ©' }
+                    { id: 'op1', opNumber: 10, department: 'Atelier Technique', description: 'Démontage complet & décontamination Radium', stdTime: '4.00', status: 'Terminé' },
+                    { id: 'op2', opNumber: 20, department: 'Atelier Technique', description: 'Nettoyage & rhabillage mouvement', stdTime: '8.00', status: 'Terminé' },
+                    { id: 'op3', opNumber: 30, department: 'Atelier Habillage', description: 'Fabrication cadran copie conforme', stdTime: '12.00', status: 'Terminé' },
+                    { id: 'op4', opNumber: 40, department: 'Atelier Technique', description: 'Réglage chronographe', stdTime: '6.00', status: 'Terminé' }
                 ]
             },
 
@@ -1786,29 +1966,39 @@
                 id: 'RO-AP-1957', 
                 client: 'Collection PrivÃ©e (M. Goldberger)', 
                 model: 'AP Ref. 5516 QuantiÃ¨me PerpÃ©tuel', 
+                client: 'Collection Privée (M. Goldberger)', 
+                model: 'AP Ref. 5516 Quantième Perpétuel', 
                 serial: 'AP-5516-009', 
                 statusStep: 7, // Rapport gÃ©nÃ©rÃ©
+                statusStep: 7, // Rapport généré
                 depositDate: '2012-03-15', 
                 saleDate: '1957-02-15', 
                 productionDate: '1955-06-20',
                 coverageType: 'paid', // Projet spÃ©cial
+                coverageType: 'paid', // Projet spécial
                 clientAddress: 'Via Montenapoleone 12', 
                 clientZip: '20121', 
                 clientCity: 'Milano',
                 customerRequestText: \"Restauration complÃ¨te. Le mÃ©canisme de calendrier perpÃ©tuel bloque au passage de l'annÃ©e bissextile. Le boÃ®tier nÃ©cessite un rafraÃ®chissement respectueux.\",
                 issue: \"BoÃ®tier avec oxydation. Cadran lÃ©gÃ¨rement piquÃ©. MÃ©canisme de sauts de quantiÃ¨me dur. Huiles figÃ©es.\",
                 workshopNotes: \"Restauration complÃ¨te du calibre. Ajustement des cames de QP. Nettoyage boÃ®tier sans polissage agressif.\",
+                customerRequestText: "Restauration complète. Le mécanisme de calendrier perpétuel bloque au passage de l'année bissextile. Le boîtier nécessite un rafraîchissement respectueux.",
+                issue: "Boîtier avec oxydation. Cadran légèrement piqué. Mécanisme de sauts de quantième dur. Huiles figées.",
+                workshopNotes: "Restauration complète du calibre. Ajustement des cames de QP. Nettoyage boîtier sans polissage agressif.",
                 quote: { 
                     mandatory: [
                         { id: 'srv_restau_master', name: 'Restauration Grande Complication (26f)', priceHT: 45000.00, uuid: 'q2-1', type: 'labor' },
                         { id: 'fab_boitier', name: 'Fabrication BoÃ®tier Or Rose (Conforme)', priceHT: 25000.00, uuid: 'q2-2', type: 'part' },
                         { id: 'fab_cadran_email', name: 'Fabrication Cadran Ã‰mail Historique', priceHT: 5000.00, uuid: 'q2-3', type: 'part' },
+                        { id: 'fab_boitier', name: 'Fabrication Boîtier Or Rose (Conforme)', priceHT: 25000.00, uuid: 'q2-2', type: 'part' },
+                        { id: 'fab_cadran_email', name: 'Fabrication Cadran Émail Historique', priceHT: 5000.00, uuid: 'q2-3', type: 'part' },
                         { id: 'fab_pieces', name: 'Refabrication composants (Pivots, Ressorts)', priceHT: 4500.00, uuid: 'q2-4', type: 'part' }
                     ], 
                     optional: [] 
                 },
                 internalQuoteMatrix: { srv_restau_master: { oblig: true, customPrice: 45000.00 } },
                 checklists: { visual: { 'Carrure': 5, 'Cadran': 5 }, functional: { 'Sonnerie': 1, 'RÃ©glage': 1 } }, 
+                checklists: { visual: { 'Carrure': 5, 'Cadran': 5 }, functional: { 'Sonnerie': 1, 'Réglage': 1 } }, 
                 receivedItems: { hasEcrin: false, docsVerified: true }, 
                 finalControls: { 
                     identity: FINAL_CONTROL_ITEMS.identity, 
@@ -1836,6 +2026,9 @@
                      { id: 'op21', opNumber: 10, department: 'Atelier Technique', description: 'Ã‰tude archives & plans 1899', stdTime: '20.00', status: 'TerminÃ©' },
                      { id: 'op22', opNumber: 20, department: 'Atelier Habillage', description: 'Usinage & dÃ©coration boÃ®tier Or Rose', stdTime: '50.00', status: 'TerminÃ©' },
                      { id: 'op23', opNumber: 30, department: 'Atelier Technique', description: 'Restauration Grande Sonnerie & Chrono', stdTime: '40.00', status: 'TerminÃ©' }
+                     { id: 'op21', opNumber: 10, department: 'Atelier Technique', description: 'Étude archives & plans 1899', stdTime: '20.00', status: 'Terminé' },
+                     { id: 'op22', opNumber: 20, department: 'Atelier Habillage', description: 'Usinage & décoration boîtier Or Rose', stdTime: '50.00', status: 'Terminé' },
+                     { id: 'op23', opNumber: 30, department: 'Atelier Technique', description: 'Restauration Grande Sonnerie & Chrono', stdTime: '40.00', status: 'Terminé' }
                 ]
             },
 
@@ -1856,18 +2049,26 @@
                 customerRequestText: \"Restauration de la configuration d'origine. Le bracelet intÃ©grÃ© a Ã©tÃ© coupÃ© par un ancien propriÃ©taire et des cornes ont Ã©tÃ© soudÃ©es. Demande de suppression des cornes et recrÃ©ation du bracelet or 'grains de riz'.\",
                 issue: \"Cornes ajoutÃ©es visibles (brasures). Carrure lÃ©gÃ¨rement polie. Mouvement CH 27-70 Q en bon Ã©tat mais huiles vieillissantes. Risque majeur sur poinÃ§ons lors de la dÃ©soudure.\",
                 workshopNotes: \"Chauffe contrÃ´lÃ©e pour retrait cornes. Laser pour effacer traces brasure sans toucher les poinÃ§ons. Fabrication maillon par maillon du bracelet or intÃ©grÃ©. RÃ©vision mouvement standard.\",
+                clientCity: 'Zürich',
+                customerRequestText: "Restauration de la configuration d'origine. Le bracelet intégré a été coupé par un ancien propriétaire et des cornes ont été soudées. Demande de suppression des cornes et recréation du bracelet or 'grains de riz'.",
+                issue: "Cornes ajoutées visibles (brasures). Carrure légèrement polie. Mouvement CH 27-70 Q en bon état mais huiles vieillissantes. Risque majeur sur poinçons lors de la désoudure.",
+                workshopNotes: "Chauffe contrôlée pour retrait cornes. Laser pour effacer traces brasure sans toucher les poinçons. Fabrication maillon par maillon du bracelet or intégré. Révision mouvement standard.",
                 quote: { 
                     mandatory: [
                         { id: 'fab_bracelet_or', name: 'Fabrication Bracelet Or IntÃ©grÃ© (Grains de riz)', priceHT: 18000.00, uuid: 'q3-1', type: 'part' },
+                        { id: 'fab_bracelet_or', name: 'Fabrication Bracelet Or Intégré (Grains de riz)', priceHT: 18000.00, uuid: 'q3-1', type: 'part' },
                         { id: 'srv_restau_hab', name: 'Restauration Carrure (Suppression cornes)', priceHT: 12000.00, uuid: 'q3-2', type: 'labor' },
                         { id: 'srv_rev_mvt_compl', name: 'RÃ©vision Mouvement QP Chrono', priceHT: 3500.00, uuid: 'q3-3', type: 'labor' }
+                        { id: 'srv_rev_mvt_compl', name: 'Révision Mouvement QP Chrono', priceHT: 3500.00, uuid: 'q3-3', type: 'labor' }
                     ], 
                     optional: [
                          { id: 'srv_pol_boite', name: 'LÃ©ger avivage final', priceHT: 180.00, uuid: 'q3-opt-1', type: 'labor' }
+                         { id: 'srv_pol_boite', name: 'Léger avivage final', priceHT: 180.00, uuid: 'q3-opt-1', type: 'labor' }
                     ] 
                 },
                 internalQuoteMatrix: { fab_bracelet_or: { oblig: true, customPrice: 18000.00 } },
                 checklists: { visual: { 'Carrure': 1, 'Bracelet': 0 }, functional: { 'RÃ©glage': 3, 'Ã‰tanchÃ©itÃ©': 2 } },
+                checklists: { visual: { 'Carrure': 1, 'Bracelet': 0 }, functional: { 'Réglage': 3, 'Étanchéité': 2 } },
                 receivedItems: { hasEcrin: true, hasCertAuth: true, docsVerified: true }, // MODIFIE: hasBox removed
                 finalControls: { 
                     identity: FINAL_CONTROL_ITEMS.identity, 
@@ -1896,6 +2097,9 @@
                      { id: 'op31', opNumber: 10, department: 'Atelier Polissage', description: 'DÃ©soudure cornes & reprise laser', stdTime: '15.00', status: 'TerminÃ©' },
                      { id: 'op32', opNumber: 20, department: 'Atelier Habillage', description: 'Fabrication & assemblage bracelet', stdTime: '30.00', status: 'TerminÃ©' },
                      { id: 'op33', opNumber: 30, department: 'Atelier Technique', description: 'Rhabillage mouvement QP', stdTime: '6.00', status: 'TerminÃ©' }
+                     { id: 'op31', opNumber: 10, department: 'Atelier Polissage', description: 'Désoudure cornes & reprise laser', stdTime: '15.00', status: 'Terminé' },
+                     { id: 'op32', opNumber: 20, department: 'Atelier Habillage', description: 'Fabrication & assemblage bracelet', stdTime: '30.00', status: 'Terminé' },
+                     { id: 'op33', opNumber: 30, department: 'Atelier Technique', description: 'Rhabillage mouvement QP', stdTime: '6.00', status: 'Terminé' }
                 ]
             }
           ];
@@ -1989,8 +2193,8 @@
                     </div>
                     
                     {currentRepair && activeTab !== 'dashboard' && (
-                        <div className=\"flex items-center gap-4\">
-                            <div className=\"flex items-center gap-2\">
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
                                 <button 
                                     onClick={handlePrevRepair} 
                                     disabled={!prevRepair}
@@ -2021,27 +2225,21 @@
 
                     <div className="flex items-center gap-3">
                        <button onClick={() => setIsDark(!isDark)} className={`p-2 rounded-lg transition-colors ${isDark ? 'bg-slate-800 text-amber-400' : 'bg-slate-100 text-slate-500'}`}>{isDark ? <Sun size={18}/> : <Moon size={18}/>}</button>
-                       {currentRepair && activeTab !== 'dashboard' && <button onClick={() => { setCurrentRepair(null); setActiveTab('dashboard'); }} className=\"text-[10px] font-bold text-slate-400 hover:text-slate-600 uppercase border-l pl-4 border-slate-300 ml-2 tracking-widest\">Fermer Dossier</button>}
+                       {currentRepair && activeTab !== 'dashboard' && <button onClick={() => { setCurrentRepair(null); setActiveTab('dashboard'); }} className="text-[10px] font-bold text-slate-400 hover:text-slate-600 uppercase border-l pl-4 border-slate-300 ml-2 tracking-widest">Fermer Dossier</button>}
                     </div>
                   </header>
-                  <div className=\"flex-1 overflow-y-auto\">{renderContent()}</div>
+                  <div className="flex-1 overflow-y-auto">{renderContent()}</div>
                 </main>
               </div>
             </ThemeContext.Provider>
           );
         };
 
-        const root = ReactDOM.createRoot(document.getElementById(\"root\"));
+        const root = ReactDOM.createRoot(document.getElementById("root"));
         root.render(<App />);
       };
 
       startApp();
     </script>
-  </body> -->
+  </body> 
 </html>
-
-
-
-
-
-
