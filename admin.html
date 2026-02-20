@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Organisation SAV</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "react": "https://esm.sh/react@18",
+                "react-dom/client": "https://esm.sh/react-dom@18/client",
+                "lucide-react": "https://esm.sh/lucide-react@0.344.0"
+            }
+        }
+    </script>
+
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Quelques ajustements de base pour le plein écran */
+        body { margin: 0; padding: 0; }
+        #root { height: 100vh; width: 100vw; }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-slate-950">
+    
+    <div id="root"></div>
+
+    <script type="text/babel" data-type="module">
+        import React, { useState, useContext, createContext, useEffect } from 'react';
+        import { createRoot } from 'react-dom/client';
+        import { 
+          Package, Users, BarChart2, Settings, Search, Menu, Sun, Moon, 
+          Network, Info, X, Briefcase, Shield, TrendingUp, AlertTriangle, 
+          CheckCircle, Clock, LogOut, Target, BookOpen, Activity, ArrowRight, 
+          ChevronDown, TrendingDown, ShoppingCart, Truck, FastForward, Rewind, 
+          ClipboardList, PlayCircle, MinusCircle, History, LineChart, HelpCircle, 
+          Calculator, Book, FileText, Tags, Wrench, Layers, Archive, RefreshCw, 
+          List, User, Eye, EyeOff, PieChart 
+        } from 'lucide-react';
+
+        // --- THEME CONTEXT ---
+        const ThemeContext = createContext();
+        const useTheme = () => useContext(ThemeContext);
+
+        const getThemeClasses = (isDark) => ({
+          isDark,
+          appBg: isDark ? 'bg-slate-950' : 'bg-gray-100',
+          panelBg: isDark ? 'bg-slate-800' : 'bg-white',
+          panelBorder: isDark ? 'border-slate-700' : 'border-gray-200 shadow-sm',
+          headerBg: isDark ? 'bg-slate-900' : 'bg-white',
+          headerBorder: isDark ? 'border-slate-800' : 'border-gray-200',
+          sidebarBg: isDark ? 'bg-slate-900' : 'bg-white',
+          sidebarBorder: isDark ? 'border-slate-800' : 'border-gray-200',
+          textMain: isDark ? 'text-white' : 'text-slate-900',
+          textSec: isDark ? 'text-slate-400' : 'text-slate-500',
+          inputBg: isDark ? 'bg-slate-900' : 'bg-gray-50',
+          inputBorder: isDark ? 'border-slate-600' : 'border-gray-300',
+          tableHeader: isDark ? 'bg-slate-900/50' : 'bg-gray-100',
+          tableRowHover: isDark ? 'hover:bg-slate-700/30' : 'hover:bg-gray-50',
+          accentText: isDark ? 'text-amber-500' : 'text-amber-600',
+          accentBg: isDark ? 'bg-amber-500' : 'bg-amber-600',
+          accentLightBg: isDark ? 'bg-amber-500/10' : 'bg-amber-50',
+          menuItemHover: isDark ? 'hover:bg-slate-800' : 'hover:bg-gray-100',
+          divider: isDark ? 'divide-slate-700' : 'divide-gray-200',
+        });
+
+        // --- CONSTANTS & INITIAL DATA ---
+        const MONTHS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+
+        const INITIAL_INVENTORY = [
+          { id: 'inv1', name: 'Couronne Acier Ø6mm', category: 'Habillement', stock: 12, stockStart: 10, cogs: 1540.00, min: 10, max: 20, safety: 5, stdQty: 20, price: 140.00, status: 'Normal', history: [15, 14, 16, 15, 14, 13, 12] },
+          { id: 'inv2', name: 'Joint O-Ring 32mm', category: 'Consommable', stock: 60, stockStart: 100, cogs: 800.00, min: 50, max: 200, safety: 20, stdQty: 150, price: 2.00, status: 'Normal', history: [110, 105, 100, 95, 90, 85, 60] },
+          { id: 'inv3', name: 'Mouvement Cal. 3235', category: 'Mouvement', stock: 2, stockStart: 4, cogs: 2600.00, min: 3, max: 8, safety: 1, stdQty: 5, price: 325.00, status: 'Critique', history: [5, 4, 4, 3, 3, 2, 2] },
+          { id: 'inv4', name: 'Aiguilles Set Or Rose', category: 'Habillement', stock: 4, stockStart: 6, cogs: 390.00, min: 5, max: 15, safety: 2, stdQty: 10, price: 65.00, status: 'Bas', history: [8, 7, 7, 6, 6, 5, 4] },
+          { id: 'inv5', name: 'Huile Moebius 9010', category: 'Consommable', stock: 3, stockStart: 3, cogs: 270.00, min: 2, max: 5, safety: 1, stdQty: 3, price: 45.00, status: 'Normal', history: [3, 3, 2, 4, 3, 3, 3] },
+          { id: 'inv6', name: 'Glace Saphir Bombée', category: 'Habillement', stock: 0, stockStart: 5, cogs: 557.00, min: 5, max: 12, safety: 2, stdQty: 10, price: 111.40, status: 'Rupture', history: [6, 5, 4, 3, 2, 1, 0] },
+          { id: 'inv7', name: 'Ressort de barillet', category: 'Mouvement', stock: 15, stockStart: 20, cogs: 1050.00, min: 8, max: 33, safety: 4, stdQty: 25, price: 35.00, status: 'Normal', history: [22, 20, 19, 18, 17, 16, 15] },
+        ];
+
+        const INITIAL_REQUESTS = [
+            { id: 'req1', itemId: 'inv1', qty: 2, status: 'pending', technician: 'Jean Dupont' },
+            { id: 'req2', itemId: 'inv3', qty: 1, status: 'pending', technician: 'Marie Curie' },
+            { id: 'req3', itemId: 'inv2', qty: 10, status: 'pending', technician: 'Paul Newman' },
+        ];
+
+        const ORG_MODELS = {
+          small: [
+            { id: 1, name: 'Jean Dupont', role: 'Patron ou\nResponsable SAV', department: 'Direction', avatar: 'JD', status: 'Présent', managerId: null },
+            { id: 2, name: 'Sophie Leroy', role: 'Secrétaire\nSAV', department: 'Admin', avatar: 'SL', status: 'Présent', managerId: 1, layout: 'staff' },
+            { id: 3, name: 'Marie Curie', role: 'Technicien\nSAV Spécialité 1', department: 'Technique', avatar: 'MC', status: 'Présent', managerId: 1 },
+            { id: 4, name: 'Paul Newman', role: 'Technicien\nSAV Spécialité 2', department: 'Technique', avatar: 'PN', status: 'En congé', managerId: 1 },
+          ],
+          medium: [
+            { id: 1, name: 'Jean Dupont', role: 'Patron /\nResponsable\nSAV', department: 'Direction', avatar: 'JD', status: 'Présent', managerId: null },
+            { id: 2, name: 'Sophie Leroy', role: 'Secrétaire\nSAV', department: 'Admin', avatar: 'SL', status: 'Présent', managerId: 1, layout: 'staff' },
+            { id: 3, name: 'Lucas Scott', role: 'Responsable\nStock', department: 'Logistique', avatar: 'LS', status: 'Présent', managerId: 1 },
+            { id: 5, name: 'Marie Curie', role: 'Responsable\nTechnique\n1', department: 'Technique', avatar: 'MC', status: 'Présent', managerId: 1 },
+            { id: 7, name: 'Emma Stone', role: 'Responsable\nTechnique\n2', department: 'Technique', avatar: 'ES', status: 'En congé', managerId: 1 },
+            { id: 9, name: 'Tom Holland', role: 'Responsable\nContrôle', department: 'Qualité', avatar: 'TH', status: 'Présent', managerId: 1 },
+            { id: 4, name: 'Claire Chazal', role: 'Magasinier', department: 'Logistique', avatar: 'CC', status: 'Présent', managerId: 3 },
+            { id: 6, name: 'Alain Prost', role: 'Technicien\nSAV Spécialité 1', department: 'Technique', avatar: 'AP', status: 'Formation', managerId: 5 },
+            { id: 8, name: 'Paul Newman', role: 'Technicien\nSAV Spécialité 2', department: 'Technique', avatar: 'PN', status: 'Présent', managerId: 7 },
+            { id: 10, name: 'Zendaya C.', role: 'Contrôleur', department: 'Qualité', avatar: 'ZC', status: 'Présent', managerId: 9 },
+          ],
+          large: [
+            { id: 1, name: 'Jean Dupont', role: 'Responsable\nSAV', department: 'Direction', avatar: 'JD', status: 'Présent', managerId: null },
+            { id: 10, name: 'Claire Chazal', role: 'Secrétaire\nSAV', department: 'Admin', avatar: 'CC', status: 'Présent', managerId: 1, layout: 'staff' },
+            { id: 2, name: 'Sophie Leroy', role: 'Responsable\nservice client', department: 'Client', avatar: 'SL', status: 'Présent', managerId: 1 },
+            { id: 3, name: 'Lucas Scott', role: 'Responsable\nStock', department: 'Logistique', avatar: 'LS', status: 'Présent', managerId: 1 },
+            { id: 4, name: 'Sarah Connor', role: 'Responsable\nFormation', department: 'Formation', avatar: 'SC', status: 'Présent', managerId: 1 },
+            { id: 5, name: 'Mike Ross', role: 'Responsable\nSupport', department: 'Support', avatar: 'MR', status: 'Présent', managerId: 1 },
+            { id: 6, name: 'Marc Veyrat', role: 'Responsable\nTechnique', department: 'Technique', avatar: 'MV', status: 'Présent', managerId: 1 },
+            { id: 21, name: 'Alice W.', role: 'Assistant\nService Client', department: 'Client', avatar: 'AW', status: 'Présent', managerId: 2 },
+            { id: 31, name: 'Hugo Boss', role: 'Magasinier', department: 'Logistique', avatar: 'HB', status: 'Présent', managerId: 3 },
+            { id: 41, name: 'John Doe', role: 'Formateur', department: 'Formation', avatar: 'JD', status: 'Présent', managerId: 4 },
+            { id: 51, name: 'Jane Smith', role: 'Assistant\nSupport', department: 'Support', avatar: 'JS', status: 'Présent', managerId: 5 },
+            { id: 211, name: 'Entité Ext.', role: 'Filiale', department: 'Filiale', avatar: 'F', status: 'Distant', managerId: 21, isDashed: true },
+            { id: 60, name: 'System', role: 'Ordo', department: 'Tech', avatar: 'OR', status: 'Auto', managerId: 6, layout: 'staff' },
+            { id: 61, name: 'Tom Holland', role: 'Responsable\nContrôle', department: 'Qualité', avatar: 'TH', status: 'Présent', managerId: 6 },
+            { id: 62, name: 'Alain Prost', role: 'Responsable\nTechnique 1', department: 'Technique', avatar: 'AP', status: 'Présent', managerId: 6 },
+            { id: 63, name: 'Paul Newman', role: 'Responsable\nTechnique 2', department: 'Technique', avatar: 'PN', status: 'En congé', managerId: 6 },
+            { id: 64, name: 'Emma Stone', role: 'Responsable\nTechnique 3', department: 'Technique', avatar: 'ES', status: 'Présent', managerId: 6 },
+            { id: 611, name: 'Zendaya C.', role: 'Contrôleur', department: 'Qualité', avatar: 'ZC', status: 'Présent', managerId: 61 },
+            { id: 621, name: 'Tech A', role: 'Technicien', department: 'Technique', avatar: 'TA', status: 'Présent', managerId: 62 },
+            { id: 631, name: 'Tech B', role: 'Technicien', department: 'Technique', avatar: 'TB', status: 'Présent', managerId: 63 },
+            { id: 641, name: 'Tech C', role: 'Technicien', department: 'Technique', avatar: 'TC', status: 'Présent', managerId: 64 },
+          ]
+        };
+
+        const TEAM_DB_DEFAULT = ORG_MODELS.medium; 
+
+        // --- NAVIGATION ---
+        const Sidebar = ({ activeTab, setActiveTab, isOpen, toggleSidebar }) => {
+          const { sidebarBg, sidebarBorder, textMain, textSec, accentText, accentLightBg, menuItemHover } = useTheme();
+          
+          const menuItems = [
+            { id: 'dashboard', label: 'VUE D\'ENSEMBLE', icon: BarChart2 },
+            { id: 'inventory', label: 'Gestion des Stocks', icon: Package },
+            { id: 'org_chart', label: 'Organigramme & Rôles', icon: Network },
+            { id: 'docs', label: 'Ressources Doc.', icon: Book },
+          ];
+
+          return (
+            <>
+              <div className={`fixed inset-0 bg-black/50 z-20 md:hidden transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={toggleSidebar} />
+              <div className={`fixed md:static inset-y-0 left-0 z-30 w-64 ${sidebarBg} ${textMain} border-r ${sidebarBorder} transform transition-transform md:transform-none ${isOpen ? 'translate-x-0' : '-translate-x-full'} transition-colors duration-300 flex flex-col`}>
+                <div className={`p-6 border-b ${sidebarBorder} flex items-center gap-3 shrink-0`}>
+                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white"><Briefcase size={20} /></div>
+                  <h1 className="font-bold text-lg tracking-wider uppercase">CSCS ORG</h1>
+                </div>
+                <div className="px-4 py-3 bg-slate-100 dark:bg-slate-800 m-4 rounded text-[10px] font-bold text-center uppercase tracking-widest text-slate-500">MODULE ORGANISATION</div>
+                <nav className="px-4 space-y-1 flex-1 overflow-y-auto">
+                  {menuItems.map((item) => (
+                    <button key={item.id} onClick={() => { setActiveTab(item.id); toggleSidebar(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left ${activeTab === item.id ? `${accentLightBg} ${accentText} font-bold` : `${textSec} ${menuItemHover}`}`}>
+                      <item.icon size={18} className="shrink-0" /><span className="text-sm truncate">{item.label}</span>
+                    </button>
+                  ))}
+                </nav>
+                <div className={`p-4 border-t ${sidebarBorder}`}>
+                     <button className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg ${textSec} hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors`}>
+                        <LogOut size={18} /> <span className="text-sm font-bold">Déconnexion</span>
+                     </button>
+                </div>
+              </div>
+            </>
+          );
+        };
+
+        // --- COMPONENTS ---
+        const SimulationHeader = ({ currentMonth, advanceTime, goBackTime, lastAction }) => {
+            const { headerBg, headerBorder, textMain, textSec } = useTheme();
+            const baseYear = 2026;
+            const currentYear = baseYear + Math.floor(currentMonth / 12);
+            const progress = ((currentMonth + 1) % 12 === 0 ? 12 : (currentMonth + 1) % 12) / 12 * 100;
+
+            return (
+                <div className={`${headerBg} border-b ${headerBorder} p-4 flex flex-col md:flex-row justify-between items-center gap-4 transition-colors duration-300`}>
+                     <div className="flex items-center gap-4 w-full md:w-auto">
+                        <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg text-blue-600">
+                            <Clock size={24} />
+                        </div>
+                        <div>
+                            <h2 className={`text-sm font-bold uppercase tracking-widest ${textMain}`}>Simulation Temporelle</h2>
+                            <p className={`text-xs ${textSec}`}>Date : <span className="font-bold text-blue-600 uppercase">{MONTHS[currentMonth % 12]} {currentYear}</span></p>
+                        </div>
+                     </div>
+
+                     <div className="flex-1 px-8 w-full md:w-auto">
+                         <div className="flex justify-between text-[10px] uppercase font-bold text-slate-400 mb-1">
+                            <span>Jan</span><span>Déc</span>
+                         </div>
+                         <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                             <div className="h-full bg-blue-500 transition-all duration-500" style={{width: `${progress}%`}}></div>
+                         </div>
+                         {lastAction && <p className="text-[10px] text-center mt-1 text-green-600 font-bold animate-pulse">{lastAction}</p>}
+                     </div>
+
+                     <div className="flex items-center gap-2">
+                         <button 
+                            onClick={goBackTime}
+                            disabled={currentMonth <= 0}
+                            className="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-2 rounded-lg font-bold text-xs uppercase flex items-center gap-1 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                         >
+                            <Rewind size={14} /> Préc.
+                         </button>
+                         <button 
+                            onClick={advanceTime}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-xs uppercase flex items-center gap-2 shadow-lg hover:shadow-xl transition-all active:scale-95"
+                         >
+                            <FastForward size={16} /> Mois Suivant
+                         </button>
+                     </div>
+                </div>
+            );
+        };
+
+        const StockMaxiHelpModal = ({ onClose }) => {
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+                    <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-2xl max-w-xl w-full relative border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+                        <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><X size={20}/></button>
+                        <h3 className="text-lg font-bold text-amber-600 mb-4 flex items-center gap-2">
+                            <Info size={20}/> Logique de calcul : Stock Maxi
+                        </h3>
+                        <div className="text-sm text-slate-600 dark:text-slate-300 space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+                            <p>Une fois la décision prise de stocker une référence, il convient d’en déterminer la quantité annuelle. <strong>Le taux de rotation cible pour un SAV est généralement compris entre 1 et 1,5.</strong></p>
+                            <div className="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg border-l-4 border-blue-500 my-4">
+                                <p className="font-mono text-xs mb-1 font-bold text-slate-500 uppercase">Formule :</p>
+                                <p className="italic font-medium">Taux de rotation = Chiffre d’affaires / Valeur moyenne du stock</p>
+                            </div>
+                            <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+                                <h4 className="font-bold mb-2 text-slate-800 dark:text-white">Exemple Pratique</h4>
+                                <ul className="list-disc pl-4 space-y-1 mb-2 text-xs">
+                                    <li>Prévision de vente : <strong>30 pièces/an</strong></li>
+                                    <li>Prix unitaire : <strong>2.- CHF</strong></li>
+                                </ul>
+                                <ol className="list-decimal pl-4 space-y-1 font-medium bg-amber-50 dark:bg-amber-900/10 p-3 rounded text-xs">
+                                    <li>Estimation CA : 30 × 2.- = <strong>60.-</strong></li>
+                                    <li>Valeur cible stock (Rotation 1.5) : 60 / 1.5 = <strong>40.-</strong></li>
+                                    <li><strong>Stock Maxi : 40 / 2.- = 20 pièces</strong></li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const StockEducationModal = ({ onClose }) => {
+            const { panelBg, textMain, textSec } = useTheme();
+            const [activeSection, setActiveSection] = useState('role');
+
+            const sections = [
+                { id: 'role', label: 'Rôle des Stocks', icon: Package },
+                { id: 'types', label: 'Genres de Stock', icon: Layers },
+                { id: 'graph', label: 'Graphique de Gestion', icon: TrendingUp },
+                { id: 'flow', label: 'FIFO & LIFO', icon: RefreshCw },
+                { id: 'control', label: 'Contrôle & Inventaire', icon: List },
+            ];
+
+            const content = {
+                role: (
+                    <div className="space-y-4">
+                        <h4 className="font-bold text-lg text-blue-600">Le Rôle des Stocks</h4>
+                        <p>Le stock joue un rôle de <strong>régulateur</strong> et de <strong>sécurité</strong> dans l'entreprise.</p>
+                        <ul className="list-disc pl-5 space-y-2">
+                            <li><strong>Lisser les écarts</strong> entre les prévisions et la demande réelle.</li>
+                            <li><strong>Garantir la disponibilité</strong> des pièces pour l'atelier.</li>
+                            <li><strong>Optimiser les coûts</strong> d'achat (économies d'échelle).</li>
+                        </ul>
+                    </div>
+                ),
+                types: (
+                    <div className="space-y-4">
+                        <h4 className="font-bold text-lg text-blue-600">Les Genres de Stock</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="p-3 border rounded-lg bg-slate-50 dark:bg-slate-900/50">
+                                <strong className="block text-sm mb-1">Matières Premières</strong>
+                                <p className="text-xs text-slate-500">Composants de base avant transformation.</p>
+                            </div>
+                            <div className="p-3 border rounded-lg bg-slate-50 dark:bg-slate-900/50">
+                                <strong className="block text-sm mb-1">En-cours (WIP)</strong>
+                                <p className="text-xs text-slate-500">Produits en cours de fabrication ou de réparation à l'atelier.</p>
+                            </div>
+                        </div>
+                    </div>
+                ),
+                graph: (
+                    <div className="space-y-4">
+                        <h4 className="font-bold text-lg text-blue-600">Le Graphique de Gestion</h4>
+                        <ul className="space-y-3 text-sm">
+                            <li><span className="font-bold text-green-600">Stock Maximum :</span> Limite supérieure à ne pas dépasser.</li>
+                            <li><span className="font-bold text-amber-500">Point de Commande :</span> Niveau qui déclenche une commande.</li>
+                            <li><span className="font-bold text-red-500">Stock de Sécurité :</span> Réserve tampon.</li>
+                        </ul>
+                    </div>
+                ),
+                flow: (
+                    <div className="space-y-4">
+                        <h4 className="font-bold text-lg text-blue-600">Méthodes de Flux (FIFO / LIFO)</h4>
+                        <div className="grid grid-cols-1 gap-6">
+                            <div className="border p-4 rounded-xl border-green-200 bg-green-50 dark:bg-green-900/10">
+                                <h5 className="font-bold flex items-center gap-2 text-green-700 dark:text-green-400"><ArrowRight size={16}/> FIFO</h5>
+                                <p className="text-sm mt-2"><strong>Premier Entré, Premier Sorti.</strong></p>
+                            </div>
+                            <div className="border p-4 rounded-xl border-amber-200 bg-amber-50 dark:bg-amber-900/10">
+                                <h5 className="font-bold flex items-center gap-2 text-amber-700 dark:text-amber-400"><Archive size={16}/> LIFO</h5>
+                                <p className="text-sm mt-2"><strong>Dernier Entré, Premier Sorti.</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                ),
+                control: (
+                    <div className="space-y-4">
+                        <h4 className="font-bold text-lg text-blue-600">Contrôle & Inventaire</h4>
+                        <div className="space-y-3 mt-4">
+                            <div className="flex gap-3 items-start">
+                                <div className="bg-blue-100 p-2 rounded text-blue-600 shrink-0"><List size={16}/></div>
+                                <div><strong className="block text-sm">Inventaire Physique Annuel</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            };
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onClose}>
+                    <div className={`${panelBg} w-full max-w-4xl h-[80vh] rounded-2xl shadow-2xl flex overflow-hidden border border-slate-700`} onClick={e => e.stopPropagation()}>
+                        <div className="w-64 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex flex-col">
+                            <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+                                <h3 className={`font-bold ${textMain} flex items-center gap-2`}><BookOpen className="text-amber-500"/> Guide Stocks</h3>
+                            </div>
+                            <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                                {sections.map(section => (
+                                    <button
+                                        key={section.id}
+                                        onClick={() => setActiveSection(section.id)}
+                                        className={`w-full flex items-center gap-3 p-3 rounded-lg text-sm transition-all ${activeSection === section.id ? 'bg-blue-500 text-white shadow-md' : `${textSec} hover:bg-slate-200 dark:hover:bg-slate-800`}`}
+                                    >
+                                        <section.icon size={18} /><span>{section.label}</span>
+                                    </button>
+                                ))}
+                            </nav>
+                        </div>
+                        <div className="flex-1 flex flex-col min-w-0">
+                            <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-end">
+                                <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-500"><X size={20}/></button>
+                            </div>
+                            <div className={`flex-1 p-8 overflow-y-auto ${textMain}`}>{content[activeSection]}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const DashboardOrg = ({ inventory, team }) => {
+            const { textMain, textSec, panelBg, panelBorder } = useTheme();
+            const totalStockValue = inventory.reduce((acc, item) => acc + (item.stock * item.price), 0);
+            const lowStockItems = inventory.filter(i => i.stock <= i.min).length;
+            const presentStaff = team.filter(m => m.status === 'Présent').length;
+
+            return (
+                <div className="p-8 max-w-7xl mx-auto animate-in fade-in duration-500">
+                    <h2 className={`text-2xl font-bold ${textMain} mb-2 uppercase tracking-widest`}>Tableau de Bord Organisation</h2>
+                    <p className={`${textSec} mb-8`}>Indicateurs temps réel de la simulation</p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div className={`${panelBg} border ${panelBorder} p-6 rounded-xl shadow-sm`}>
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600"><Package size={24}/></div>
+                                <span className={`text-xs font-bold px-2 py-1 rounded-full ${lowStockItems > 0 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>{lowStockItems} Alertes</span>
+                            </div>
+                            <h3 className={`${textSec} text-sm uppercase font-bold`}>Valeur de Stock</h3>
+                            <p className={`text-xl font-bold font-mono ${textMain} mt-1`}>{new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF' }).format(totalStockValue)}</p>
+                        </div>
+
+                        <div className={`${panelBg} border ${panelBorder} p-6 rounded-xl shadow-sm`}>
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg text-amber-600"><Users size={24}/></div>
+                                <span className="text-xs font-bold px-2 py-1 rounded-full bg-green-100 text-green-600">{Math.round((presentStaff / team.length) * 100)}% Présence</span>
+                            </div>
+                            <h3 className={`${textSec} text-sm uppercase font-bold`}>Effectif Actif</h3>
+                            <p className={`text-xl font-bold ${textMain} mt-1`}>{presentStaff} / {team.length}</p>
+                        </div>
+
+                        <div className={`${panelBg} border ${panelBorder} p-6 rounded-xl shadow-sm`}>
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-purple-600"><TrendingUp size={24}/></div>
+                                <span className="text-xs font-bold px-2 py-1 rounded-full bg-slate-100 text-slate-500">Annuel</span>
+                            </div>
+                            <h3 className={`${textSec} text-sm uppercase font-bold`}>Rotation Moyenne</h3>
+                            <p className={`text-xl font-bold ${textMain} mt-1`}>1.2 <span className="text-sm font-normal text-slate-400">tours</span></p>
+                        </div>
+                    </div>
+
+                    <div className={`${panelBg} border ${panelBorder} rounded-xl p-6`}>
+                        <h3 className={`font-bold ${textMain} mb-4 flex items-center gap-2`}><AlertTriangle size={18} className="text-amber-500"/> Alertes Stock & Approvisionnement</h3>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm whitespace-nowrap">
+                                <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase text-xs">
+                                    <tr>
+                                        <th className="p-3">Article</th><th className="p-3 text-center">En Stock</th><th className="p-3 text-center">Minimum</th><th className="p-3 text-center">Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody className={`divide-y ${useTheme().divider}`}>
+                                    {inventory.filter(i => i.stock <= i.min).map(item => (
+                                        <tr key={item.id}>
+                                            <td className={`p-3 font-medium ${textMain}`}>{item.name}</td>
+                                            <td className="p-3 text-center font-bold">{item.stock}</td>
+                                            <td className="p-3 text-center text-slate-400">{item.min}</td>
+                                            <td className="p-3 text-center">
+                                                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${item.stock === 0 ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
+                                                    {item.stock === 0 ? 'Rupture' : 'Bas'}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const calculateStockMetrics = (item) => {
+            const history = item.history || [];
+            const avgStock = history.length > 0 ? history.reduce((a, b) => a + b, 0) / history.length : (item.stockStart + item.stock) / 2;
+            const rotationRate = avgStock > 0 && item.price > 0 ? (item.cogs / (avgStock * item.price)) : 0; 
+            const avgDuration = rotationRate > 0 ? (365 / rotationRate) : 0;
+            return { avgStock: Math.round(avgStock), rotationRate: rotationRate.toFixed(2), avgDuration: Math.round(avgDuration) };
+        };
+
+        const EnhancedStockChart = ({ item }) => {
+            const { textMain, isDark } = useTheme();
+            const history = item.history || [];
+            const yMax = Math.max(...history, item.max * 1.3, 5);
+            const getY = (val) => 100 - (val / yMax) * 100;
+            const points = history.map((val, idx) => `${(idx / (history.length > 1 ? history.length - 1 : 1)) * 100},${getY(val)}`).join(' ');
+            const areaPoints = `${points} 100,100 0,100`;
+
+            return (
+                <div className="w-full h-96 mt-4 relative select-none group">
+                    <svg className="w-full h-full overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
+                         <defs>
+                            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stopColor="#3b82f6" /><stop offset="100%" stopColor="#8b5cf6" />
+                            </linearGradient>
+                            <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" /><stop offset="90%" stopColor="#3b82f6" stopOpacity="0.0" />
+                            </linearGradient>
+                         </defs>
+                         <rect x="0" y="0" width="100" height={getY(item.max)} fill="#ef4444" fillOpacity={isDark ? "0.15" : "0.08"} />
+                         <rect x="0" y={getY(item.max)} width="100" height={Math.max(0, getY(item.min) - getY(item.max))} fill="#22c55e" fillOpacity={isDark ? "0.15" : "0.08"} />
+                         <rect x="0" y={getY(item.min)} width="100" height={Math.max(0, 100 - getY(item.min))} fill="#f59e0b" fillOpacity={isDark ? "0.15" : "0.08"} />
+                         <line x1="0" y={getY(item.max)} x2="100" y2={getY(item.max)} stroke="#22c55e" strokeWidth="0.4" strokeDasharray="3,1" />
+                         <line x1="0" y={getY(item.min)} x2="100" y2={getY(item.min)} stroke="#f59e0b" strokeWidth="0.4" strokeDasharray="3,1" />
+                         <polygon points={areaPoints} fill="url(#areaGradient)" />
+                         <polyline fill="none" stroke="url(#lineGradient)" strokeWidth="1.5" points={points} strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke"/>
+                    </svg>
+                    <div className="absolute inset-0 pointer-events-none">
+                        {history.map((val, idx) => (
+                             <div key={idx} className="absolute" style={{left: `${(idx / (history.length > 1 ? history.length - 1 : 1)) * 100}%`, top: `${getY(val)}%`}}>
+                                 <div className={`w-3 h-3 -ml-1.5 -mt-1.5 rounded-full border-2 ${isDark ? 'bg-slate-900 border-blue-500' : 'bg-white border-blue-600'} shadow-sm transition-transform group-hover:scale-125`}></div>
+                             </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const StockAnalysisView = ({ inventory, placeOrder, activeOrders, initialSelectedId }) => {
+            const { textMain, panelBg, panelBorder, inputBg, inputBorder, accentText } = useTheme();
+            const [selectedItemId, setSelectedItemId] = useState(initialSelectedId || inventory[0]?.id);
+            const [orderQty, setOrderQty] = useState(10);
+            
+            useEffect(() => { if(initialSelectedId) setSelectedItemId(initialSelectedId); }, [initialSelectedId]);
+            const selectedItem = inventory.find(i => i.id === selectedItemId);
+            const metrics = selectedItem ? calculateStockMetrics(selectedItem) : { rotationRate: 0 };
+            const rotation = parseFloat(metrics.rotationRate);
+            const pendingOrder = activeOrders.find(o => o.itemId === selectedItemId);
+
+            return (
+                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className={`${panelBg} border ${panelBorder} rounded-xl p-6 lg:col-span-2`}>
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className={`text-lg font-bold ${textMain} flex items-center gap-2 uppercase tracking-wider`}><TrendingUp size={20} className="text-purple-500"/> Analyse Graphique</h3>
+                                <select value={selectedItemId} onChange={(e) => setSelectedItemId(e.target.value)} className={`${inputBg} border ${inputBorder} text-sm rounded-lg p-2 outline-none`}>
+                                    {inventory.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
+                                </select>
+                            </div>
+                            {selectedItem && (
+                                <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg border border-slate-100 dark:border-slate-800">
+                                    <EnhancedStockChart item={selectedItem} />
+                                </div>
+                            )}
+                        </div>
+                        <div className="space-y-6">
+                            <div className={`${panelBg} border ${panelBorder} rounded-xl p-6`}>
+                                <h4 className={`font-bold ${textMain} mb-4 flex items-center gap-2 uppercase text-xs tracking-widest`}><Target size={16} className={accentText}/> Cible Rotation</h4>
+                                <div className="text-center">
+                                    <p className={`text-2xl font-bold`}>{rotation}</p>
+                                </div>
+                            </div>
+                            <div className={`${panelBg} border ${panelBorder} rounded-xl p-6`}>
+                                <h4 className={`font-bold ${textMain} mb-4 flex items-center gap-2 uppercase text-xs tracking-widest`}><ShoppingCart size={16} className="text-blue-500"/> Réapprovisionnement</h4>
+                                {pendingOrder ? (
+                                     <div className="bg-blue-50 border border-blue-200 p-4 text-center"><p className="text-sm font-bold text-blue-700">Commande en cours</p></div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        <button onClick={() => placeOrder(selectedItemId, orderQty)} className="w-full bg-blue-600 text-white py-2 rounded-lg font-bold text-xs uppercase shadow-lg"><Truck size={14}/> Valider Commande</button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const WorkshopRequestsPanel = ({ requests, serveRequest, inventory }) => {
+            const { panelBg, panelBorder, textMain, tableRowHover, divider } = useTheme();
+            return (
+                <div className={`${panelBg} border ${panelBorder} rounded-xl overflow-hidden`}>
+                    <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                        <h3 className={`font-bold ${textMain} flex items-center gap-2`}><ClipboardList size={18} className="text-purple-500"/> Liste à Servir</h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm whitespace-nowrap">
+                            <tbody className={`divide-y ${divider}`}>
+                                {requests.map(req => {
+                                    if (req.status !== 'pending') return null;
+                                    const item = inventory.find(i => i.id === req.itemId);
+                                    const isAvailable = item && item.stock >= req.qty;
+                                    return (
+                                        <tr key={req.id} className={tableRowHover}>
+                                            <td className="p-3 font-medium">{req.technician}</td>
+                                            <td className="p-3"><span className="block font-bold text-xs">{item?.name || 'Inconnu'}</span></td>
+                                            <td className="p-3 text-center font-bold">{req.qty}</td>
+                                            <td className="p-3 text-right">
+                                                <button disabled={!isAvailable} onClick={() => serveRequest(req.id)} className={`px-3 py-1.5 rounded text-[10px] font-bold uppercase transition-colors ${isAvailable ? 'bg-purple-600 text-white' : 'bg-slate-200 text-slate-400'}`}>
+                                                    {isAvailable ? 'Servir' : 'Stock Insuffisant'}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        };
+
+        const StockTable = ({ inventory, onViewHistory, onOrderStd, onQuickOutflow, orders }) => {
+            const { panelBg, panelBorder, textMain, tableRowHover, divider } = useTheme();
+            const [showHelp, setShowHelp] = useState(false);
+
+            return (
+                <>
+                    {showHelp && <StockMaxiHelpModal onClose={() => setShowHelp(false)} />}
+                    <div className={`${panelBg} border ${panelBorder} rounded-xl overflow-hidden`}>
+                         <div className="overflow-x-auto">
+                             <table className="w-full text-left text-xs whitespace-nowrap">
+                                 <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase">
+                                     <tr>
+                                         <th className="p-2 text-center w-24">Actions</th><th className="p-2">Composant</th><th className="p-2 text-center">Stock</th><th className="p-2 text-center">Rotation</th>
+                                     </tr>
+                                 </thead>
+                                 <tbody className={`divide-y ${divider}`}>
+                                     {inventory.map(item => {
+                                         const pendingOrder = orders.find(o => o.itemId === item.id);
+                                         const metrics = calculateStockMetrics(item);
+                                         return (
+                                            <tr key={item.id} className={tableRowHover}>
+                                                <td className="p-2">
+                                                    <div className="flex items-center justify-center gap-1">
+                                                        <button onClick={() => onViewHistory(item.id)} className="p-1.5 bg-slate-100 hover:bg-blue-100 rounded"><LineChart size={14}/></button>
+                                                        <button onClick={() => onQuickOutflow(item)} className="p-1.5 bg-slate-100 hover:bg-purple-100 rounded"><MinusCircle size={14}/></button>
+                                                    </div>
+                                                </td>
+                                                <td className={`p-2 font-bold ${textMain}`}>{item.name}</td>
+                                                <td className={`p-2 text-center font-mono font-bold ${item.stock <= item.min ? 'text-red-500' : textMain}`}>{item.stock}</td>
+                                                <td className="p-2 text-center">{metrics.rotationRate}</td>
+                                            </tr>
+                                         );
+                                     })}
+                                 </tbody>
+                             </table>
+                         </div>
+                    </div>
+                </>
+            );
+        };
+
+        const QuickOutflowModal = ({ item, onClose, onConfirm }) => {
+            const [qty, setQty] = useState(1);
+            const { panelBg, panelBorder, textMain, inputBg, inputBorder } = useTheme();
+            if (!item) return null;
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className={`${panelBg} border ${panelBorder} p-6 rounded-xl shadow-2xl max-w-sm w-full`}>
+                        <h3 className={`font-bold ${textMain} text-lg mb-4`}>Sortie Stock Rapide</h3>
+                        <div className="mb-6">
+                            <input type="number" min="1" max={item.stock} value={qty} onChange={(e) => setQty(parseInt(e.target.value))} className={`w-full ${inputBg} border ${inputBorder} p-2 rounded`} />
+                        </div>
+                        <div className="flex gap-3">
+                            <button onClick={onClose} className="flex-1 py-2 rounded-lg border">Annuler</button>
+                            <button onClick={() => { onConfirm(item.id, qty); onClose(); }} disabled={qty > item.stock || qty <= 0} className="flex-1 py-2 rounded-lg bg-purple-600 text-white">Confirmer</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const InventoryManager = ({ inventory, orders, requests, placeOrder, serveRequest, manualOutflow }) => {
+          const { textMain, textSec } = useTheme();
+          const [activeSubTab, setActiveSubTab] = useState('stocks'); 
+          const [analysisTargetId, setAnalysisTargetId] = useState(null);
+          const [outflowTarget, setOutflowTarget] = useState(null);
+          const [showEduModal, setShowEduModal] = useState(false);
+
+          const handleViewHistory = (itemId) => { setAnalysisTargetId(itemId); setActiveSubTab('analysis'); };
+          const handleOrderStd = (item) => { placeOrder(item.id, item.stdQty); };
+
+          return (
+            <div className="p-6 max-w-7xl mx-auto animate-in fade-in duration-500 pb-24">
+              {showEduModal && <StockEducationModal onClose={() => setShowEduModal(false)} />}
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div>
+                    <h2 className={`text-2xl font-bold ${textMain} flex items-center gap-3 uppercase tracking-widest`}><Package className="text-amber-500" /> Gestion de Stock</h2>
+                </div>
+                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                    <button onClick={() => setActiveSubTab('stocks')} className={`px-4 py-2 text-xs font-bold uppercase rounded ${activeSubTab === 'stocks' ? 'bg-white text-slate-900 shadow' : 'text-slate-500'}`}>État Stocks</button>
+                    <button onClick={() => setActiveSubTab('analysis')} className={`px-4 py-2 text-xs font-bold uppercase rounded ${activeSubTab === 'analysis' ? 'bg-white text-blue-600 shadow' : 'text-slate-500'}`}>Analyses</button>
+                    <button onClick={() => setActiveSubTab('requests')} className={`px-4 py-2 text-xs font-bold uppercase rounded ${activeSubTab === 'requests' ? 'bg-white text-purple-600 shadow' : 'text-slate-500'}`}>Demandes Atelier</button>
+                </div>
+              </div>
+              
+              {activeSubTab === 'stocks' && <StockTable inventory={inventory} orders={orders} onViewHistory={handleViewHistory} onOrderStd={handleOrderStd} onQuickOutflow={setOutflowTarget} />}
+              {activeSubTab === 'analysis' && <StockAnalysisView inventory={inventory} placeOrder={placeOrder} activeOrders={orders} initialSelectedId={analysisTargetId} />}
+              {activeSubTab === 'requests' && <WorkshopRequestsPanel requests={requests} serveRequest={serveRequest} inventory={inventory} />}
+              {outflowTarget && <QuickOutflowModal item={outflowTarget} onClose={() => setOutflowTarget(null)} onConfirm={manualOutflow} />}
+            </div>
+          );
+        };
+
+        const isProductive = (role) => {
+            const r = role.toLowerCase();
+            if (r.includes('responsable') || r.includes('directeur') || r.includes('patron') || r.includes('secrétaire') || r.includes('gestionnaire') || r.includes('magasinier') || r.includes('admin') || r.includes('logistique') || r.includes('assistant') || r.includes('formateur') || r.includes('ordo')) { return false; }
+            return r.includes('technicien') || r.includes('horloger') || r.includes('polisseur') || r.includes('contrôleur') || r.includes('tech.'); 
+        };
+
+        const OrgTreeBuilder = ({ root, allMembers, showIdentity }) => {
+            const directReports = allMembers.filter(m => m.managerId === root.id && m.layout !== 'staff');
+            const staffReports = allMembers.filter(m => m.managerId === root.id && m.layout === 'staff');
+            const { panelBg, panelBorder, textMain } = useTheme();
+            const productive = isProductive(root.role);
+            let borderColor = productive ? 'border-t-emerald-500' : 'border-t-amber-500';
+            
+            return (
+                <div className="flex flex-col items-center mx-0.5">
+                    <div className="relative">
+                        <div className={`${panelBg} border ${panelBorder} p-1 rounded-lg w-[72px] text-center shadow-md relative z-20 h-auto min-h-[55px] flex flex-col justify-between border-t-2 ${borderColor}`}>
+                             {showIdentity ? (
+                                <>
+                                    <div className="w-5 h-5 rounded-full bg-slate-100 mx-auto mb-1 flex items-center justify-center text-[7px] font-bold text-slate-500">{root.avatar}</div>
+                                    <h4 className={`font-bold ${textMain} text-[7px] truncate leading-tight`}>{root.name}</h4>
+                                </>
+                            ) : (
+                                <div className="w-5 h-5 rounded-full bg-slate-50 mx-auto mb-1 flex items-center justify-center text-slate-300">
+                                    <User size={10}/>
+                                </div>
+                            )}
+                            <p className={`text-[6px] font-bold ${productive ? 'text-emerald-700' : 'text-slate-500'} uppercase mb-0.5 whitespace-pre-line leading-tight`}>{root.role}</p>
+                        </div>
+                    </div>
+                    {directReports.length > 0 && (
+                        <>
+                            <div className="h-3 w-px bg-slate-300"></div>
+                            {directReports.length > 1 && <div className="w-full h-px bg-slate-300 mb-0"></div>}
+                            <div className={`flex gap-0.5 relative pt-0 ${directReports.length === 1 ? 'flex-col' : ''}`}>
+                                 {directReports.map((child) => (
+                                     <div key={child.id} className="flex flex-col items-center relative">
+                                         <div className="h-2 w-px bg-slate-300"></div>
+                                         <OrgTreeBuilder root={child} allMembers={allMembers} showIdentity={showIdentity} />
+                                     </div>
+                                 ))}
+                            </div>
+                        </>
+                    )}
+                </div>
+            )
+        }
+
+        const OrgAndRoles = () => {
+            const { textMain, textSec, panelBg, panelBorder, tableHeader, divider } = useTheme();
+            const [currentModel, setCurrentModel] = useState('medium');
+            const [showIdentity, setShowIdentity] = useState(false);
+            const currentData = ORG_MODELS[currentModel];
+            const rootMember = currentData.find(m => m.managerId === null);
+
+            return (
+                <div className="p-6 max-w-7xl mx-auto animate-in fade-in duration-500 pb-24">
+                    <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <h2 className={`text-2xl font-bold ${textMain} mb-2 flex items-center gap-3 uppercase tracking-widest`}>
+                                <Network className="text-amber-500" /> Organigramme
+                            </h2>
+                        </div>
+                        <div className="flex flex-col gap-3 items-end">
+                            <div className="flex bg-slate-200 p-1 rounded-lg">
+                                <button onClick={() => setCurrentModel('small')} className={`px-3 py-1.5 text-xs font-bold uppercase rounded ${currentModel === 'small' ? 'bg-white text-blue-600 shadow' : 'text-slate-500'}`}>Petit</button>
+                                <button onClick={() => setCurrentModel('medium')} className={`px-3 py-1.5 text-xs font-bold uppercase rounded ${currentModel === 'medium' ? 'bg-white text-blue-600 shadow' : 'text-slate-500'}`}>Moyen</button>
+                                <button onClick={() => setCurrentModel('large')} className={`px-3 py-1.5 text-xs font-bold uppercase rounded ${currentModel === 'large' ? 'bg-white text-blue-600 shadow' : 'text-slate-500'}`}>Maison Mère</button>
+                            </div>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked={showIdentity} onChange={() => setShowIdentity(!showIdentity)} className="w-4 h-4" />
+                                <span className={`text-xs font-bold uppercase ${textSec}`}>Afficher Identité</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div className={`overflow-auto border ${panelBorder} rounded-xl ${panelBg} shadow-inner relative bg-slate-50/50 mb-12`}>
+                        <div className="p-8 min-w-max flex justify-center items-start">
+                            {rootMember && <OrgTreeBuilder root={rootMember} allMembers={currentData} showIdentity={showIdentity} />}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const DocumentationResources = () => {
+            const { textMain, textSec, panelBg, panelBorder } = useTheme();
+            const sections = [
+                { title: "Générales", icon: Layers, items: ["Politique & stratégie", "Informations diverses"] },
+                { title: "Prix", icon: Tags, items: ["Politique de prix", "Liste de prix", "Politique de garanties"] },
+            ];
+
+            return (
+                <div className="p-6 max-w-7xl mx-auto animate-in fade-in duration-500">
+                    <h2 className={`text-2xl font-bold ${textMain} mb-4 flex items-center gap-3 uppercase tracking-widest`}>
+                        <Book size={24} className="text-amber-500"/> Ressources Documentaires
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {sections.map((section, idx) => (
+                            <div key={idx} className={`${panelBg} border ${panelBorder} rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow`}>
+                                <div className="flex items-center gap-3 mb-4 border-b border-slate-100 pb-3">
+                                    <div className="p-2 bg-blue-50 rounded-lg text-blue-600"><section.icon size={20}/></div>
+                                    <h3 className={`font-bold ${textMain} text-lg`}>{section.title}</h3>
+                                </div>
+                                <ul className="space-y-3">
+                                    {section.items.map((item, i) => (
+                                        <li key={i} className="flex items-center gap-3 group cursor-pointer">
+                                            <FileText size={16} className="text-slate-400"/><span className={`text-sm ${textSec}`}>{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+          const [activeTab, setActiveTab] = useState('inventory');
+          const [isSidebarOpen, setSidebarOpen] = useState(false);
+          const [isDark, setIsDark] = useState(false);
+          
+          const [currentMonth, setCurrentMonth] = useState(0);
+          const [inventory, setInventory] = useState(INITIAL_INVENTORY);
+          const [activeOrders, setActiveOrders] = useState([]);
+          const [workshopRequests, setWorkshopRequests] = useState(INITIAL_REQUESTS);
+          const [lastAction, setLastAction] = useState("");
+
+          const themeValues = getThemeClasses(isDark);
+
+          const advanceTime = () => {
+              const nextMonth = currentMonth + 1;
+              let actionLog = `Passage au mois de ${MONTHS[nextMonth % 12]}... `;
+              const arrivingOrders = activeOrders.filter(o => o.arrivalMonth === nextMonth);
+              const remainingOrders = activeOrders.filter(o => o.arrivalMonth !== nextMonth);
+
+              if (arrivingOrders.length > 0) {
+                  actionLog += `${arrivingOrders.length} commande(s) reçue(s). `;
+                  const newInventory = inventory.map(item => {
+                      const order = arrivingOrders.find(o => o.itemId === item.id);
+                      if (order) {
+                          const newStock = item.stock + order.qty;
+                          const newHistory = [...item.history, newStock]; 
+                          if (newHistory.length > 12) newHistory.shift();
+                          return { ...item, stock: newStock, history: newHistory };
+                      }
+                      const newHistory = [...item.history, item.stock];
+                      if (newHistory.length > 12) newHistory.shift();
+                      return { ...item, history: newHistory };
+                  });
+                  setInventory(newInventory);
+              } else {
+                   setInventory(prev => prev.map(item => {
+                        const newHistory = [...item.history, item.stock];
+                        if (newHistory.length > 12) newHistory.shift();
+                        return { ...item, history: newHistory };
+                   }));
+              }
+
+              if (Math.random() > 0.5) {
+                  const randomItem = inventory[Math.floor(Math.random() * inventory.length)];
+                  const newReq = { id: `req-${Date.now()}`, itemId: randomItem.id, qty: Math.floor(Math.random() * 3) + 1, status: 'pending', technician: 'Simulateur Auto' };
+                  setWorkshopRequests(prev => [...prev, newReq]);
+                  actionLog += "Nouvelle demande atelier. ";
+              }
+
+              setActiveOrders(remainingOrders);
+              setCurrentMonth(nextMonth);
+              setLastAction(actionLog);
+              setTimeout(() => setLastAction(""), 3000);
+          };
+
+          const goBackTime = () => {
+              if (currentMonth > 0) {
+                  setCurrentMonth(currentMonth - 1);
+                  setLastAction("Retour dans le passé (Simulation)");
+                  setTimeout(() => setLastAction(""), 3000);
+              }
+          };
+
+          const placeOrder = (itemId, qty) => {
+              const arrivalMonth = currentMonth + 1;
+              const newOrder = { id: `ord-${Date.now()}`, itemId, qty, arrivalMonth };
+              setActiveOrders([...activeOrders, newOrder]);
+              setLastAction(`Commande validée ! Arrivée prévue en ${MONTHS[arrivalMonth % 12]}.`);
+          };
+
+          const serveRequest = (reqId) => {
+              const req = workshopRequests.find(r => r.id === reqId);
+              if (!req) return;
+              const item = inventory.find(i => i.id === req.itemId);
+              if (item && item.stock >= req.qty) {
+                  setInventory(prev => prev.map(i => {
+                      if (i.id === item.id) return { ...i, stock: i.stock - req.qty };
+                      return i;
+                  }));
+                  setWorkshopRequests(prev => prev.map(r => r.id === reqId ? { ...r, status: 'served' } : r));
+                  setLastAction(`Sortie de stock : -${req.qty} ${item.name}`);
+              }
+          };
+          
+          const manualOutflow = (itemId, qty) => {
+              const item = inventory.find(i => i.id === itemId);
+              if (item && item.stock >= qty) {
+                   setInventory(prev => prev.map(i => {
+                      if (i.id === item.id) return { ...i, stock: i.stock - qty };
+                      return i;
+                  }));
+                  setLastAction(`Sortie manuelle : -${qty} ${item.name}`);
+              }
+          };
+
+          const renderContent = () => {
+            switch (activeTab) {
+              case 'dashboard': return <DashboardOrg inventory={inventory} team={TEAM_DB_DEFAULT} />;
+              case 'inventory': return <InventoryManager inventory={inventory} orders={activeOrders} requests={workshopRequests} placeOrder={placeOrder} serveRequest={serveRequest} manualOutflow={manualOutflow} />;
+              case 'org_chart': return <OrgAndRoles />; 
+              case 'docs': return <DocumentationResources />;
+              default: return <DashboardOrg inventory={inventory} team={TEAM_DB_DEFAULT} />;
+            }
+          };
+
+          return (
+            <ThemeContext.Provider value={themeValues}>
+              <div className={`flex h-screen ${themeValues.appBg} ${themeValues.textMain} overflow-hidden font-sans antialiased`}>
+                <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isOpen={isSidebarOpen} toggleSidebar={() => setSidebarOpen(!isSidebarOpen)} />
+                <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+                  <header className={`${themeValues.headerBg} border-b ${themeValues.headerBorder} p-4 flex justify-between items-center shadow-sm z-10`}>
+                    <div className="flex items-center gap-4">
+                      <button onClick={() => setSidebarOpen(true)} className="md:hidden text-slate-500 hover:bg-slate-100 p-2 rounded-lg transition-colors"><Menu size={20}/></button>
+                      <h2 className="font-bold text-sm uppercase tracking-widest text-slate-500 hidden md:block">Système Organisationnel Centralisé</h2>
+                    </div>
+                    <div className="flex items-center gap-3">
+                       <button onClick={() => setIsDark(!isDark)} className={`p-2 rounded-lg transition-colors ${isDark ? 'bg-slate-800 text-amber-400' : 'bg-slate-100 text-slate-500'}`}>{isDark ? <Sun size={18}/> : <Moon size={18}/>}</button>
+                    </div>
+                  </header>
+
+                  {activeTab === 'inventory' && (
+                    <SimulationHeader currentMonth={currentMonth} advanceTime={advanceTime} goBackTime={goBackTime} lastAction={lastAction} />
+                  )}
+
+                  <div className="flex-1 overflow-y-auto">{renderContent()}</div>
+                </main>
+              </div>
+            </ThemeContext.Provider>
+          );
+        };
+
+        // Remplacement de `export default App;` par le montage de l'application
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
