@@ -1671,12 +1671,12 @@
                 return (
                 <tr key={id} className={`border-b ${panelBorder} ${tableRowHover}`}>
                     <td className="p-3 text-sm font-medium">{label}</td>
-                    
+
                     <td className="p-2 text-center">
                         <div className="flex items-center justify-center">
-                            <input 
-                                type="number" 
-                                step="0.01" 
+                            <input
+                                type="number"
+                                step="0.01"
                                 className={`w-20 text-right text-xs p-1 border rounded ${inputBorder} ${inputBg} ${textMain}`}
                                 value={displayPrice}
                                 onChange={(e) => handlePriceChange(id, e.target.value)}
@@ -1691,9 +1691,91 @@
                     <td className="p-2 text-center"><input type="checkbox" checked={!!row.gratuit} onChange={e => handleToggle(id, 'gratuit', e.target.checked)} className="w-4 h-4 accent-slate-500" /></td>
                 </tr>
                 );
-            };
+                };
 
-            return (
+                const renderLaborRow = () => {
+                const id = 'labor_cost';
+                const row = data.internalQuoteMatrix?.[id] || { oblig: false, opt: false, payant: true, gratuit: false, rate: 0, hours: 0 };
+                const rate = row.rate || 0;
+                const hours = row.hours || 0;
+                const displayPrice = rate * hours;
+
+                const handleLaborChange = (field, val) => {
+                    const matrix = data.internalQuoteMatrix || {};
+                    const currentRow = matrix[id] || { oblig: false, opt: false, payant: true, gratuit: false, rate: 0, hours: 0 };
+                    const updatedRow = { ...currentRow, [field]: parseFloat(val) || 0 };
+                    const newMatrix = { ...matrix, [id]: updatedRow };
+
+                    const newPrice = updatedRow.rate * updatedRow.hours;
+
+                    if (updatedRow.oblig || updatedRow.opt) {
+                        const q = { ...data.quote } || { mandatory: [], optional: [] };
+                        q.mandatory = (q.mandatory || []).filter(i => i.id !== id);
+                        q.optional = (q.optional || []).filter(i => i.id !== id);
+
+                        const finalPrice = updatedRow.gratuit ? 0 : newPrice;
+                        const item = { id, name: `Main-d'œuvre (${updatedRow.hours}h à ${updatedRow.rate} CHF/h)`, uuid: `matrix-${id}`, priceHT: finalPrice };
+
+                        if (updatedRow.oblig) q.mandatory.push(item);
+                        else q.optional.push(item);
+
+                        updateData({ ...data, internalQuoteMatrix: newMatrix, quote: q });
+                    } else {
+                        updateData({ ...data, internalQuoteMatrix: newMatrix });
+                    }
+                };
+
+                const toggleLabor = (field, val) => {
+                    const matrix = data.internalQuoteMatrix || {};
+                    const currentRow = matrix[id] || { oblig: false, opt: false, payant: true, gratuit: false, rate: 0, hours: 0 };
+                    const updatedRow = { ...currentRow, [field]: val };
+
+                    if (field === 'oblig' && val) updatedRow.opt = false;
+                    if (field === 'opt' && val) updatedRow.oblig = false;
+                    if (field === 'payant' && val) updatedRow.gratuit = false;
+                    if (field === 'gratuit' && val) updatedRow.payant = false;
+
+                    const newMatrix = { ...matrix, [id]: updatedRow };
+                    const newPrice = updatedRow.rate * updatedRow.hours;
+
+                    const q = { ...data.quote } || { mandatory: [], optional: [] };
+                    q.mandatory = (q.mandatory || []).filter(i => i.id !== id);
+                    q.optional = (q.optional || []).filter(i => i.id !== id);
+
+                    if (updatedRow.oblig || updatedRow.opt) {
+                        const finalPrice = updatedRow.gratuit ? 0 : newPrice;
+                        const item = { id, name: `Main-d'œuvre (${updatedRow.hours}h à ${updatedRow.rate} CHF/h)`, uuid: `matrix-${id}`, priceHT: finalPrice };
+                        if (updatedRow.oblig) q.mandatory.push(item);
+                        else q.optional.push(item);
+                    }
+                    updateData({ ...data, internalQuoteMatrix: newMatrix, quote: q });
+                };
+
+                return (
+                <tr key={id} className={`border-b ${panelBorder} ${tableRowHover} bg-blue-50 dark:bg-blue-900/10`}>
+                    <td className="p-3 text-sm font-bold text-blue-700 dark:text-blue-400">Coût de la main-d'œuvre</td>
+                    <td className="p-2 flex items-center justify-center gap-2">
+                        <div className="flex items-center">
+                            <input type="number" step="0.5" className={`w-14 text-right text-xs p-1 border rounded ${inputBorder} ${inputBg} ${textMain}`} value={hours} onChange={(e) => handleLaborChange('hours', e.target.value)} />
+                            <span className={`text-[10px] ml-1 ${textSec}`}>h</span>
+                        </div>
+                        <span className={textSec}>×</span>
+                        <div className="flex items-center">
+                            <input type="number" step="1" className={`w-16 text-right text-xs p-1 border rounded ${inputBorder} ${inputBg} ${textMain}`} value={rate} onChange={(e) => handleLaborChange('rate', e.target.value)} />
+                            <span className={`text-[10px] ml-1 ${textSec}`}>CHF/h</span>
+                        </div>
+                        <span className={textSec}>=</span>
+                        <div className={`font-bold text-sm w-16 text-right ${textMain}`}>{displayPrice.toFixed(2)}</div>
+                    </td>
+                    <td className="p-2 text-center"><input type="checkbox" checked={!!row.oblig} onChange={e => toggleLabor('oblig', e.target.checked)} className="w-4 h-4 accent-red-500" /></td>
+                    <td className="p-2 text-center"><input type="checkbox" checked={!!row.opt} onChange={e => toggleLabor('opt', e.target.checked)} className="w-4 h-4 accent-blue-500" /></td>
+                    <td className="p-2 text-center"><input type="checkbox" checked={!!row.payant} onChange={e => toggleLabor('payant', e.target.checked)} className="w-4 h-4 accent-green-500" /></td>
+                    <td className="p-2 text-center"><input type="checkbox" checked={!!row.gratuit} onChange={e => toggleLabor('gratuit', e.target.checked)} className="w-4 h-4 accent-slate-500" /></td>
+                </tr>
+                );
+                };
+
+                return (
                 <div className="p-6 max-w-5xl mx-auto space-y-6 pb-24">
                 {/* SECTION TYPE DE PRISE EN CHARGE */}
                 <div className={`${panelBg} p-6 rounded-xl border ${panelBorder} mb-6 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500`}>
@@ -1710,7 +1792,7 @@
                         </div>
                         )}
                     </div>
-                    
+
                     <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
                         <select 
                             value={data.coverageType || 'paid'} 
@@ -1735,7 +1817,7 @@
                     <thead className="bg-slate-100 dark:bg-slate-700 text-[10px] font-bold uppercase tracking-widest text-slate-500">
                         <tr>
                             <th className="p-4">Prestations & travaux</th>
-                            <th className="p-2 text-center w-24">Prix unitaire</th>
+                            <th className="p-2 text-center w-auto">Prix unitaire / Détail</th>
                             <th className="p-2 text-center">Oblig.</th>
                             <th className="p-2 text-center">Opt.</th>
                             <th className="p-2 text-center">Payant</th>
@@ -1743,8 +1825,8 @@
                         </tr>
                     </thead>
                     <tbody className={textMain}>
-                        <tr className="bg-slate-50 dark:bg-slate-900/50 font-bold"><td colSpan="6" className="p-3 text-amber-600 text-[10px] uppercase tracking-widest">1. Services techniques principaux</td></tr>
-                        {renderRow("Service complet", "srv_complet")}
+                        {renderLaborRow()}
+                        <tr className="bg-slate-50 dark:bg-slate-900/50 font-bold"><td colSpan="6" className="p-3 text-amber-600 text-[10px] uppercase tracking-widest">1. Services techniques principaux</td></tr>                        {renderRow("Service complet", "srv_complet")}
                         {renderRow("Service partiel", "srv_partiel")}
                         {renderRow("Révision du mouvement", "srv_rev_mvt")}
                         {renderRow("Contrôle", "srv_ctrl")}
