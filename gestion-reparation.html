@@ -1189,12 +1189,34 @@
                         <p className="text-xs text-slate-500 mb-3 italic">Ces interventions sont nécessaires pour garantir le bon fonctionnement de votre garde-temps.</p>
                         <table className="w-full text-sm">
                             <tbody className="divide-y divide-gray-100">
-                                {mandatory.length > 0 ? mandatory.map((item, idx) => (
-                                <tr key={idx}>
-                                    <td className="py-2">{item.name}</td>
-                                    <td className="py-2 text-right font-mono">{item.priceHT === 0 ? 'Inclus/Gar.' : `${item.priceHT.toFixed(2)} CHF`}</td>
-                                </tr>
-                                )) : <tr><td colSpan="2" className="py-2 text-slate-400 italic">Aucun travaux obligatoire spécifique.</td></tr>}
+                                {mandatory.length > 0 ? (
+                                    <React.Fragment>
+                                        {mandatory.filter(i => i.category === 'labor').length > 0 && (
+                                            <React.Fragment>
+                                                <tr className="text-emerald-600 font-bold"><td colSpan="2" className="py-2 text-[11px] uppercase tracking-wider">A) Main-d'œuvre</td></tr>
+                                                {mandatory.filter(i => i.category === 'labor').map((item, idx) => (
+                                                    <tr key={`mlab-${idx}`}><td className="py-2 pl-4">{item.name}</td><td className="py-2 text-right font-mono">{item.priceHT === 0 ? 'Inclus/Gar.' : `${item.priceHT.toFixed(2)} CHF`}</td></tr>
+                                                ))}
+                                            </React.Fragment>
+                                        )}
+                                        {mandatory.filter(i => i.category === 'forfait').length > 0 && (
+                                            <React.Fragment>
+                                                <tr className="text-indigo-600 font-bold"><td colSpan="2" className="py-2 text-[11px] uppercase tracking-wider">B) Forfait</td></tr>
+                                                {mandatory.filter(i => i.category === 'forfait').map((item, idx) => (
+                                                    <tr key={`mforf-${idx}`}><td className="py-2 pl-4">{item.name}</td><td className="py-2 text-right font-mono">{item.priceHT === 0 ? 'Inclus/Gar.' : `${item.priceHT.toFixed(2)} CHF`}</td></tr>
+                                                ))}
+                                            </React.Fragment>
+                                        )}
+                                        {mandatory.filter(i => i.category === 'part').length > 0 && (
+                                            <React.Fragment>
+                                                <tr className="text-teal-600 font-bold"><td colSpan="2" className="py-2 text-[11px] uppercase tracking-wider">C) Pièces</td></tr>
+                                                {mandatory.filter(i => i.category === 'part').map((item, idx) => (
+                                                    <tr key={`mpart-${idx}`}><td className="py-2 pl-4">{item.name}</td><td className="py-2 text-right font-mono">{item.priceHT === 0 ? 'Inclus/Gar.' : `${item.priceHT.toFixed(2)} CHF`}</td></tr>
+                                                ))}
+                                            </React.Fragment>
+                                        )}
+                                    </React.Fragment>
+                                ) : <tr><td colSpan="2" className="py-2 text-slate-400 italic">Aucun travaux obligatoire spécifique.</td></tr>}
                             </tbody>
                             <tfoot className="font-bold border-t border-gray-200">
                                 <tr>
@@ -1208,27 +1230,63 @@
                     {optional.length > 0 && (
                         <div>
                             <h3 className="font-bold text-sm uppercase text-blue-600 mb-3 border-b border-blue-200 pb-1">Travaux (Optionnels)</h3>
-                            <p className="text-xs text-slate-500 mb-3 italic">Ces interventions sont recommandées pour redonner l'éclat d'origine mais ne sont pas techniques.</p>
+                            <p className="text-xs text-slate-500 mb-3 italic">Ces interventions sont recommandées pour redonner l'éclat d'origine à votre garde-temps.</p>
                             <table className="w-full text-sm">
                             <tbody className="divide-y divide-gray-100">
-                                {optional.map((item, idx) => (
-                                    <tr key={idx}>
-                                        <td className="py-2 flex items-center gap-2">
-                                        <input 
-                                            type="checkbox" 
-                                            className="accent-blue-600" 
-                                            checked={item.accepted !== false} 
-                                            onChange={(e) => {
-                                                const newOptional = [...optional];
-                                                newOptional[idx] = { ...item, accepted: e.target.checked };
-                                                updateData({ ...data, quote: { ...data.quote, optional: newOptional } });
-                                            }} 
-                                        />
-                                        {item.name}
-                                        </td>
-                                        <td className="py-2 text-right font-mono">{item.priceHT === 0 ? 'Offert' : `${item.priceHT.toFixed(2)} CHF`}</td>
-                                    </tr>
-                                ))}
+                                {optional.filter(i => i.category === 'labor').length > 0 && (
+                                    <React.Fragment>
+                                        <tr className="text-emerald-600 font-bold"><td colSpan="2" className="py-2 text-[11px] uppercase tracking-wider">A) Main-d'œuvre</td></tr>
+                                        {optional.map((item, idx) => item.category === 'labor' && (
+                                            <tr key={`olab-${idx}`}>
+                                                <td className="py-2 pl-4 flex items-center gap-2">
+                                                    <input type="checkbox" className="accent-blue-600" checked={item.accepted !== false} onChange={(e) => {
+                                                        const newOptional = [...optional];
+                                                        newOptional[idx] = { ...item, accepted: e.target.checked };
+                                                        updateData({ ...data, quote: { ...data.quote, optional: newOptional } });
+                                                    }} />
+                                                    {item.name}
+                                                </td>
+                                                <td className="py-2 text-right font-mono">{item.priceHT === 0 ? 'Offert' : `${item.priceHT.toFixed(2)} CHF`}</td>
+                                            </tr>
+                                        ))}
+                                    </React.Fragment>
+                                )}
+                                {optional.filter(i => i.category === 'forfait').length > 0 && (
+                                    <React.Fragment>
+                                        <tr className="text-indigo-600 font-bold"><td colSpan="2" className="py-2 text-[11px] uppercase tracking-wider">B) Forfait</td></tr>
+                                        {optional.map((item, idx) => item.category === 'forfait' && (
+                                            <tr key={`oforf-${idx}`}>
+                                                <td className="py-2 pl-4 flex items-center gap-2">
+                                                    <input type="checkbox" className="accent-blue-600" checked={item.accepted !== false} onChange={(e) => {
+                                                        const newOptional = [...optional];
+                                                        newOptional[idx] = { ...item, accepted: e.target.checked };
+                                                        updateData({ ...data, quote: { ...data.quote, optional: newOptional } });
+                                                    }} />
+                                                    {item.name}
+                                                </td>
+                                                <td className="py-2 text-right font-mono">{item.priceHT === 0 ? 'Offert' : `${item.priceHT.toFixed(2)} CHF`}</td>
+                                            </tr>
+                                        ))}
+                                    </React.Fragment>
+                                )}
+                                {optional.filter(i => i.category === 'part').length > 0 && (
+                                    <React.Fragment>
+                                        <tr className="text-teal-600 font-bold"><td colSpan="2" className="py-2 text-[11px] uppercase tracking-wider">C) Pièces</td></tr>
+                                        {optional.map((item, idx) => item.category === 'part' && (
+                                            <tr key={`opart-${idx}`}>
+                                                <td className="py-2 pl-4 flex items-center gap-2">
+                                                    <input type="checkbox" className="accent-blue-600" checked={item.accepted !== false} onChange={(e) => {
+                                                        const newOptional = [...optional];
+                                                        newOptional[idx] = { ...item, accepted: e.target.checked };
+                                                        updateData({ ...data, quote: { ...data.quote, optional: newOptional } });
+                                                    }} />
+                                                    {item.name}
+                                                </td>
+                                                <td className="py-2 text-right font-mono">{item.priceHT === 0 ? 'Offert' : `${item.priceHT.toFixed(2)} CHF`}</td>
+                                            </tr>
+                                        ))}
+                                    </React.Fragment>
+                                )}
                             </tbody>
                             </table>
                         </div>
@@ -1492,15 +1550,68 @@
                         </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                        {[...mandatory, ...optional].map((item, i) => (
-                            <tr key={i}>
-                                <td className="py-3">{item.name}</td>
-                                <td className="py-3 text-right font-mono">{item.priceHT === 0 ? '0.00' : item.priceHT.toFixed(2)}</td>
-                            </tr>
-                        ))}
+                        {mandatory.length > 0 && (
+                            <React.Fragment>
+                                <tr><td colSpan="2" className="py-3 font-bold uppercase text-amber-600 text-xs">Travaux Indispensables (Obligatoires)</td></tr>
+                                {mandatory.filter(i => i.category === 'labor').length > 0 && (
+                                    <React.Fragment>
+                                        <tr className="text-emerald-600 font-bold"><td colSpan="2" className="py-2 text-[11px] uppercase tracking-wider pl-2">A) Main-d'œuvre</td></tr>
+                                        {mandatory.filter(i => i.category === 'labor').map((item, idx) => (
+                                            <tr key={`minv-lab-${idx}`}><td className="py-2 pl-6">{item.name}</td><td className="py-2 text-right font-mono">{item.priceHT === 0 ? '0.00' : item.priceHT.toFixed(2)}</td></tr>
+                                        ))}
+                                    </React.Fragment>
+                                )}
+                                {mandatory.filter(i => i.category === 'forfait').length > 0 && (
+                                    <React.Fragment>
+                                        <tr className="text-indigo-600 font-bold"><td colSpan="2" className="py-2 text-[11px] uppercase tracking-wider pl-2">B) Forfait</td></tr>
+                                        {mandatory.filter(i => i.category === 'forfait').map((item, idx) => (
+                                            <tr key={`minv-forf-${idx}`}><td className="py-2 pl-6">{item.name}</td><td className="py-2 text-right font-mono">{item.priceHT === 0 ? '0.00' : item.priceHT.toFixed(2)}</td></tr>
+                                        ))}
+                                    </React.Fragment>
+                                )}
+                                {mandatory.filter(i => i.category === 'part').length > 0 && (
+                                    <React.Fragment>
+                                        <tr className="text-teal-600 font-bold"><td colSpan="2" className="py-2 text-[11px] uppercase tracking-wider pl-2">C) Pièces</td></tr>
+                                        {mandatory.filter(i => i.category === 'part').map((item, idx) => (
+                                            <tr key={`minv-part-${idx}`}><td className="py-2 pl-6">{item.name}</td><td className="py-2 text-right font-mono">{item.priceHT === 0 ? '0.00' : item.priceHT.toFixed(2)}</td></tr>
+                                        ))}
+                                    </React.Fragment>
+                                )}
+                            </React.Fragment>
+                        )}
+
+                        {optional.length > 0 && (
+                            <React.Fragment>
+                                <tr><td colSpan="2" className="py-3 px-3 font-extrabold uppercase tracking-widest text-slate-800 bg-blue-100 border-l-4 border-blue-500 text-[11px] mt-4">Travaux Optionnels</td></tr>
+                                {optional.filter(i => i.category === 'labor').length > 0 && (
+                                    <React.Fragment>
+                                        <tr className="bg-emerald-50 text-emerald-800 font-bold"><td colSpan="2" className="py-2 px-3 text-[10px] uppercase tracking-widest border-y border-emerald-100">A) Main-d'œuvre</td></tr>
+                                        {optional.filter(i => i.category === 'labor').map((item, idx) => (
+                                            <tr key={`oinv-lab-${idx}`}><td className="py-2 pl-6">{item.name}</td><td className="py-2 text-right font-mono">{item.priceHT === 0 ? '0.00' : item.priceHT.toFixed(2)}</td></tr>
+                                        ))}
+                                    </React.Fragment>
+                                )}
+                                {optional.filter(i => i.category === 'forfait').length > 0 && (
+                                    <React.Fragment>
+                                        <tr className="bg-indigo-50 text-indigo-800 font-bold"><td colSpan="2" className="py-2 px-3 text-[10px] uppercase tracking-widest border-y border-indigo-100">B) Forfait</td></tr>
+                                        {optional.filter(i => i.category === 'forfait').map((item, idx) => (
+                                            <tr key={`oinv-forf-${idx}`}><td className="py-2 pl-6">{item.name}</td><td className="py-2 text-right font-mono">{item.priceHT === 0 ? '0.00' : item.priceHT.toFixed(2)}</td></tr>
+                                        ))}
+                                    </React.Fragment>
+                                )}
+                                {optional.filter(i => i.category === 'part').length > 0 && (
+                                    <React.Fragment>
+                                        <tr className="bg-teal-50 text-teal-800 font-bold"><td colSpan="2" className="py-2 px-3 text-[10px] uppercase tracking-widest border-y border-teal-100">C) Pièces</td></tr>
+                                        {optional.filter(i => i.category === 'part').map((item, idx) => (
+                                            <tr key={`oinv-part-${idx}`}><td className="py-2 pl-6">{item.name}</td><td className="py-2 text-right font-mono">{item.priceHT === 0 ? '0.00' : item.priceHT.toFixed(2)}</td></tr>
+                                        ))}
+                                    </React.Fragment>
+                                )}
+                            </React.Fragment>
+                        )}
                         <tr>
-                            <td className="py-3 text-slate-500 italic">Frais de port et emballage sécurisé</td>
-                            <td className="py-3 text-right font-mono">{shipping.toFixed(2)}</td>
+                            <td className="py-3 text-slate-500 italic pt-4">Frais de port et emballage sécurisé</td>
+                            <td className="py-3 text-right font-mono pt-4">{shipping.toFixed(2)}</td>
                         </tr>
                         {discount > 0 && (
                             <tr>
@@ -1627,11 +1738,11 @@
                 if (updated.oblig || updated.opt) {
                     const priceToUse = (updated.customPrice !== '' && updated.customPrice !== undefined) ? parseFloat(updated.customPrice) : def.priceHT;
                     const finalPrice = updated.gratuit ? 0 : priceToUse;
-                    
-                    const item = { ...def, uuid: `matrix-${rowId}`, priceHT: finalPrice };
+
+                    const itemCategory = rowId.startsWith('srv_') ? 'forfait' : 'part';
+                    const item = { ...def, uuid: `matrix-${rowId}`, priceHT: finalPrice, category: itemCategory };
                     if (updated.oblig) q.mandatory.push(item);
-                    else q.optional.push(item);
-                }
+                    else q.optional.push(item);                }
                 updateData({ ...data, internalQuoteMatrix: newMatrix, quote: q });
                 } else {
                 updateData({ ...data, internalQuoteMatrix: newMatrix });
@@ -1714,7 +1825,7 @@
                         q.optional = (q.optional || []).filter(i => i.id !== id);
 
                         const finalPrice = updatedRow.gratuit ? 0 : newPrice;
-                        const item = { id, name: `Main-d'œuvre (${updatedRow.hours}h à ${updatedRow.rate} CHF/h)`, uuid: `matrix-${id}`, priceHT: finalPrice };
+                        const item = { id, name: `Main-d'œuvre (${updatedRow.hours}h à ${updatedRow.rate} CHF/h)`, uuid: `matrix-${id}`, priceHT: finalPrice, category: 'labor' };
 
                         if (updatedRow.oblig) q.mandatory.push(item);
                         else q.optional.push(item);
@@ -1744,7 +1855,7 @@
 
                     if (updatedRow.oblig || updatedRow.opt) {
                         const finalPrice = updatedRow.gratuit ? 0 : newPrice;
-                        const item = { id, name: `Main-d'œuvre (${updatedRow.hours}h à ${updatedRow.rate} CHF/h)`, uuid: `matrix-${id}`, priceHT: finalPrice };
+                        const item = { id, name: `Main-d'œuvre (${updatedRow.hours}h à ${updatedRow.rate} CHF/h)`, uuid: `matrix-${id}`, priceHT: finalPrice, category: 'labor' };
                         if (updatedRow.oblig) q.mandatory.push(item);
                         else q.optional.push(item);
                     }
@@ -1825,7 +1936,10 @@
                         </tr>
                     </thead>
                     <tbody className={textMain}>
+                        <tr className="bg-emerald-100 dark:bg-emerald-900/30 font-bold"><td colSpan="6" className="p-3 text-emerald-700 dark:text-emerald-400 text-[12px] uppercase tracking-widest">A) Main-d'œuvre</td></tr>
                         {renderLaborRow()}
+
+                        <tr className="bg-indigo-100 dark:bg-indigo-900/30 font-bold"><td colSpan="6" className="p-3 text-indigo-700 dark:text-indigo-400 text-[12px] uppercase tracking-widest mt-4">B) Forfait</td></tr>
                         <tr className="bg-slate-50 dark:bg-slate-900/50 font-bold"><td colSpan="6" className="p-3 text-amber-600 text-[10px] uppercase tracking-widest">1. Services techniques principaux</td></tr>                        {renderRow("Service complet", "srv_complet")}
                         {renderRow("Service partiel", "srv_partiel")}
                         {renderRow("Révision du mouvement", "srv_rev_mvt")}
@@ -1861,6 +1975,7 @@
                         {renderRow("Remplacement de boucle / fermoir", "srv_remp_boucle")}
                         {renderRow("Nettoyage de bracelet", "srv_net_brac")}
 
+                        <tr className="bg-teal-100 dark:bg-teal-900/30 font-bold"><td colSpan="6" className="p-3 text-teal-700 dark:text-teal-400 text-[12px] uppercase tracking-widest mt-4">C) Pièces</td></tr>
                         <tr className="bg-slate-50 dark:bg-slate-900/50 font-bold"><td colSpan="6" className="p-3 text-blue-600 text-[10px] uppercase tracking-widest mt-4">PIÈCES MOUVEMENT</td></tr>
                         {renderRow("Mouvement complet", "pm_mouvement")}
                         {renderRow("Masse", "pm_masse")}
@@ -3120,7 +3235,7 @@
                 case 'client_request': return <ClientRequestForm data={currentRepair} updateData={handleUpdateRepair} onValidateStep={() => navNext(1, 'inspection')} />;
                 case 'inspection': return <InspectionForm data={currentRepair} updateData={handleUpdateRepair} onValidateStep={() => navNext(2, 'internal_quote')} />;
                 case 'internal_quote': return <InternalQuoteSheet data={currentRepair} updateData={handleUpdateRepair} onValidateStep={() => navNext(3, 'quote')} />;
-                case 'quote': return <QuoteBuilder data={currentRepair} updateData={handleUpdateRepair} onValidateStep={() => navNext(5, 'workshop')} />;
+                case 'quote': return <QuoteBuilder data={currentRepair} updateData={handleUpdateRepair} onValidateStep={() => navNext(5, 'workshop')} onRefuseStep={() => navNext(9, 'dashboard')} />;
                 case 'workshop': return <WorkshopSheet data={currentRepair} updateData={handleUpdateRepair} onValidateStep={() => navNext(6, 'delivery')} />;
                 case 'delivery': return <DeliverySheet data={currentRepair} updateData={handleUpdateRepair} onValidateStep={() => navNext(7, 'report')} />;
                 case 'report': return <FinalReportSheet data={currentRepair} updateData={handleUpdateRepair} onValidateStep={() => navNext(8, 'invoice')} />;
@@ -3136,8 +3251,8 @@
                     <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
                     <header className={`${themeValues.headerBg} border-b ${themeValues.headerBorder} p-4 flex justify-between items-center shadow-sm z-10`}>
                         <div className="flex items-center gap-4">
-                        <a href="index.html" className={`${themeValues.panelBg} border ${themeValues.panelBorder} hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-300 px-3 py-2 rounded-lg font-bold flex items-center gap-2 shadow-sm text-sm transition-colors`} title="Retour à l'index">
-                            <Icons.ChevronLeft size={16} /> Index
+                        <a href="index.html" className={`${themeValues.panelBg} border ${themeValues.panelBorder} hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-300 px-3 py-2 rounded-lg font-bold flex items-center gap-2 shadow-sm text-sm transition-colors`} title="Retour à l'accueil">
+                            <Icons.ChevronLeft size={16} /> Accueil
                         </a>
                         <button onClick={() => setSidebarOpen(true)} className="md:hidden text-slate-500 hover:bg-slate-100 p-2 rounded-lg transition-colors"><Icons.Menu size={20}/></button>
                         </div>
@@ -3166,8 +3281,8 @@
                                     </button>
                                 </div>
 
-                                <div className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${currentRepair.statusStep >= 8 ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                                    <div className={`w-2 h-2 rounded-full ${currentRepair.statusStep >= 8 ? 'bg-green-500' : 'bg-blue-500'}`}></div>
+                            <div className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${currentRepair.statusStep === 9 ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : currentRepair.statusStep >= 8 ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                <div className={`w-2 h-2 rounded-full ${currentRepair.statusStep === 9 ? 'bg-red-500' : currentRepair.statusStep >= 8 ? 'bg-green-500' : 'bg-blue-500'}`}></div>
                                     {STATUS_STEPS[currentRepair.statusStep]}
                                 </div>
                             </div>
