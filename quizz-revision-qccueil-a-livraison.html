@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formation Complète - Service Après-Vente (SAV)</title>
+    <!-- Chargement de Tailwind CSS pour le style (responsive par défaut) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Animation fluide pour l'apparition des explications */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Personnalisation de la scrollbar pour les onglets et le contenu */
+        .no-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .no-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .no-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+        .content-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .content-scroll::-webkit-scrollbar-track {
+            background: #f9fafb;
+        }
+        .content-scroll::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 flex flex-col md:flex-row h-screen w-full font-sans text-gray-800 overflow-hidden">
+
+    <!-- Bandeau à gauche (Sidebar) - Responsive (Haut sur mobile, Gauche sur Desktop) -->
+    <div class="w-full md:w-72 lg:w-80 bg-slate-900 text-white flex flex-col shrink-0 transition-all z-20 shadow-2xl md:h-screen">
+        
+        <!-- Header du Bandeau -->
+        <div class="p-4 md:p-6 bg-slate-950 shadow-md z-10 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold text-lg shadow-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold tracking-wide">Révision SAV</h1>
+                    <p class="text-slate-400 mt-0.5 text-xs">De l'accueil à la livraison</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Système d'onglets (Thèmes) en colonne -->
+        <div class="flex-1 overflow-x-auto md:overflow-y-auto no-scrollbar bg-slate-900" id="tabs-wrapper">
+            <div class="flex flex-row md:flex-col p-2 md:p-4 gap-2" id="tabs-container">
+                <!-- Les onglets seront générés en JS ici -->
+            </div>
+        </div>
+        
+        <!-- Footer du Bandeau (Caché sur mobile) -->
+        <div class="hidden md:block p-4 text-xs text-center text-slate-500 bg-slate-950 border-t border-slate-800">
+            Support de cours officiel
+        </div>
+    </div>
+
+    <!-- Zone de contenu principal -->
+    <div class="flex-1 h-full overflow-y-auto content-scroll relative bg-slate-50" id="main-content">
+        <div class="max-w-4xl mx-auto p-4 sm:p-6 md:p-8 lg:p-10">
+            
+            <!-- Zone du Quiz (Questions) -->
+            <div id="quiz-screen" class="bg-white rounded-2xl shadow-xl border border-slate-200 p-5 sm:p-6 md:p-8">
+                
+                <!-- En-tête du thème courant -->
+                <div class="mb-6 pb-4 border-b border-slate-100 flex items-center justify-between">
+                    <h2 id="current-theme-title" class="text-lg md:text-xl font-bold text-blue-800">Titre du Thème</h2>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">Quiz</span>
+                </div>
+
+                <!-- Barre de progression de la section courante -->
+                <div class="mb-6 sm:mb-8">
+                    <div class="flex justify-between text-xs sm:text-sm font-bold text-slate-500 mb-2">
+                        <span id="progress-text">Question 1 sur 6</span>
+                        <span id="progress-percentage" class="text-blue-600">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                        <div id="progress-bar" class="bg-blue-600 h-full transition-all duration-300 ease-out" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Question -->
+                <div class="mb-6 sm:mb-8">
+                    <h3 id="question-text" class="text-lg sm:text-xl md:text-2xl font-semibold text-slate-800 leading-relaxed">
+                        <!-- Texte de la question injecté ici -->
+                    </h3>
+                </div>
+
+                <!-- Options de réponse -->
+                <div id="options-container" class="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
+                    <!-- Boutons injectés ici -->
+                </div>
+
+                <!-- Explication & Bouton Suivant (Caché par défaut) -->
+                <div id="explanation-container" class="mt-8 fade-in hidden">
+                    
+                    <!-- Box de correction -->
+                    <div id="explanation-box" class="p-4 sm:p-5 rounded-xl mb-4 shadow-sm border">
+                        <p id="explanation-title" class="font-bold mb-2 md:text-lg flex items-center gap-2"></p>
+                        <p id="explanation-text" class="text-sm md:text-base leading-relaxed"></p>
+                    </div>
+
+                    <!-- Encadré jaune pour la citation exacte du cours -->
+                    <div id="quote-box" class="p-4 sm:p-5 rounded-xl mb-6 bg-amber-50 border border-amber-200 text-amber-900 hidden shadow-sm">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 mr-3 text-amber-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                            <div>
+                                <p class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">Extrait du support de cours</p>
+                                <p id="explanation-quote" class="text-sm italic font-medium leading-relaxed"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end pt-4 border-t border-slate-100">
+                        <button id="next-btn" onclick="handleNextQuestion()" class="w-full sm:w-auto px-8 py-3.5 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                            <span>Question suivante</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                
+            </div>
+
+            <!-- Zone du Score final d'un thème (Cachée par défaut) -->
+            <div id="score-screen" class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 sm:p-12 text-center flex-col items-center hidden">
+                <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-full flex items-center justify-center mx-auto bg-slate-50 border-4 border-blue-500 mb-6 shadow-inner">
+                    <span id="final-score-text" class="text-3xl sm:text-5xl font-black text-slate-800">0/6</span>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-bold mb-3 text-slate-800" id="score-title">Thème terminé !</h2>
+                <p id="score-message" class="text-sm sm:text-base text-slate-600 mb-10 max-w-lg mx-auto leading-relaxed"></p>
+                
+                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center w-full sm:w-auto">
+                    <button onclick="restartTheme()" class="w-full sm:w-auto px-6 py-3.5 bg-white text-slate-700 border-2 border-slate-200 rounded-xl font-bold hover:bg-slate-50 hover:border-slate-300 transition-all">
+                        Rejouer ce thème
+                    </button>
+                    <button onclick="goToNextTheme()" id="next-theme-btn" class="w-full sm:w-auto px-8 py-3.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                        <span>Passer au thème suivant</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Données complètes basées sur l'intégralité du document
+        const quizThemes = [
+            {
+                id: "theme-1",
+                title: "1. Intro & Missions",
+                questions: [
+                    {
+                        question: "Qu'est-ce que le Service Après-Vente (SAV) selon la définition du cours ?",
+                        options: ["La vente d'extensions de garantie uniquement", "L'ensemble des activités visant à maintenir en état les biens et garantir la satisfaction client", "Le département chargé de fabriquer de nouveaux produits", "Une simple hotline téléphonique"],
+                        correctAnswer: 1,
+                        explanation: "Le SAV a pour objectif principal d'assurer la pérennité du produit, de satisfaire le client et de maintenir la bonne image de la marque.",
+                        quote: "Le Service Après-Vente a pour objectif de maintenir en état de fonctionnement des biens durables en fournissant un service de qualité́, rapide et efficace à un prix raisonnable."
+                    },
+                    {
+                        question: "Avant la révolution industrielle, sur quoi reposait le fonctionnement du SAV ?",
+                        options: ["Sur la proximité et la réputation de l'artisan (relation directe)", "Sur de complexes contrats de garantie internationaux", "Sur des centres de réparation centralisés", "Il n'y avait aucun suivi après la vente"],
+                        correctAnswer: 0,
+                        explanation: "L'artisan de proximité assurait naturellement le suivi de ses propres ventes, instaurant une relation de confiance directe.",
+                        quote: "Avant la révolution industrielle : relation directe artisan–client. Le SAV était intégré naturellement. Exemple : l’horloger du village réparait directement la montre vendue."
+                    },
+                    {
+                        question: "Quel rôle joue le SAV dans l'amélioration continue de l'entreprise ?",
+                        options: ["Il aide à améliorer les futurs produits grâce à la remontée d'informations", "Il détermine les prix de vente des montres", "Il sanctionne les erreurs de l'équipe de production", "Il gère les budgets publicitaires"],
+                        correctAnswer: 0,
+                        explanation: "Les statistiques des pannes récurrentes sont cruciales pour concevoir de meilleurs produits à l'avenir.",
+                        quote: "Contribuer à l’évolution des futurs produits en faisant remonter les informations sur l’adéquation des produits aux besoins et envies des clients."
+                    },
+                    {
+                        question: "Parmi ces tâches, laquelle relève d'une mission LOGISTIQUE du Service Client ?",
+                        options: ["Contrôler la qualité des interventions avant livraison", "Accueillir et écouter les clients", "Gérer les stocks et assurer la disponibilité des pièces", "Établir des devis clairs"],
+                        correctAnswer: 2,
+                        explanation: "La gestion des stocks et la disponibilité des pièces font partie intégrante des missions logistiques du SAV.",
+                        quote: "Missions logistiques : Gérer les stocks et assurer la disponibilité des pièces. Stocker et vendre les pièces détachées... Définir des délais de livraison."
+                    },
+                    {
+                        question: "Quelle est l'une des missions de SUPPORT aux activités du CS ?",
+                        options: ["Réaliser la réparation sous garantie", "Définir les procédures de maintenance et les besoins en outillage", "Éditer la documentation marketing", "Vendre des pièces au client final"],
+                        correctAnswer: 1,
+                        explanation: "Le support CS définit le cadre technique : procédures, postes de travail et outils nécessaires.",
+                        quote: "Missions de support aux activités CS : Définir les procédures de maintenance et de réparation... Définir les besoins en outillage spécifique pour les réparations."
+                    },
+                    {
+                        question: "Comment le développement des moyens de communication a-t-il impacté le SAV ?",
+                        options: ["Il a supprimé le besoin de réparer les montres", "Il a permis un service élargi et plus rapide (hotline, prise de RDV en ligne)", "Il a ralenti considérablement le traitement des dossiers", "Il a rendu les garanties inutiles"],
+                        correctAnswer: 1,
+                        explanation: "Le téléphone, les e-mails et internet ont permis d'offrir des services plus accessibles et rapides.",
+                        quote: "Développement de nouveau moyens de communication (téléphone, e-mail, réseaux sociaux) → service élargi et plus rapide (ex : hotline, chat en ligne, prise de rendez-vous en ligne...)."
+                    }
+                ]
+            },
+            {
+                id: "theme-2",
+                title: "2. Stratégie & Structure",
+                questions: [
+                    {
+                        question: "Comment une politique SAV bien structurée transforme-t-elle le Service Client ?",
+                        options: ["Elle le transforme d'un centre de coût en un moteur de valeur (levier stratégique)", "Elle permet de sous-traiter 100% des opérations", "Elle élimine la concurrence du marché", "Elle réduit le salaire des horlogers"],
+                        correctAnswer: 0,
+                        explanation: "Sans vision, le SAV est vu comme une dépense. Avec une politique claire, il fidélise et devient un avantage concurrentiel.",
+                        quote: "Sans vision stratégique, un Service Client reste un coût plus qu’un atout. Avec une politique bien structurée, il devient un moteur de valeur."
+                    },
+                    {
+                        question: "Que désigne l'effectif dit « non productif » au sein d'un atelier SAV ?",
+                        options: ["Le personnel en congé", "Le personnel qui n'exécute pas directement des réparations (administratif, magasinier, encadrement)", "Les stagiaires et apprentis", "Les horlogers qui travaillent lentement"],
+                        correctAnswer: 1,
+                        explanation: "Ce terme technique qualifie l'ensemble des fonctions de support indispensables, mais qui ne réparent pas elles-mêmes à l'établi.",
+                        quote: "L’effectif « non productif » est celui qui n’est pas affecté à des tâches de réparation. Il correspond aux nombre de personnes qui n’exécutent pas directement des réparations : encadrement, administratif, magasinier..."
+                    },
+                    {
+                        question: "Dans une grande organisation internationale, de quel département dépend le plus souvent le SAV ?",
+                        options: ["Des Ressources Humaines", "De la comptabilité", "Du département commercial (marketing) ou de la production", "Du service de nettoyage"],
+                        correctAnswer: 2,
+                        explanation: "Bien qu'indépendant dans ses locaux, il est stratégiquement rattaché aux pôles qui vendent ou fabriquent le produit.",
+                        quote: "Dans les grandes organisations qui agissent sur le plan international, le SAV dépend le plus souvent du département commercial (marketing) ou du département de production."
+                    },
+                    {
+                        question: "Dans un SAV de petite taille, quelle est la réalité concernant le personnel ?",
+                        options: ["Une ultra-spécialisation de chacun", "La polyvalence (le responsable s'occupe des pièces et répare lui-même)", "Aucun contact avec la clientèle", "L'absence de facturation"],
+                        correctAnswer: 1,
+                        explanation: "Les petites structures exigent que le personnel (dont le responsable) assure plusieurs fonctions simultanément.",
+                        quote: "Dans un SAV de petite taille, le responsable s’occupe des pièces détachées, des commandes et de la gestion du travail mais continue aussi le plus souvent à assurer une partie des réparations."
+                    },
+                    {
+                        question: "Comment se calcule le « Ratio de non productif » d'un SAV ?",
+                        options: ["Montres réparées / Effectif total", "Effectif non productif / Effectif total du SAV", "Chiffre d'affaires / Nombre d'employés", "Nombre de devis / Nombre de réparations"],
+                        correctAnswer: 1,
+                        explanation: "C'est un indicateur clé pour évaluer le poids administratif par rapport à la taille globale de l'atelier.",
+                        quote: "Ratio de non productif = Effectif non productif / Effectif total du SAV"
+                    },
+                    {
+                        question: "Qu'indique généralement un ratio non productif très élevé (entre 50% et 100%) ?",
+                        options: ["Une excellente rentabilité", "Une entreprise qui va fermer", "Une faible rentabilité mais une forte orientation sur la satisfaction client", "Une absence de contrôle final"],
+                        correctAnswer: 2,
+                        explanation: "Avoir beaucoup de personnel encadrant/administratif coûte cher, mais permet d'offrir un suivi très qualitatif au client.",
+                        quote: "Tableau de rentabilité : Ratio « non productif » : Entre 50% et 100% | Objectifs principaux : Forte Satisfaction client | Faible rentabilité."
+                    }
+                ]
+            },
+            {
+                id: "theme-3",
+                title: "3. Réception & Accueil",
+                questions: [
+                    {
+                        question: "Lors de la réception d'une montre de luxe, quel est l'objectif premier du personnel ?",
+                        options: ["Facturer le plus vite possible", "Établir une relation de confiance, écouter et identifier précisément la montre", "Démonter la montre devant le client", "Remplacer le bracelet immédiatement"],
+                        correctAnswer: 1,
+                        explanation: "L'accueil doit refléter l'image de la marque : courtoisie, écoute attentive et collecte rigoureuse des informations.",
+                        quote: "Le personnel du SAV invite le client à fournir ses informations personnelles et les détails de la montre à réparer... Un membre du personnel SAV écoute attentivement les préoccupations du client..."
+                    },
+                    {
+                        question: "Quelle est l'utilité principale de « l'inspection initiale (diagnostic visuel) » ?",
+                        options: ["Connaître la marge bénéficiaire", "Détecter d'éventuels dommages apparents (chocs, rayures) et faire des tests simples", "Réparer la montre immédiatement", "Nettoyer l'intérieur du mouvement"],
+                        correctAnswer: 1,
+                        explanation: "Ce diagnostic rapide avant démontage permet de protéger l'horloger et d'informer le client sur l'état exact de la pièce à son dépôt.",
+                        quote: "Inspection initiale (diagnostic visuel) Objectifs : Évaluer l’état extérieur, faire des tests simples, rechercher les défauts visibles (chocs, coup, marques, montre accidentée)."
+                    },
+                    {
+                        question: "Quelle « Bonne pratique » est fortement recommandée lors de la réception d'une pièce ?",
+                        options: ["Prendre des photos de l'état général de la montre", "Jeter l'écrin du client", "Ne jamais demander la carte de garantie", "Faire payer le diagnostic visuel"],
+                        correctAnswer: 0,
+                        explanation: "La documentation photographique évite les litiges sur d'éventuelles rayures ou chocs préexistants.",
+                        quote: "Bonne pratique : Prendre des photos de l’état général à l’ouverture."
+                    },
+                    {
+                        question: "Pourquoi le personnel analyse-t-il les documents fournis par le client (factures, certificats) ?",
+                        options: ["Pour vérifier l'authenticité de la montre et déterminer si elle est sous garantie", "Pour évaluer les revenus du client", "Pour les archiver définitivement", "Pour calculer les taxes douanières"],
+                        correctAnswer: 0,
+                        explanation: "C'est l'étape cruciale pour savoir si la réparation sera facturée ou prise en charge par la marque.",
+                        quote: "Si le client fournit des documents tels que des certificats d'authenticité, des factures d'achat ou des garanties, le personnel du SAV les examine soigneusement pour vérifier l'authenticité de la montre et déterminer si cette dernière est encore sous garantie."
+                    },
+                    {
+                        question: "Que fait le personnel du SAV une fois l'inspection initiale terminée avec le client ?",
+                        options: ["Il rend la montre au client", "Il discute des options de réparation, des coûts associés et des délais prévus", "Il jette la montre si elle est rayée", "Il envoie directement la facture"],
+                        correctAnswer: 1,
+                        explanation: "Le client doit être informé des prochaines étapes et des coûts potentiels avant de laisser sa montre.",
+                        quote: "Après l'inspection initiale, le personnel du SAV discute des options de réparation avec le client, en expliquant les différentes solutions possibles, les coûts associés, ainsi que les délais prévus..."
+                    },
+                    {
+                        question: "Outre le professionnalisme technique, que garantit le SAV concernant les informations du client ?",
+                        options: ["Une publication sur les réseaux sociaux", "Une revente des données à des tiers", "Le respect de la confidentialité et de la sécurité des données", "Une inscription à une newsletter obligatoire"],
+                        correctAnswer: 2,
+                        explanation: "Dans le domaine du luxe, la discrétion et la sécurité des données (montre + identité) sont primordiales.",
+                        quote: "Le client est assuré que sa montre sera traitée, dans un environnement sécurisé et confidentiel... Toutes les informations personnelles et les détails de la montre sont traités de manière confidentielle."
+                    }
+                ]
+            },
+            {
+                id: "theme-4",
+                title: "4. La Garantie & Goodwill",
+                questions: [
+                    {
+                        question: "Selon l'article 210 du Code des Obligations (CO) suisse, quelle est la durée légale de garantie contre le vendeur ?",
+                        options: ["6 mois", "1 an", "2 ans", "5 ans"],
+                        correctAnswer: 2,
+                        explanation: "La législation suisse fixe un minimum légal de 2 ans pour les défauts de la chose vendue.",
+                        quote: "Ce droit à la garantie n’est valable que contre le vendeur et pour une durée légale de deux ans (art. 210 al. 1 CO)."
+                    },
+                    {
+                        question: "Dans le vocabulaire du SAV, qu'est-ce qu'une « garantie de réparation » ?",
+                        options: ["Une couverture sur un défaut de matériel à l'achat du neuf", "Une couverture pour une durée déterminée à dater de la livraison de la chose RÉPARÉE au consommateur", "Une assurance vol", "Un contrat d'entretien à vie"],
+                        correctAnswer: 1,
+                        explanation: "Lorsqu'une montre sort de SAV, le travail effectué est lui-même garanti (souvent 12 ou 24 mois).",
+                        quote: "La garantie de réparation : pour une durée déterminée à dater de la livraison de la chose réparée au consommateur (utilisateur) final."
+                    },
+                    {
+                        question: "Les frais d'affranchissement (envoi, assurance) pour un travail sous garantie de VENTE sont-ils généralement inclus dans la marge du réparateur ?",
+                        options: ["Oui, toujours", "Non, ils font généralement partie d'une convention séparée", "Ils sont à la charge du client obligatoirement", "Ils sont payés par l'horloger personnellement"],
+                        correctAnswer: 1,
+                        explanation: "Les accords de distribution séparent souvent le coût du travail horloger des frais de transport sécurisé.",
+                        quote: "Les frais d’affranchissement (envoi, assurance, livraison) et d’assurance pour un travail effectué sous garantie ne sont généralement pas inclus dans la marge de couverture ils font partie d’une convention séparée."
+                    },
+                    {
+                        question: "Qu'est-ce que le « goodwill » en SAV ?",
+                        options: ["La marge brute de l'entreprise", "Un service de courtoisie (réparation gratuite/réduite) offert VOLONTAIREMENT au-delà de la garantie normale", "Une taxe douanière", "Le salaire de base des horlogers"],
+                        correctAnswer: 1,
+                        explanation: "C'est un geste commercial puissant pour apaiser un client ou le fidéliser, décidé au cas par cas.",
+                        quote: "Le goodwill est un service de courtoisie offert au consommateur, sous forme de pièce de rechange ou de réparation, gratuite ou à un prix réduit, au-delà d’un service normal de garantie."
+                    },
+                    {
+                        question: "Qui prend en charge les frais découlant d'une prestation de « goodwill » ?",
+                        options: ["Le client final", "L'assurance", "Celui qui prend la décision (fabricant, distributeur, détaillant...)", "L'État"],
+                        correctAnswer: 2,
+                        explanation: "Si une boutique décide d'offrir un service, c'est elle qui en assume le coût financier pour fidéliser son client.",
+                        quote: "Le fabriquant, le distributeur, le revendeur... peut prendre une décision de goodwill. Les frais découlant de la prestation supplémentaire accordée sont toujours à la charge de celui qui prend la décision."
+                    },
+                    {
+                        question: "Une entreprise peut-elle réduire la durée de garantie légale à moins de 2 ans pour un produit NEUF vendu à un particulier ?",
+                        options: ["Oui, si c'est écrit en petit", "Non, elle peut être prolongée mais pas réduite (sauf occasion)", "Oui, sur simple décision verbale", "Oui, la garantie légale est facultative"],
+                        correctAnswer: 1,
+                        explanation: "Le droit protège le consommateur final privé, interdisant de réduire cette durée en deçà de 2 ans pour du neuf.",
+                        quote: "Lors d’un contrat liant un professionnel à une personne pour ses besoins privés, la durée de la garantie peut être prolongée mais ne peut pas être réduite – sauf à un an s’il s’agit d’une vente de choses d’occasion."
+                    }
+                ]
+            },
+            {
+                id: "theme-5",
+                title: "5. Diagnostic & Devis",
+                questions: [
+                    {
+                        question: "À quoi sert le « démontage partiel » lors du diagnostic technique ?",
+                        options: ["À nettoyer la boîte", "À identifier les causes internes des pannes et lister les pièces à changer", "À vérifier l'étanchéité finale", "À remplacer le bracelet"],
+                        correctAnswer: 1,
+                        explanation: "Seule l'ouverture et l'analyse interne permettent de chiffrer avec précision la réparation.",
+                        quote: "Démontage partiel & diagnostic technique. Objectifs : Identifier les causes internes des pannes et les pièces à changer."
+                    },
+                    {
+                        question: "Qu'est-ce qu'une « fiche de devis interne » ?",
+                        options: ["La facture finale donnée au client", "Un document technique où l'horloger liste les opérations, le temps et les pièces nécessaires", "Un certificat d'authenticité", "Une publicité"],
+                        correctAnswer: 1,
+                        explanation: "C'est le brouillon technique indispensable qui servira de base à l'administration pour rédiger le devis commercial final.",
+                        quote: "Toutes les pièces feront l’objet d’une analyse du travail à effectuer. Cette analyse sera portée sur un document dit « fiche de devis interne »."
+                    },
+                    {
+                        question: "Pourquoi de plus en plus de marques proposent-elles des « forfaits de réparation » ?",
+                        options: ["Car les horlogers ne savent plus deviser", "Pour que le client connaisse le prix immédiatement, ce qui l'aide à prendre la décision de réparer", "Parce que c'est une obligation légale", "Pour cacher les pannes réelles"],
+                        correctAnswer: 1,
+                        explanation: "Le prix forfaitaire lève l'incertitude du client et accélère considérablement le processus d'acceptation.",
+                        quote: "Certaines marques ont... commencé à faire des forfaits de réparation. Dans ce cas, les clients savent tout de suite le prix et les résultats démontrent que les clients prennent plus facilement la décision de faire l’entretien..."
+                    },
+                    {
+                        question: "La catégorie de la réparation (garantie, devis, restauration) est-elle figée ou modifiable ?",
+                        options: ["Figée dès l'arrivée de la montre", "Modifiable à tout moment du processus par souci de flexibilité", "Modifiable uniquement par le client", "Déterminée aléatoirement"],
+                        correctAnswer: 1,
+                        explanation: "Un démontage peut révéler un choc caché (annulation garantie), d'où la nécessité de flexibilité.",
+                        quote: "Par souci de flexibilité, la catégorie doit être modifiable à tout moment du processus de réparation."
+                    },
+                    {
+                        question: "Sur un devis final envoyé au client, que trouve-t-on généralement ?",
+                        options: ["Uniquement le prix final sans détails", "La description des travaux, les prix, les délais, la durée de validité et une zone de décision", "Le salaire de l'horloger", "La recette de fabrication des pièces"],
+                        correctAnswer: 1,
+                        explanation: "Le devis est un contrat commercial qui doit être transparent, précis et comporter toutes les mentions légales et pratiques.",
+                        quote: "Ce devis devra comporter les éléments suivants : La description des biens ou services... Les prix... Les délais... La durée de validité... Une zone réservée à la décision du client."
+                    },
+                    {
+                        question: "Que conseille le cours d'ajouter EN PLUS sur un devis pour améliorer l'expérience client ?",
+                        options: ["Des informations complémentaires et des conseils d'entretien et d'utilisation", "Une pénalité de retard", "La liste des concurrents", "Des photos de l'usine"],
+                        correctAnswer: 0,
+                        explanation: "Profiter du devis pour éduquer le client (magnétisme, chocs, étanchéité) valorise le professionnalisme de la marque.",
+                        quote: "En plus du devis proprement dit il est toujours intéressant de joindre quelques informations utiles... pour expliquer de manière plus détaillée des termes... ou pour donner/rappeler des conseils d’entretien."
+                    }
+                ]
+            },
+            {
+                id: "theme-6",
+                title: "6. Opérations & Outils",
+                questions: [
+                    {
+                        question: "En plus de l'outillage standard, que doit détenir un atelier SAV officiel ?",
+                        options: ["Des machines à coudre", "L'outillage spécifique prescrit par les différentes marques", "Des pièces de voitures", "Uniquement des tournevis"],
+                        correctAnswer: 1,
+                        explanation: "Les marques exigent l'utilisation d'outils spécifiques pour ne pas endommager leurs calibres exclusifs et pour maintenir l'agrément de réparation.",
+                        quote: "Le SAV doit être équipé d’outillages... il doit également détenir... les outils spécifiques et prescrits par les différentes marques et définies comme étant nécessaires à l’obtention ou au maintien du droit de réparer."
+                    },
+                    {
+                        question: "Qu'est-ce que le « flux » dans l'organisation du service de réparation ?",
+                        options: ["Le courant électrique de l'atelier", "Le chemin suivi par le produit et les documents liés dans la structure du SAV", "La vitesse de travail de l'horloger", "L'écoulement de l'huile dans le mouvement"],
+                        correctAnswer: 1,
+                        explanation: "Le flux logistique représente toutes les étapes franchies par la montre, de l'entrée à la sortie de l'atelier.",
+                        quote: "Le flux détermine le chemin suivi par le produit et les documents liés dans la structure du SAV. (Ex: Réception -> Enregistrement -> Devis -> Réparation -> Contrôle...)"
+                    },
+                    {
+                        question: "Qu'est-ce qu'une « gamme opératoire » ?",
+                        options: ["Une collection de montres d'entrée de gamme", "L'ensemble des opérations séquentielles nécessaires à l'accomplissement d'une tâche de réparation", "L'outil pour ouvrir les boîtes", "Le salaire des techniciens"],
+                        correctAnswer: 1,
+                        explanation: "C'est la « recette » ou le mode opératoire standardisé qui dicte l'ordre des tâches (ex: démontage, nettoyage, remontage, réglage).",
+                        quote: "Les gammes opératoires : Elles contiennent toutes les opérations nécessaires à l’accomplissement d’une tâche. Les gammes opératoires peuvent être uniques, se compléter ou se chevaucher."
+                    },
+                    {
+                        question: "Sur une « Carte d'opération », que trouve-t-on généralement ?",
+                        options: ["La météo du jour", "Le numéro de l'opération, le département, le temps standard et la machine requise", "Le nom du client final", "Le prix de la montre"],
+                        correctAnswer: 1,
+                        explanation: "La carte d'opération donne les directives techniques précises à l'horloger ou au polisseur pour une étape donnée.",
+                        quote: "Chaque opération d’une gamme opératoire contient : Le numéro de l’opération... Le département... Le genre d’opération... La machine... Le temps standard..."
+                    },
+                    {
+                        question: "À quoi sert l'enregistrement du début et de fin de travail par l'opérateur ?",
+                        options: ["Uniquement à le surveiller", "À calculer le temps moyen dédié et à réviser le temps standard alloué", "À bloquer la machine", "À générer la facture client directement"],
+                        correctAnswer: 1,
+                        explanation: "Le chronométrage (ou timbrage) des opérations permet d'ajuster les standards de production et de mesurer la performance globale.",
+                        quote: "L’opérateur enregistre le moment de début et fin de travail de l’opération. Cela permet le calcul du temps moyen dédié à cette opération ainsi que la révision éventuelle du temps standard..."
+                    },
+                    {
+                        question: "Concernant les manuels et la documentation technique, quelle est la règle ?",
+                        options: ["Ils doivent être gardés secrets par le patron", "Chaque collaborateur doit y avoir accès et ils doivent être tenus complets et à jour", "Ils ne sont fournis qu'au format papier", "Il est interdit de les consulter pendant le travail"],
+                        correctAnswer: 1,
+                        explanation: "L'accès à la documentation (éclatés techniques, consignes d'huilage) garantit une réparation conforme aux standards de la marque.",
+                        quote: "Chaque collaborateur doit avoir accès aux manuels et à la documentation dont il a besoin pour effectuer son travail. La documentation doit être tenue complète et à jour..."
+                    }
+                ]
+            },
+            {
+                id: "theme-7",
+                title: "7. Gestion des Stocks",
+                questions: [
+                    {
+                        question: "Quel est l'enjeu principal et le danger d'avoir « trop de stock » de pièces détachées ?",
+                        options: ["Faire fuir les clients", "Immobiliser de l'argent et prendre le risque d'obsolescence des pièces", "Surcharger les horlogers de travail", "Aucun, plus il y a de stock, mieux c'est"],
+                        correctAnswer: 1,
+                        explanation: "Le stock représente un capital financier dormant. Si un calibre est abandonné, les pièces en stock perdent toute valeur (obsolescence).",
+                        quote: "Trop de stock, c’est immobiliser de l’argent, augmenter les coûts de stockage et de manutention, et prendre le risque d’obsolescence."
+                    },
+                    {
+                        question: "Que se passe-t-il lorsque le SAV possède « trop peu de stock » ?",
+                        options: ["Les marges augmentent considérablement", "Il s'expose aux ruptures, causant des retards, l'insatisfaction client et une surcharge administrative", "Les montres sont réparées plus vite", "L'atelier devient plus propre"],
+                        correctAnswer: 1,
+                        explanation: "Une rupture de stock (manque de pièce) stoppe la réparation, forçant le CS à gérer l'impatience du client.",
+                        quote: "Trop peu de stock, c’est s’exposer aux ruptures, et donc aux retards, avec à la clé insatisfaction des clients, et une surcharge du CS (réclamations, replanifications...)."
+                    },
+                    {
+                        question: "Qu'appelle-t-on le « taux de rotation de stock » ?",
+                        options: ["Le fait de ranger les pièces différemment chaque mois", "Le nombre de fois que le stock se renouvelle (est consommé) sur une période d'un an", "Le délai d'expédition des colis", "Le remplacement des magasiniers"],
+                        correctAnswer: 1,
+                        explanation: "En SAV, un taux de rotation sain se situe souvent entre 1 et 1,5 fois par an. C'est le signe d'un stock bien calibré.",
+                        quote: "La rotation de stock (ou taux de rotation) mesure combien de fois le stock “se renouvelle” sur une période (souvent 1 an)."
+                    },
+                    {
+                        question: "À quel moment spécifique déclenche-t-on une commande de réapprovisionnement ?",
+                        options: ["Quand le stock est à 0", "Lorsqu'on atteint le seuil de réapprovisionnement (Stock mini)", "Une fois par trimestre", "Quand on atteint le stock maxi"],
+                        correctAnswer: 1,
+                        explanation: "Le seuil de réapprovisionnement (ou point de commande) est calculé pour recevoir les pièces AVANT de consommer le stock de sécurité.",
+                        quote: "Pour déterminer le seuil de stock mini, qui ne correspond pas seulement au stock minimum mais surtout au moment de déclenchement d’une commande de réapprovisionnement..."
+                    },
+                    {
+                        question: "Dans l'horlogerie de prestige, quelle durée de garantie de disponibilité des pièces observe-t-on généralement ?",
+                        options: ["2 ans", "5 ans", "15 ans", "À vie"],
+                        correctAnswer: 3,
+                        explanation: "Le luxe implique une promesse de pérennité forte, obligeant parfois la marque à recréer des pièces disparues.",
+                        quote: "La garantie de disponibilité des pièces de rechange est une promesse faîte au client qui a un coût. Gamme Prestige = Durée A vie."
+                    },
+                    {
+                        question: "À quelle fréquence un « inventaire » doit-il idéalement être tenu si le système tournant n'est pas utilisé ?",
+                        options: ["Tous les jours", "Tous les mois", "Tous les 6 mois", "Tous les 10 ans"],
+                        correctAnswer: 2,
+                        explanation: "L'inventaire garantit l'exactitude des quantités informatiques par rapport aux quantités physiques dans les tiroirs.",
+                        quote: "Un inventaire du stock doit être tenu tous les six mois si le département des fournitures ne pratique pas l’inventaire tournant."
+                    }
+                ]
+            },
+            {
+                id: "theme-8",
+                title: "8. Planning & Livraison",
+                questions: [
+                    {
+                        question: "Pourquoi le « planning » est-il indispensable à l'organisation d'un atelier SAV ?",
+                        options: ["Pour afficher les menus de la cantine", "Pour optimiser les gammes opératoires, gérer les charges et garantir les prévisions de délais", "Pour réduire les salaires", "Pour commander les pièces détachées"],
+                        correctAnswer: 1,
+                        explanation: "Le planning est l'outil central de pilotage de l'atelier pour gérer le flux de montres et les imprévus.",
+                        quote: "Pour optimiser les différentes gammes opératoires un planning est établi... Il doit contenir : Toutes les informations de position des OF... Le suivi des délais... informations nécessaires aux prévisions de délais..."
+                    },
+                    {
+                        question: "Que faut-il faire en cas de retard inévitable sur une réparation ?",
+                        options: ["Attendre que le client appelle pour se plaindre", "Informer rapidement le client avec des explications et un nouveau délai", "Lui rendre la montre non réparée sans rien dire", "Fermer le dossier"],
+                        correctAnswer: 1,
+                        explanation: "L'anticipation et la transparence désamorcent la frustration. L'absence de communication l'aggrave.",
+                        quote: "En cas de retard inévitable, informer rapidement le client avec des explications et un nouveau délai est crucial. Ne jamais attendre que le client appelle pour faire des excuses !"
+                    },
+                    {
+                        question: "Lors du « Contrôle Final Esthétique », que vérifie-t-on ?",
+                        options: ["La précision de la montre", "L'absence de rayures, la propreté et l'alignement des aiguilles", "L'étanchéité de la boîte", "La réserve de marche"],
+                        correctAnswer: 1,
+                        explanation: "Le contrôle esthétique se concentre exclusivement sur l'aspect visuel de la montre.",
+                        quote: "Contrôle Esthétique : Vérification de l'absence de rayures... Assurer que le boîtier et le bracelet sont propres... S'assurer que les aiguilles sont bien alignées."
+                    },
+                    {
+                        question: "Lors du Contrôle Final, que doit impérativement faire le SAV si le test d'étanchéité échoue ?",
+                        options: ["Mettre un joint en silicone", "Ignorer le résultat", "Il est important de le rappeler au client (l'en informer)", "Confisquer la montre"],
+                        correctAnswer: 2,
+                        explanation: "Si l'étanchéité ne peut être garantie (ex: montre ancienne très corrodée), le client doit le savoir pour éviter de noyer sa montre.",
+                        quote: "Étanchéité : Test d'étanchéité pour s'assurer que la montre est bien résistante à l'eau... Si ce n’est pas le cas, il est important de le rappeler aux clients."
+                    },
+                    {
+                        question: "Quels éléments essentiels doivent figurer sur la Facture de livraison ?",
+                        options: ["Les recettes de polissage", "Nom, adresse, description des services, prix, taxes (TVA) et une numérotation séquentielle", "La date de naissance du client", "Le nom de la machine utilisée"],
+                        correctAnswer: 1,
+                        explanation: "La facture est un document comptable et légal qui obéit à des règles strictes.",
+                        quote: "Données essentielles : Inclure toutes les informations nécessaires telles que le nom et l'adresse du client, la description... prix unitaire, total, taxes applicables (TVA)... Numérotation séquentielle."
+                    },
+                    {
+                        question: "En Suisse, pendant combien de temps les factures doivent-elles être archivées au minimum ?",
+                        options: ["2 ans", "5 ans", "10 ans", "À vie"],
+                        correctAnswer: 2,
+                        explanation: "C'est une obligation légale pour répondre à d'éventuels contrôles de l'Administration Fédérale des Contributions.",
+                        quote: "Archivage des factures : Conserver les factures pendant une durée minimale de 10 ans, conformément à la législation suisse."
+                    }
+                ]
+            },
+            {
+                id: "theme-9",
+                title: "9. Les Réclamations",
+                questions: [
+                    {
+                        question: "Quel est l'objectif premier lors du traitement d'une réclamation ?",
+                        options: ["Donner tort au client rapidement", "Résoudre la véritable raison qui a conduit à la réclamation et tirer des conclusions pour s'améliorer", "Lui offrir systématiquement une montre neuve", "Le rediriger vers un centre d'appel externe"],
+                        correctAnswer: 1,
+                        explanation: "Une plainte est une occasion en or d'identifier une faille dans ses processus et de la corriger définitivement.",
+                        quote: "Les buts de la gestion des réclamations : Résoudre les véritables raisons qui ont conduit à la réclamation... Tirer des conclusions positives des réclamations avec une approche de prise en compte des plaintes..."
+                    },
+                    {
+                        question: "Selon les statistiques du cours, quel pourcentage de consommateurs insatisfaits formulent réellement une plainte ?",
+                        options: ["Moins de 5%", "Environ 50%", "75%", "100%"],
+                        correctAnswer: 0,
+                        explanation: "La grande majorité des clients mécontents choisissent de partir en silence sans vous donner la chance de réparer l'erreur.",
+                        quote: "Moins de 5% de consommateurs insatisfaits se plaignent... 75% à 95% des clients mécontents et qui n’ont pas fait part de leurs plaintes n’achèteront plus jamais de produit de la marque."
+                    },
+                    {
+                        question: "Face à un client mécontent, quelle est la première chose à dire ou faire pour désamorcer le conflit ?",
+                        options: ["S'excuser au nom de l'horloger", "L'interrompre pour lui prouver qu'il a tort", "Commencer par valider son opinion (ex: « Je comprends votre point de vue ») et l'écouter jusqu'au bout", "Appeler la sécurité"],
+                        correctAnswer: 2,
+                        explanation: "L'empathie et l'écoute active calment instantanément la colère et montrent que vous prenez son problème au sérieux.",
+                        quote: "Toujours commencer par valider l'opinion de son interlocuteur avec une phrase comme \"Je comprends votre point de vue\". Écouter sa réclamation jusqu'au bout, ne pas l'interrompre ou se chercher des excuses."
+                    },
+                    {
+                        question: "Vrai ou Faux concernant la fidélisation selon le cours :",
+                        options: ["Il coûte 5 fois moins cher de garder un client que d'en gagner un nouveau", "Il coûte plus cher de fidéliser que de faire du marketing", "Un client satisfait en parle à 10 personnes", "Les clients mécontents reviennent toujours au bout de 2 ans"],
+                        correctAnswer: 0,
+                        explanation: "Ce ratio financier explique pourquoi offrir un geste commercial (goodwill) est souvent plus rentable que de perdre un client acquis.",
+                        quote: "Garder et fidéliser un client coûte 5 fois moins cher que d’en gagner un nouveau."
+                    },
+                    {
+                        question: "Lorsqu'un client se détourne de l'entreprise, quelle action proactive permet parfois de le récupérer ?",
+                        options: ["Lui envoyer une lettre d'avocat", "Le recontacter pour savoir pourquoi il est parti et ce qu'on aurait pu faire mieux", "Lui interdire l'accès à la boutique", "Critiquer les concurrents chez qui il est allé"],
+                        correctAnswer: 1,
+                        explanation: "Ce simple geste d'humilité prouve votre implication et suffit souvent à restaurer la confiance.",
+                        quote: "Lorsqu'un client se détourne de l'entreprise... Le recontacter pour savoir pourquoi il est parti et ce que l’on aurait pu faire mieux pour le retenir. Ce simple geste suffit parfois."
+                    },
+                    {
+                        question: "Que conseille le cours face à des « clients toxiques » (attentes irréalistes, chroniquement insatisfaits) ?",
+                        options: ["Accepter de travailler à perte pour eux", "Les nommer ambassadeurs de la marque", "Mieux vaut renoncer à faire des affaires avec eux pour protéger l'entreprise et se concentrer sur les clients fidèles", "Céder à toutes leurs demandes pour éviter un scandale"],
+                        correctAnswer: 2,
+                        explanation: "Un client dont les attentes sont impossibles draine le temps et l'énergie du SAV de manière toxique. Il faut savoir s'en séparer.",
+                        quote: "Certains consommateurs sont chroniquement insatisfaits ou ont des attentes irréalistes. Vouloir les exaucer mettrait en danger la stabilité financière de l'entreprise. Mieux vaut renoncer à faire des affaires avec ces personnes..."
+                    }
+                ]
+            }
+        ];
+
+        // Variables d'état
+        let currentThemeIndex = 0;
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        // Elements du DOM
+        const domElements = {
+            tabsContainer: document.getElementById('tabs-container'),
+            quizScreen: document.getElementById('quiz-screen'),
+            scoreScreen: document.getElementById('score-screen'),
+            progressText: document.getElementById('progress-text'),
+            progressPercentage: document.getElementById('progress-percentage'),
+            progressBar: document.getElementById('progress-bar'),
+            questionText: document.getElementById('question-text'),
+            optionsContainer: document.getElementById('options-container'),
+            explanationContainer: document.getElementById('explanation-container'),
+            explanationBox: document.getElementById('explanation-box'),
+            explanationTitle: document.getElementById('explanation-title'),
+            explanationText: document.getElementById('explanation-text'),
+            quoteBox: document.getElementById('quote-box'),
+            explanationQuote: document.getElementById('explanation-quote'),
+            nextBtn: document.getElementById('next-btn'),
+            finalScoreText: document.getElementById('final-score-text'),
+            scoreTitle: document.getElementById('score-title'),
+            scoreMessage: document.getElementById('score-message'),
+            nextThemeBtn: document.getElementById('next-theme-btn'),
+            currentThemeTitle: document.getElementById('current-theme-title'),
+            mainContent: document.getElementById('main-content')
+        };
+
+        // Initialisation de l'application
+        function init() {
+            renderTabs();
+            loadTheme(0);
+        }
+
+        // Génération des onglets thématiques (Bandeau latéral / scroll haut)
+        function renderTabs() {
+            domElements.tabsContainer.innerHTML = '';
+            
+            quizThemes.forEach((theme, index) => {
+                const btn = document.createElement('button');
+                const isActive = index === currentThemeIndex;
+                
+                // Style des boutons du menu latéral
+                btn.className = `w-full text-left whitespace-nowrap md:whitespace-normal px-4 py-3 md:px-5 md:py-4 font-semibold text-sm transition-all border-b-4 md:border-b-0 md:border-l-4 outline-none focus:outline-none flex items-center justify-between rounded-t-lg md:rounded-none md:rounded-r-lg ${
+                    isActive 
+                    ? 'border-blue-500 bg-slate-800 text-white shadow-inner' 
+                    : 'border-transparent text-slate-400 hover:text-white hover:bg-slate-800/50 hover:border-slate-600'
+                }`;
+                
+                // Texte de l'onglet
+                const textSpan = document.createElement('span');
+                textSpan.innerText = theme.title;
+                btn.appendChild(textSpan);
+                
+                // Icône flèche si actif (visible surtout sur desktop)
+                if (isActive) {
+                    const iconSpan = document.createElement('span');
+                    iconSpan.innerHTML = `<svg class="w-4 h-4 text-blue-500 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
+                    btn.appendChild(iconSpan);
+                }
+
+                btn.onclick = () => loadTheme(index);
+                domElements.tabsContainer.appendChild(btn);
+            });
+        }
+
+        // Chargement d'un thème spécifique
+        function loadTheme(index) {
+            currentThemeIndex = index;
+            currentQuestionIndex = 0;
+            score = 0;
+            
+            // Scroll le contenu principal en haut
+            domElements.mainContent.scrollTop = 0;
+            
+            // Mettre à jour l'UI des onglets
+            renderTabs();
+            
+            // Centrer l'onglet actif sur mobile
+            const activeTab = domElements.tabsContainer.children[index];
+            if (activeTab) {
+                activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+            
+            // Afficher le quiz, cacher le score final
+            domElements.scoreScreen.classList.add('hidden');
+            domElements.scoreScreen.classList.remove('flex');
+            domElements.quizScreen.classList.remove('hidden');
+            
+            // Titre du thème courant
+            domElements.currentThemeTitle.innerText = quizThemes[index].title;
+            
+            renderQuestion();
+        }
+
+        // Affichage de la question actuelle
+        function renderQuestion() {
+            isAnswered = false;
+            const theme = quizThemes[currentThemeIndex];
+            const currentQuizData = theme.questions[currentQuestionIndex];
+
+            // Mise à jour de la barre de progression
+            const progressPercentage = ((currentQuestionIndex) / theme.questions.length) * 100;
+            domElements.progressText.innerText = `Question ${currentQuestionIndex + 1} sur ${theme.questions.length}`;
+            domElements.progressPercentage.innerText = `${Math.round(progressPercentage)}%`;
+            
+            // Petit délai pour l'animation de la barre de progression
+            setTimeout(() => {
+                const newPercentage = ((currentQuestionIndex + 1) / theme.questions.length) * 100;
+                domElements.progressBar.style.width = `${newPercentage}%`;
+                domElements.progressPercentage.innerText = `${Math.round(newPercentage)}%`;
+            }, 50);
+
+            // Injection de la question
+            domElements.questionText.innerText = currentQuizData.question;
+
+            // Injection des options
+            domElements.optionsContainer.innerHTML = ''; 
+            currentQuizData.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'group w-full text-left p-4 sm:p-5 rounded-xl border-2 transition-all duration-200 font-medium flex items-center bg-white border-slate-200 text-slate-700 hover:bg-blue-50 hover:border-blue-400 focus:outline-none shadow-sm';
+                btn.onclick = () => handleAnswerOptionClick(index);
+                
+                // Lettrage des options (A, B, C, D)
+                const letterSpan = document.createElement('span');
+                letterSpan.className = 'w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-slate-200 flex items-center justify-center mr-4 flex-shrink-0 text-sm font-bold text-slate-500 bg-slate-50 transition-colors group-hover:border-blue-300 group-hover:text-blue-600 group-hover:bg-blue-100';
+                letterSpan.innerText = String.fromCharCode(65 + index);
+                
+                // Texte de l'option
+                const textNode = document.createElement('span');
+                textNode.className = 'flex-1 text-sm sm:text-base leading-snug';
+                textNode.innerText = option;
+                
+                btn.appendChild(letterSpan);
+                btn.appendChild(textNode);
+                
+                domElements.optionsContainer.appendChild(btn);
+            });
+
+            // Cacher la section explication
+            domElements.explanationContainer.classList.add('hidden');
+        }
+
+        // Gestion du clic sur une réponse
+        function handleAnswerOptionClick(selectedIndex) {
+            if (isAnswered) return;
+            isAnswered = true;
+            
+            const theme = quizThemes[currentThemeIndex];
+            const currentQuizData = theme.questions[currentQuestionIndex];
+            const isCorrect = selectedIndex === currentQuizData.correctAnswer;
+            
+            if (isCorrect) {
+                score++;
+            }
+
+            // Mettre à jour l'affichage de tous les boutons
+            const buttons = domElements.optionsContainer.children;
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true; // Désactiver le clic
+                buttons[i].classList.remove('hover:bg-blue-50', 'hover:border-blue-400', 'cursor-pointer', 'shadow-sm');
+                buttons[i].classList.add('cursor-default');
+                
+                const letterBadge = buttons[i].querySelector('span');
+
+                if (i === currentQuizData.correctAnswer) {
+                    // Bonne réponse
+                    buttons[i].classList.replace('bg-white', 'bg-green-50');
+                    buttons[i].classList.replace('border-slate-200', 'border-green-500');
+                    buttons[i].classList.replace('text-slate-700', 'text-green-900');
+                    buttons[i].classList.add('shadow-md');
+                    
+                    letterBadge.classList.replace('bg-slate-50', 'bg-green-500');
+                    letterBadge.classList.replace('text-slate-500', 'text-white');
+                    letterBadge.classList.replace('border-slate-200', 'border-green-500');
+                    letterBadge.classList.remove('group-hover:border-blue-300', 'group-hover:text-blue-600', 'group-hover:bg-blue-100');
+                } else if (i === selectedIndex) {
+                    // Mauvaise réponse sélectionnée
+                    buttons[i].classList.replace('bg-white', 'bg-rose-50');
+                    buttons[i].classList.replace('border-slate-200', 'border-rose-400');
+                    buttons[i].classList.replace('text-slate-700', 'text-rose-900');
+                    
+                    letterBadge.classList.replace('bg-slate-50', 'bg-rose-500');
+                    letterBadge.classList.replace('text-slate-500', 'text-white');
+                    letterBadge.classList.replace('border-slate-200', 'border-rose-500');
+                    letterBadge.classList.remove('group-hover:border-blue-300', 'group-hover:text-blue-600', 'group-hover:bg-blue-100');
+                } else {
+                    // Autres réponses
+                    buttons[i].classList.replace('bg-white', 'bg-slate-50');
+                    buttons[i].classList.replace('text-slate-700', 'text-slate-400');
+                    buttons[i].classList.add('opacity-60');
+                    letterBadge.classList.remove('group-hover:border-blue-300', 'group-hover:text-blue-600', 'group-hover:bg-blue-100');
+                }
+            }
+
+            // Afficher l'explication et la citation
+            domElements.explanationContainer.classList.remove('hidden');
+            domElements.explanationText.innerText = currentQuizData.explanation;
+            
+            if (currentQuizData.quote) {
+                domElements.quoteBox.classList.remove('hidden');
+                domElements.explanationQuote.innerText = `« ${currentQuizData.quote} »`;
+            } else {
+                domElements.quoteBox.classList.add('hidden');
+            }
+            
+            // Icones pour les titres d'explication
+            const successIcon = `<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            const errorIcon = `<svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+
+            if (isCorrect) {
+                domElements.explanationBox.className = 'p-4 sm:p-5 rounded-xl mb-4 bg-green-50 text-green-900 border border-green-200 shadow-sm';
+                domElements.explanationTitle.innerHTML = `${successIcon} Bonne réponse !`;
+            } else {
+                domElements.explanationBox.className = 'p-4 sm:p-5 rounded-xl mb-4 bg-rose-50 text-rose-900 border border-rose-200 shadow-sm';
+                domElements.explanationTitle.innerHTML = `${errorIcon} Incorrect`;
+            }
+
+            // Modifier le bouton "Suivant"
+            const btnSpan = domElements.nextBtn.querySelector('span');
+            if (currentQuestionIndex === theme.questions.length - 1) {
+                btnSpan.innerText = 'Voir le score du thème';
+            } else {
+                btnSpan.innerText = 'Question suivante';
+            }
+            
+            // Auto scroll légèrement vers le bas pour voir l'explication
+            setTimeout(() => {
+                domElements.explanationContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        // Passage à la question suivante
+        function handleNextQuestion() {
+            const theme = quizThemes[currentThemeIndex];
+            if (currentQuestionIndex < theme.questions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+                domElements.mainContent.scrollTop = 0;
+            } else {
+                showFinalScore();
+            }
+        }
+
+        // Affichage de l'écran des scores pour un thème
+        function showFinalScore() {
+            domElements.quizScreen.classList.add('hidden');
+            domElements.scoreScreen.classList.remove('hidden');
+            domElements.scoreScreen.classList.add('flex');
+            
+            domElements.mainContent.scrollTop = 0;
+
+            const theme = quizThemes[currentThemeIndex];
+            domElements.finalScoreText.innerText = `${score}/${theme.questions.length}`;
+
+            // Changement de couleur du cercle de score selon le résultat
+            const scoreCircle = domElements.finalScoreText.parentElement;
+            scoreCircle.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner border-4";
+            
+            const ratio = score / theme.questions.length;
+            if (ratio === 1) {
+                scoreCircle.classList.add("bg-green-50", "border-green-500");
+                domElements.scoreMessage.innerHTML = "<strong>Excellente maîtrise !</strong><br>Vous avez parfaitement assimilé toutes les notions de ce chapitre.";
+            } else if (ratio >= 0.6) {
+                scoreCircle.classList.add("bg-blue-50", "border-blue-500");
+                domElements.scoreMessage.innerHTML = "<strong>Très bon score !</strong><br>Vous avez de solides connaissances sur ce thème du Service Après-Vente.";
+            } else {
+                scoreCircle.classList.add("bg-orange-50", "border-orange-400");
+                domElements.scoreMessage.innerHTML = "<strong>Un petit effort !</strong><br>Une relecture de ce chapitre de la théorie vous sera bénéfique pour consolider vos acquis.";
+            }
+
+            // Afficher ou cacher le bouton "Thème suivant"
+            if (currentThemeIndex < quizThemes.length - 1) {
+                domElements.nextThemeBtn.classList.remove('hidden');
+                domElements.scoreTitle.innerText = "Thème validé !";
+            } else {
+                domElements.nextThemeBtn.classList.add('hidden');
+                domElements.scoreTitle.innerText = "🎉 Formation terminée !";
+                domElements.scoreMessage.innerHTML += "<br><br>Vous avez parcouru avec succès l'ensemble des 9 modules de ce cursus théorique.";
+            }
+        }
+
+        // Recommencer le thème courant
+        function restartTheme() {
+            loadTheme(currentThemeIndex);
+        }
+
+        // Passer au thème suivant
+        function goToNextTheme() {
+            if (currentThemeIndex < quizThemes.length - 1) {
+                loadTheme(currentThemeIndex + 1);
+            }
+        }
+
+        // Démarrage de l'application
+        init();
+    </script>
+</body>
+</html>
