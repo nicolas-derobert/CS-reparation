@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organigramme & Rôles — Atelier CS Horloger</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'display': ['"Plus Jakarta Sans"', '"Geist"', 'system-ui', 'sans-serif'],
+                        'sans': ['"Geist"', 'system-ui', 'sans-serif'],
+                        'mono': ['"Geist Mono"', 'monospace'],
+                    },
+                    letterSpacing: {
+                        'caps': '0.16em',
+                    },
+                    animation: {
+                        'fade-up': 'fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both',
+                    },
+                }
+            }
+        }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <script type="importmap">
+        {
+            "imports": {
+                "react": "https://esm.sh/react@18",
+                "react-dom/client": "https://esm.sh/react-dom@18/client",
+                "lucide-react": "https://esm.sh/lucide-react@0.344.0"
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        :root {
+            --c-bg: #FAFAF7;
+            --c-ink: #0F0F14;
+            --c-ink-soft: #3F3F46;
+            --c-direction: #4F46E5;       /* Indigo */
+            --c-direction-light: #EEF2FF;
+            --c-admin: #64748B;           /* Slate */
+            --c-admin-light: #F1F5F9;
+            --c-client: #F59E0B;          /* Amber */
+            --c-client-light: #FEF3C7;
+            --c-logistique: #0891B2;      /* Cyan */
+            --c-logistique-light: #CFFAFE;
+            --c-formation: #DB2777;       /* Pink */
+            --c-formation-light: #FCE7F3;
+            --c-technique: #10B981;       /* Emerald */
+            --c-technique-light: #D1FAE5;
+            --c-qualite: #EF4444;         /* Red */
+            --c-qualite-light: #FEE2E2;
+            --c-filiale: #A1A1AA;         /* Zinc */
+            --c-filiale-light: #F4F4F5;
+            --c-tech: #7C3AED;            /* Violet */
+            --c-tech-light: #EDE9FE;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background: var(--c-bg);
+            font-family: 'Geist', system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            color: var(--c-ink);
+        }
+        #root { min-height: 100vh; width: 100vw; }
+
+        /* Fond avec gradients colorés très subtils */
+        .vibrant-bg {
+            background: var(--c-bg);
+            background-image:
+                radial-gradient(circle at 12% 8%, rgba(79, 70, 229, 0.06) 0%, transparent 35%),
+                radial-gradient(circle at 88% 92%, rgba(219, 39, 119, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 60% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
+        }
+
+        /* Header sombre uni */
+        .gradient-header {
+            background: #0F0F14;
+            position: relative;
+        }
+        .gradient-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(79, 70, 229, 0.08) 50%, transparent 100%);
+            pointer-events: none;
+        }
+
+        /* Animations */
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .anim-fade { animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+        .stagger > * { animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+        .stagger > *:nth-child(1) { animation-delay: 0.05s; }
+        .stagger > *:nth-child(2) { animation-delay: 0.12s; }
+        .stagger > *:nth-child(3) { animation-delay: 0.19s; }
+        .stagger > *:nth-child(4) { animation-delay: 0.26s; }
+        .stagger > *:nth-child(5) { animation-delay: 0.33s; }
+
+        /* Carte de poste — design coloré et dynamique */
+        .node-card {
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+            background: white;
+            position: relative;
+        }
+        .node-card:hover {
+            transform: translateY(-3px) scale(1.02);
+        }
+        .node-card.selected {
+            transform: translateY(-3px) scale(1.05);
+            z-index: 10;
+        }
+
+        /* Effet "glow" coloré au hover */
+        .node-card.dept-Direction:hover, .node-card.dept-Direction.selected {
+            box-shadow: 0 12px 24px -6px rgba(79, 70, 229, 0.35), 0 0 0 2px var(--c-direction);
+        }
+        .node-card.dept-Admin:hover, .node-card.dept-Admin.selected {
+            box-shadow: 0 12px 24px -6px rgba(100, 116, 139, 0.30), 0 0 0 2px var(--c-admin);
+        }
+        .node-card.dept-Client:hover, .node-card.dept-Client.selected {
+            box-shadow: 0 12px 24px -6px rgba(245, 158, 11, 0.35), 0 0 0 2px var(--c-client);
+        }
+        .node-card.dept-Logistique:hover, .node-card.dept-Logistique.selected {
+            box-shadow: 0 12px 24px -6px rgba(8, 145, 178, 0.35), 0 0 0 2px var(--c-logistique);
+        }
+        .node-card.dept-Formation:hover, .node-card.dept-Formation.selected {
+            box-shadow: 0 12px 24px -6px rgba(219, 39, 119, 0.35), 0 0 0 2px var(--c-formation);
+        }
+        .node-card.dept-Technique:hover, .node-card.dept-Technique.selected {
+            box-shadow: 0 12px 24px -6px rgba(16, 185, 129, 0.35), 0 0 0 2px var(--c-technique);
+        }
+        .node-card.dept-Qualité:hover, .node-card.dept-Qualité.selected {
+            box-shadow: 0 12px 24px -6px rgba(239, 68, 68, 0.35), 0 0 0 2px var(--c-qualite);
+        }
+        .node-card.dept-Filiale:hover, .node-card.dept-Filiale.selected {
+            box-shadow: 0 12px 24px -6px rgba(161, 161, 170, 0.30), 0 0 0 2px var(--c-filiale);
+        }
+        .node-card.dept-Tech:hover, .node-card.dept-Tech.selected {
+            box-shadow: 0 12px 24px -6px rgba(124, 58, 237, 0.35), 0 0 0 2px var(--c-tech);
+        }
+
+        /* Scrollbar discrète */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(15, 15, 20, 0.18);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(15, 15, 20, 0.35);
+        }
+
+        /* Filet uniforme */
+        .hairline { border-color: rgba(15, 15, 20, 0.08); }
+
+        /* Focus */
+        button:focus-visible, select:focus-visible, input:focus-visible {
+            outline: 2px solid #4F46E5;
+            outline-offset: 2px;
+        }
+
+        /* Button hover */
+        .btn-primary {
+            background: #0F0F14;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Connector lignes */
+        .connector-v { background: rgba(15, 15, 20, 0.18); }
+        .connector-h { background: rgba(15, 15, 20, 0.18); }
+
+        /* Glass effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* Tab actif */
+        .tab-active {
+            background: #0F0F14;
+            color: white;
+        }
+
+        /* Tabular nums */
+        .tabular { font-variant-numeric: tabular-nums; }
+
+        /* Hover scale */
+        .hover-lift { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .hover-lift:hover { transform: translateY(-2px); }
+
+        /* Print */
+        @media print {
+            body { background: white; }
+            .no-print { display: none !important; }
+            .gradient-header { background: #0F0F14 !important; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel" data-type="module">
+        import React, { useState, useMemo, useEffect } from 'react';
+        import { createRoot } from 'react-dom/client';
+        import {
+            Users, Network, User, Eye, EyeOff, X, Printer,
+            Award, Target, TrendingUp, Layers, GitBranch, ChevronRight,
+            ClipboardList, Wrench, ShieldCheck,
+            Building2, Factory, Store, BarChart3, Crown,
+            MapPin, CheckCircle2, Sparkles, Compass, Search, ArrowUpRight,
+            Zap, Star, Activity, Gauge
+        } from 'lucide-react';
+
+        /* ============================================================
+           DONNÉES — MODÈLES D'ORGANISATION SAV HORLOGER
+           ============================================================ */
+
+        const ORG_MODELS = {
+            micro: {
+                key: 'micro',
+                label: 'Point Service',
+                subtitle: 'TPE — 2 à 3 collaborateurs',
+                description: "Petit point de service indépendant ou boutique-atelier. L'horloger polyvalent assure réception, diagnostic, intervention et restitution. Pas de spécialisation, pas de hiérarchie intermédiaire.",
+                icon: 'Store',
+                context: "Boutique horlogère locale, marché de proximité, petit volume (< 50 montres/mois).",
+                accent: '#10B981',
+                members: [
+                    { id: 1, name: 'A. Bovet', role: 'Patron Horloger', department: 'Direction', avatar: 'AB', status: 'Présent', managerId: null, productive: true, mission: "Pilote l'activité commerciale et technique. Réalise les interventions complexes (mouvement, chronographe, complications).", responsibilities: ["Accueil client et devis", "Diagnostic technique", "Interventions sur mouvements", "Pilotage administratif"], skills: ["CFC horloger + expérience 10+ ans", "Sens commercial", "Polyvalence technique"], kpis: ["CA / mois", "Délai moyen de retour client", "Satisfaction client"] },
+                    { id: 2, name: 'M. Reuge', role: 'Horloger SAV', department: 'Technique', avatar: 'MR', status: 'Présent', managerId: 1, productive: true, mission: "Réalise les interventions courantes : changement de pile, étanchéité, polissage, petites révisions.", responsibilities: ["Interventions niveau 1 et 2", "Test d'étanchéité", "Polissage habillement", "Contrôle de qualité"], skills: ["CFC horloger", "Maîtrise des outillages classiques", "Soin et précision"], kpis: ["Nombre d'interventions/jour", "Taux de retour SAV", "Conformité"] },
+                ]
+            },
+            small: {
+                key: 'small',
+                label: 'Atelier CS Petit',
+                subtitle: 'Petite structure — 4 à 6 collaborateurs',
+                description: "Atelier centre service de proximité avec un noyau technique encadré par un responsable SAV. Apparition d'un rôle administratif et d'une spécialisation par type d'intervention.",
+                icon: 'Building2',
+                context: "Centre service régional, environ 100 à 300 montres traitées par mois, marché local à régional.",
+                accent: '#F59E0B',
+                members: [
+                    { id: 1, name: 'J. Dupont', role: 'Responsable SAV', department: 'Direction', avatar: 'JD', status: 'Présent', managerId: null, productive: false, mission: "Pilote l'atelier, garantit qualité, délais et satisfaction client. Interface avec la marque ou la direction.", responsibilities: ["Pilotage des indicateurs SAV", "Gestion d'équipe (4-6 pers.)", "Relation marque / direction", "Validation des devis complexes"], skills: ["Formation horlogère + management", "Connaissance qualité", "Sens du service client"], kpis: ["Délai moyen SAV", "Taux de satisfaction", "Marge sur SAV"] },
+                    { id: 2, name: 'S. Leroy', role: 'Secrétaire SAV', department: 'Admin', avatar: 'SL', status: 'Présent', managerId: 1, productive: false, layout: 'staff', mission: "Accueille la demande client, ouvre les dossiers SAV, gère la communication et l'expédition.", responsibilities: ["Ouverture des dossiers SAV", "Communication client (devis, suivi)", "Logistique expédition / réception", "Facturation"], skills: ["Aisance relationnelle", "Maîtrise des outils bureautiques", "Rigueur administrative"], kpis: ["Délai de réponse au client", "Taux d'erreur administrative", "Nombre de dossiers traités"] },
+                    { id: 3, name: 'M. Curie', role: 'Horloger Mouvement', department: 'Technique', avatar: 'MC', status: 'Présent', managerId: 1, productive: true, mission: "Intervient sur les mouvements mécaniques et quartz : révision complète, réparation, réglage.", responsibilities: ["Démontage / remontage", "Nettoyage et lubrification", "Réglage de marche", "Diagnostic mouvement"], skills: ["CFC horloger / brevet", "Connaissance des calibres", "Précision microtechnique"], kpis: ["Durée moyenne par révision", "Taux de retour pour défaut", "Conformité aux spécifications"] },
+                    { id: 4, name: 'P. Newman', role: 'Horloger Habillement', department: 'Technique', avatar: 'PN', status: 'En congé', managerId: 1, productive: true, mission: "Intervient sur l'habillement : boîte, verre, couronne, joints, bracelet, étanchéité, polissage.", responsibilities: ["Changement de glace / joints", "Test d'étanchéité", "Polissage / satinage", "Contrôle esthétique"], skills: ["CFC horloger ou opérateur habillement", "Maîtrise des techniques de finition", "Sens esthétique"], kpis: ["Taux d'étanchéité conforme", "Niveau de finition", "Délai d'intervention"] },
+                ]
+            },
+            medium: {
+                key: 'medium',
+                label: 'Atelier CS Moyen',
+                subtitle: 'Centre service régional — 10 à 15 collaborateurs',
+                description: "Atelier structuré avec un responsable SAV, une équipe administrative, un responsable stock, et plusieurs lignes techniques spécialisées encadrées par des responsables intermédiaires.",
+                icon: 'Factory',
+                context: "Centre service régional ou national d'une marque, 500 à 1500 montres / mois, périmètre B2B et B2C.",
+                accent: '#0891B2',
+                members: [
+                    { id: 1, name: 'J. Dupont', role: 'Responsable SAV', department: 'Direction', avatar: 'JD', status: 'Présent', managerId: null, productive: false, mission: "Pilote la performance globale de l'atelier (qualité, délais, coûts). Reporte à la direction de la marque.", responsibilities: ["Stratégie SAV de l'atelier", "Pilotage budgétaire", "Management des responsables", "Représentation auprès de la marque"], skills: ["Master ou Bachelor + 10 ans d'expérience", "Management transversal", "Vision qualité et amélioration continue"], kpis: ["Délai global SAV", "Coût moyen / intervention", "NPS client", "Productivité atelier"] },
+                    { id: 2, name: 'S. Leroy', role: 'Secrétaire SAV', department: 'Admin', avatar: 'SL', status: 'Présent', managerId: 1, productive: false, layout: 'staff', mission: "Coordonne l'administration du service : dossiers, communication, facturation, logistique.", responsibilities: ["Coordination administrative", "Gestion des dossiers SAV", "Facturation / encaissement", "Communication client"], skills: ["Formation commerce / administration", "Connaissance des outils ERP", "Pilotage de flux administratif"], kpis: ["Délai de traitement administratif", "Taux d'erreur facturation", "Satisfaction client"] },
+                    { id: 3, name: 'L. Scott', role: 'Resp. Logistique', department: 'Logistique', avatar: 'LS', status: 'Présent', managerId: 1, productive: false, mission: "Pilote le stock de composants SAV et la logistique entrante / sortante.", responsibilities: ["Gestion des stocks composants", "Approvisionnement", "Préparation des kits", "Pilotage des flux logistiques"], skills: ["Bachelor logistique", "Maîtrise des outils ERP", "Connaissance des composants horlogers"], kpis: ["Taux de service stock", "Rotation des stocks", "Valeur immobilisée"] },
+                    { id: 5, name: 'M. Curie', role: 'Resp. Technique', department: 'Technique', avatar: 'MC', status: 'Présent', managerId: 1, productive: false, mission: "Encadre l'équipe technique de mouvement et coordonne les interventions complexes.", responsibilities: ["Pilotage de l'équipe technique", "Affectation des dossiers", "Support technique de niveau 3", "Formation interne"], skills: ["Brevet horloger / maîtrise", "Expérience encadrement", "Expertise mouvement"], kpis: ["Productivité de l'équipe", "Taux de non-conformité", "Délai moyen d'intervention"] },
+                    { id: 9, name: 'T. Holland', role: 'Resp. Contrôle', department: 'Qualité', avatar: 'TH', status: 'Présent', managerId: 1, productive: false, mission: "Garantit la qualité des interventions livrées : contrôle final, métrologie, traitement des non-conformités.", responsibilities: ["Contrôle qualité final", "Pilotage des non-conformités", "Audits qualité du processus", "Gestion de la métrologie"], skills: ["Formation qualité / métrologie", "Connaissance ISO 9001", "Rigueur analytique"], kpis: ["Taux de NC interne", "Taux de retour client", "Capabilité du processus"] },
+                    { id: 6, name: 'A. Prost', role: 'Horloger Mouvement', department: 'Technique', avatar: 'AP', status: 'Formation', managerId: 5, productive: true, mission: "Réalise les interventions sur mouvements : révision, réparation, réglage de marche.", responsibilities: ["Révision complète", "Réparation mouvement", "Réglage de marche", "Mise à l'heure et test final"], skills: ["CFC horloger", "Maîtrise des calibres de la marque", "Précision"], kpis: ["Nombre d'interventions / jour", "Taux de retour", "Précision de marche"] },
+                    { id: 11, name: 'C. Niro', role: 'Horloger Mouvement', department: 'Technique', avatar: 'CN', status: 'Présent', managerId: 5, productive: true, mission: "Réalise les interventions sur mouvements de complications (chronographes, calendriers).", responsibilities: ["Interventions complications", "Diagnostic avancé", "Réglage fin", "Support aux apprentis"], skills: ["Brevet horloger", "Expertise complications", "Pédagogie"], kpis: ["Complexité moyenne traitée", "Taux de premier coup bon", "Transmission savoir-faire"] },
+                    { id: 8, name: 'P. Newman', role: 'Horloger Habillement', department: 'Technique', avatar: 'PN', status: 'Présent', managerId: 5, productive: true, mission: "Intervient sur l'habillement : étanchéité, polissage, changement de composants.", responsibilities: ["Étanchéité", "Polissage / satinage", "Changement habillement", "Contrôle esthétique"], skills: ["CFC habillement", "Maîtrise des techniques de finition", "Sens esthétique"], kpis: ["Taux d'étanchéité conforme", "Qualité du polissage", "Productivité"] },
+                    { id: 10, name: 'Z. Chalamet', role: 'Contrôleur Qualité', department: 'Qualité', avatar: 'ZC', status: 'Présent', managerId: 9, productive: true, mission: "Effectue les contrôles finaux dimensionnels, esthétiques et fonctionnels avant restitution.", responsibilities: ["Contrôle final métrologique", "Contrôle esthétique (visitage)", "Test fonctionnel", "Rédaction du rapport de contrôle"], skills: ["Formation métrologie", "Maîtrise du contrôle esthétique", "Rigueur d'analyse"], kpis: ["Détection des défauts", "Délai de contrôle", "Conformité du rapport"] },
+                    { id: 4, name: 'C. Chazal', role: 'Magasinier', department: 'Logistique', avatar: 'CC', status: 'Présent', managerId: 3, productive: true, mission: "Réceptionne, stocke et distribue les composants SAV aux horlogers.", responsibilities: ["Réception des livraisons", "Mise en stock et inventaire", "Préparation des kits", "Distribution aux ateliers"], skills: ["Formation logistique", "Maîtrise du système de gestion", "Organisation"], kpis: ["Précision d'inventaire", "Délai de mise à disposition", "Erreurs de préparation"] },
+                ]
+            },
+            large: {
+                key: 'large',
+                label: 'Atelier CS Grand',
+                subtitle: 'Centre service national — 25 à 35 collaborateurs',
+                description: "Organisation matricielle avec direction, services support transverses (logistique, qualité, formation, service client) et plusieurs équipes techniques spécialisées par calibre ou type d'intervention.",
+                icon: 'Building2',
+                context: "Centre service national, 2000 à 5000 montres / mois, traitement multi-calibres, multi-marques ou marque unique de luxe.",
+                accent: '#DB2777',
+                members: [
+                    { id: 1, name: 'J. Dupont', role: 'Directeur SAV', department: 'Direction', avatar: 'JD', status: 'Présent', managerId: null, productive: false, mission: "Dirige le centre service. Garant de la stratégie, des résultats et de l'image de la marque sur le SAV.", responsibilities: ["Stratégie SAV", "Pilotage budgétaire global", "Représentation au comité de direction", "Pilotage des projets transverses"], skills: ["Master + 15 ans d'expérience", "Vision stratégique", "Leadership"], kpis: ["EBITDA SAV", "NPS global", "Délai moyen global"] },
+                    { id: 10, name: 'C. Chazal', role: 'Assistante de Direction', department: 'Admin', avatar: 'CC', status: 'Présent', managerId: 1, productive: false, layout: 'staff', mission: "Assure le support administratif et la coordination des activités de la direction.", responsibilities: ["Agenda direction", "Coordination des comités", "Communication interne", "Reporting consolidé"], skills: ["Formation administration", "Maîtrise des outils collaboratifs", "Discrétion"], kpis: ["Qualité du reporting", "Réactivité"] },
+                    { id: 2, name: 'S. Leroy', role: 'Resp. Service Client', department: 'Client', avatar: 'SL', status: 'Présent', managerId: 1, productive: false, mission: "Pilote l'expérience client de bout en bout : accueil, communication, satisfaction.", responsibilities: ["Pilotage CRM SAV", "Animation de l'équipe service client", "Pilotage NPS", "Traitement des réclamations"], skills: ["Bachelor + expérience client", "Communication", "Empathie"], kpis: ["NPS", "Taux de réclamation", "Délai de réponse"] },
+                    { id: 3, name: 'L. Scott', role: 'Resp. Logistique', department: 'Logistique', avatar: 'LS', status: 'Présent', managerId: 1, productive: false, mission: "Pilote l'ensemble de la chaîne logistique : composants, montres entrantes / sortantes, expéditions.", responsibilities: ["Gestion des stocks", "Pilotage des flux entrants / sortants", "Relations fournisseurs", "Optimisation logistique"], skills: ["Master logistique", "ERP avancé", "Pilotage de flux"], kpis: ["Taux de service", "Coût logistique / pièce", "Rotation stock"] },
+                    { id: 4, name: 'S. Connor', role: 'Resp. Formation', department: 'Formation', avatar: 'SC', status: 'Présent', managerId: 1, productive: false, mission: "Pilote la montée en compétence des équipes techniques et administratives.", responsibilities: ["Plan de formation", "Animation des sessions", "Évaluation des compétences", "Veille pédagogique"], skills: ["Brevet horloger + pédagogie", "Ingénierie de formation", "Connaissance des calibres"], kpis: ["Heures de formation / pers.", "Taux de qualification", "Satisfaction des formés"] },
+                    { id: 6, name: 'M. Veyrat', role: 'Resp. Technique', department: 'Technique', avatar: 'MV', status: 'Présent', managerId: 1, productive: false, mission: "Pilote l'ensemble des équipes techniques et garantit la qualité technique des interventions.", responsibilities: ["Management des responsables d'atelier", "Définition des standards techniques", "Support technique de niveau 4", "Pilotage des investissements outillage"], skills: ["Maître horloger / ingénieur", "20+ ans d'expérience", "Expertise multi-calibres"], kpis: ["Taux de premier coup bon", "Productivité technique", "Innovation technique"] },
+                    { id: 9, name: 'T. Holland', role: 'Resp. Qualité', department: 'Qualité', avatar: 'TH', status: 'Présent', managerId: 1, productive: false, mission: "Garantit la qualité globale du SAV : système qualité, audits, métrologie, traitement des NC.", responsibilities: ["Système qualité (ISO 9001)", "Pilotage des audits", "Métrologie", "Amélioration continue"], skills: ["Formation qualité (Master ou équivalent)", "Connaissance ISO", "Lean Six Sigma"], kpis: ["Coût de non-qualité", "Taux de retour client", "Capabilité (Cpk)"] },
+                    { id: 21, name: 'A. Wong', role: 'Conseiller Client', department: 'Client', avatar: 'AW', status: 'Présent', managerId: 2, productive: true, mission: "Accueille le client, ouvre le dossier SAV, communique le suivi et l'avancement.", responsibilities: ["Accueil client", "Ouverture des dossiers", "Communication suivi", "Restitution"], skills: ["Aisance commerciale", "Connaissance produit", "Multilingue"], kpis: ["Délai de prise en charge", "Satisfaction client", "Taux de transformation devis"] },
+                    { id: 31, name: 'H. Boss', role: 'Magasinier', department: 'Logistique', avatar: 'HB', status: 'Présent', managerId: 3, productive: true, mission: "Gère le stock physique de composants SAV et prépare les kits pour les ateliers.", responsibilities: ["Réception / mise en stock", "Inventaires", "Préparation des kits", "Expédition"], skills: ["Formation logistique", "Précision", "Maîtrise outils gestion"], kpis: ["Précision d'inventaire", "Délai de préparation", "Erreurs de picking"] },
+                    { id: 41, name: 'J. Doe', role: 'Formateur', department: 'Formation', avatar: 'JD', status: 'Présent', managerId: 4, productive: true, mission: "Conçoit et anime les sessions de formation techniques et qualité.", responsibilities: ["Conception pédagogique", "Animation des sessions", "Évaluation des acquis", "Tutorat des apprentis"], skills: ["Brevet horloger + pédagogie", "Création de supports", "Pédagogie active"], kpis: ["Qualité des supports", "Satisfaction des formés", "Réussite aux évaluations"] },
+                    { id: 61, name: 'B. Lou', role: 'Resp. Atelier Mouvement', department: 'Technique', avatar: 'BL', status: 'Présent', managerId: 6, productive: false, mission: "Encadre l'équipe horlogers mouvement et pilote le flux d'interventions.", responsibilities: ["Affectation des dossiers", "Support technique niveau 3", "Pilotage productivité équipe", "Suivi qualité interne"], skills: ["Brevet horloger", "Management d'atelier", "Expertise mouvement"], kpis: ["Productivité équipe", "Taux de NC interne", "Délai d'intervention"] },
+                    { id: 62, name: 'A. Prost', role: 'Resp. Atelier Habillement', department: 'Technique', avatar: 'AP', status: 'Présent', managerId: 6, productive: false, mission: "Encadre l'équipe habillement et coordonne les interventions sur boîtes, bracelets, étanchéité.", responsibilities: ["Pilotage équipe habillement", "Standards techniques", "Investissement outillage", "Support technique"], skills: ["CFC habillement + maîtrise", "Management", "Expertise finition"], kpis: ["Qualité finition", "Productivité", "Taux d'étanchéité"] },
+                    { id: 63, name: 'P. Newman', role: 'Resp. Atelier Complications', department: 'Technique', avatar: 'PN', status: 'En congé', managerId: 6, productive: false, mission: "Encadre l'équipe spécialisée sur les complications (chronographes, calendriers, tourbillons).", responsibilities: ["Pilotage atelier complications", "Validation des interventions complexes", "Formation aux complications", "Relation marque"], skills: ["Maître horloger", "Expertise complications", "20+ ans d'expérience"], kpis: ["Taux de premier coup bon (complications)", "Délai d'intervention", "Niveau d'expertise transmis"] },
+                    { id: 611, name: 'Z. Chalamet', role: 'Horloger Mouvement', department: 'Technique', avatar: 'ZC', status: 'Présent', managerId: 61, productive: true, mission: "Réalise les interventions sur mouvements standards et automatiques.", responsibilities: ["Révision mouvement", "Réglage de marche", "Test final", "Renseignement du dossier"], skills: ["CFC horloger", "Maîtrise des calibres", "Précision"], kpis: ["Productivité", "Taux de retour", "Précision de marche"] },
+                    { id: 612, name: 'K. Reuge', role: 'Horloger Mouvement', department: 'Technique', avatar: 'KR', status: 'Présent', managerId: 61, productive: true, mission: "Réalise les interventions sur mouvements quartz et électroniques.", responsibilities: ["Diagnostic électronique", "Changement de module / pile", "Test fonctionnel", "Étalonnage"], skills: ["CFC horloger électronique", "Connaissance des circuits", "Précision"], kpis: ["Productivité", "Taux de retour", "Qualité diagnostic"] },
+                    { id: 621, name: 'T. Alban', role: 'Polisseur', department: 'Technique', avatar: 'TA', status: 'Présent', managerId: 62, productive: true, mission: "Réalise le polissage et le satinage des éléments d'habillement.", responsibilities: ["Polissage", "Satinage", "Adoucissage", "Contrôle esthétique"], skills: ["Formation polissage", "Sens esthétique", "Maîtrise des techniques"], kpis: ["Qualité finition", "Productivité", "Conformité au standard"] },
+                    { id: 622, name: 'B. Tudor', role: 'Horloger Habillement', department: 'Technique', avatar: 'BT', status: 'Présent', managerId: 62, productive: true, mission: "Intervient sur l'habillement : verre, joints, couronne, bracelet, étanchéité.", responsibilities: ["Changement habillement", "Test d'étanchéité", "Montage bracelet", "Contrôle"], skills: ["CFC habillement", "Étanchéité", "Précision"], kpis: ["Taux d'étanchéité", "Productivité", "Qualité du montage"] },
+                    { id: 631, name: 'C. Marin', role: 'Horloger Complications', department: 'Technique', avatar: 'CM', status: 'Présent', managerId: 63, productive: true, mission: "Réalise les interventions sur chronographes et calendriers complexes.", responsibilities: ["Révision chronographe", "Calendrier perpétuel", "Réglage fin", "Documentation"], skills: ["Brevet horloger", "Expertise complications", "Patience"], kpis: ["Complexité traitée", "Taux de premier coup bon", "Qualité du réglage"] },
+                    { id: 91, name: 'I. Knebel', role: 'Resp. Métrologie', department: 'Qualité', avatar: 'IK', status: 'Présent', managerId: 9, productive: false, mission: "Gère le parc métrologique et garantit la traçabilité des moyens de mesure.", responsibilities: ["Inventaire métrologique", "Étalonnage / vérification", "Tests R&R", "Gestion des certificats"], skills: ["Formation métrologie", "Connaissance ISO 17025", "Rigueur"], kpis: ["Taux de conformité étalonnage", "Délai d'étalonnage", "Capabilité moyens"] },
+                    { id: 92, name: 'D. Aral', role: 'Contrôleur Qualité', department: 'Qualité', avatar: 'DA', status: 'Présent', managerId: 9, productive: true, mission: "Effectue les contrôles dimensionnels et esthétiques finaux.", responsibilities: ["Contrôle dimensionnel", "Contrôle esthétique", "Rapport de contrôle", "Traitement NC"], skills: ["Formation métrologie", "Maîtrise visitage", "Analyse"], kpis: ["Détection défauts", "Délai", "Conformité rapport"] },
+                    { id: 51, name: 'J. Smith', role: 'Conseiller Client', department: 'Client', avatar: 'JS', status: 'Présent', managerId: 2, productive: true, mission: "Traite les appels et e-mails clients, assure le suivi des dossiers.", responsibilities: ["Réponse aux demandes", "Suivi des dossiers", "Communication des délais", "Traitement des réclamations"], skills: ["Communication", "Multilingue", "Connaissance produit"], kpis: ["Délai de réponse", "Taux de résolution", "Satisfaction"] },
+                ]
+            },
+            manufacture: {
+                key: 'manufacture',
+                label: 'Manufacture / Maison Mère',
+                subtitle: 'Service Central — 50+ collaborateurs',
+                description: "Organisation de manufacture avec services techniques pointus (restauration, pièces historiques, ateliers grandes complications), services qualité avancés et fonctions transverses (R&D SAV, marketing produit SAV, relations filiales).",
+                icon: 'Crown',
+                context: "Service après-vente central d'une maison horlogère, références historiques, pièces uniques, grandes complications. Coordination des filiales mondiales.",
+                accent: '#4F46E5',
+                members: [
+                    { id: 1, name: 'V. Dufour', role: 'Directeur Général SAV', department: 'Direction', avatar: 'VD', status: 'Présent', managerId: null, productive: false, mission: "Dirige l'ensemble du SAV mondial de la marque. Garant de l'excellence, de la pérennité du savoir-faire et de la satisfaction client.", responsibilities: ["Stratégie SAV mondiale", "Comité de direction marque", "Pilotage des filiales", "Représentation institutionnelle"], skills: ["Master + 20 ans d'expérience", "Vision stratégique", "Connaissance horlogère profonde"], kpis: ["EBITDA SAV mondial", "NPS marque", "Durabilité du parc"] },
+                    { id: 10, name: 'C. Chazal', role: 'Direction Administrative', department: 'Admin', avatar: 'CC', status: 'Présent', managerId: 1, productive: false, layout: 'staff', mission: "Pilote l'administration générale et le contrôle de gestion du SAV.", responsibilities: ["Contrôle de gestion", "RH SAV", "Juridique", "Reporting"], skills: ["Master gestion", "Pilotage transverse", "Expertise RH"], kpis: ["Budget respect", "Climat social", "Qualité reporting"] },
+                    { id: 100, name: 'Filiales', role: 'Réseau International', department: 'Filiale', avatar: 'FI', status: 'Distant', managerId: 1, productive: false, isDashed: true, mission: "Filiales et centres service régionaux dans le monde. Application des standards de la maison mère.", responsibilities: ["Application des standards SAV", "Remontée des indicateurs", "Traitement local", "Escalade vers la maison mère"], skills: ["Variable selon le pays", "Conformité aux standards", "Adaptation culturelle"], kpis: ["Conformité aux standards", "Délai régional", "NPS local"] },
+                    { id: 2, name: 'M. Antoine', role: 'Direction Client', department: 'Client', avatar: 'MA', status: 'Présent', managerId: 1, productive: false, mission: "Pilote l'expérience client SAV au niveau mondial, en lien avec la marque et le marketing.", responsibilities: ["Expérience client SAV", "Conception des parcours", "Pilotage NPS mondial", "Innovation service"], skills: ["Master marketing / service", "Vision client", "Pilotage international"], kpis: ["NPS mondial", "Satisfaction restitution", "Innovation"] },
+                    { id: 3, name: 'L. Bachmann', role: 'Direction Supply Chain', department: 'Logistique', avatar: 'LB', status: 'Présent', managerId: 1, productive: false, mission: "Pilote l'ensemble de la supply chain SAV : composants, mouvements de remplacement, flux mondiaux.", responsibilities: ["Stratégie supply chain", "Relation fournisseurs", "Pilotage stocks mondiaux", "Pièces historiques"], skills: ["Master supply chain", "Vision long terme", "Gestion patrimoine"], kpis: ["Taux de service mondial", "Coût supply chain", "Disponibilité pièces"] },
+                    { id: 4, name: 'S. Connor', role: 'Direction Formation', department: 'Formation', avatar: 'SC', status: 'Présent', managerId: 1, productive: false, mission: "Préserve et transmet le savoir-faire de la marque. Pilote l'académie horlogère interne.", responsibilities: ["Académie horlogère", "Plan de formation mondial", "Préservation du patrimoine technique", "Partenariats écoles"], skills: ["Maître horloger + pédagogie", "Vision patrimoniale", "Réseau écoles"], kpis: ["Compétences certifiées", "Heures formation", "Transmission savoir"] },
+                    { id: 6, name: 'M. Veyrat', role: 'Direction Technique', department: 'Technique', avatar: 'MV', status: 'Présent', managerId: 1, productive: false, mission: "Pilote l'ensemble des ateliers techniques, garantit l'excellence technique et l'innovation.", responsibilities: ["Pilotage ateliers techniques", "Standards techniques mondiaux", "Innovation procédés", "Pièces uniques"], skills: ["Maître horloger / ingénieur", "Excellence technique", "Vision innovation"], kpis: ["Excellence technique", "Innovation", "Patrimoine technique"] },
+                    { id: 9, name: 'T. Holland', role: 'Direction Qualité', department: 'Qualité', avatar: 'TH', status: 'Présent', managerId: 1, productive: false, mission: "Garante de la qualité absolue et de la conformité aux standards de la maison.", responsibilities: ["Système qualité mondial", "Conformité aux standards de la maison", "Audits filiales", "Authentification"], skills: ["Master qualité", "Connaissance ISO", "Expertise authentification"], kpis: ["Coût non-qualité", "Conformité audits", "Pérennité patrimoine"] },
+                    { id: 60, name: 'Ordo.', role: 'Ordonnancement', department: 'Tech', avatar: 'OR', status: 'Actif', managerId: 6, layout: 'staff', productive: false, mission: "Planifie les interventions et optimise la charge des ateliers.", responsibilities: ["Planification", "Allocation des charges", "Pilotage des délais", "Anticipation des goulets"], skills: ["Bachelor gestion production", "Outils de planification", "Vision flux"], kpis: ["Respect des délais", "Taux d'utilisation", "Anticipation"] },
+                    { id: 61, name: 'B. Lou', role: 'Resp. Mouvement Simple', department: 'Technique', avatar: 'BL', status: 'Présent', managerId: 6, productive: false, mission: "Pilote l'atelier des mouvements simples (3 aiguilles, date).", responsibilities: ["Pilotage atelier", "Standards techniques", "Productivité", "Qualité"], skills: ["Brevet horloger", "Management", "Expertise mouvement"], kpis: ["Productivité", "Qualité", "Délai"] },
+                    { id: 62, name: 'A. Prost', role: 'Resp. Grandes Complications', department: 'Technique', avatar: 'AP', status: 'Présent', managerId: 6, productive: false, mission: "Pilote l'atelier des grandes complications (tourbillon, sonneries, calendriers perpétuels).", responsibilities: ["Atelier grandes complications", "Validation pièces uniques", "Expertise pointue", "Transmission savoir-faire"], skills: ["Maître horloger", "Expertise rare", "Patience et précision"], kpis: ["Excellence technique", "Délai pièces complexes", "Patrimoine"] },
+                    { id: 63, name: 'P. Newman', role: 'Resp. Restauration', department: 'Technique', avatar: 'PN', status: 'Présent', managerId: 6, productive: false, mission: "Pilote la restauration des pièces historiques et anciennes de la maison.", responsibilities: ["Restauration pièces historiques", "Recherche pièces anciennes", "Authentification", "Documentation patrimoine"], skills: ["Maître horloger + histoire", "Expertise historique", "Recherche"], kpis: ["Pièces restaurées", "Qualité restauration", "Documentation"] },
+                    { id: 64, name: 'E. Stone', role: 'Resp. Habillement HH', department: 'Technique', avatar: 'ES', status: 'Présent', managerId: 6, productive: false, mission: "Pilote l'atelier habillement haute horlogerie : polissage manuel, finition main, sertissage.", responsibilities: ["Polissage haute horlogerie", "Finition main", "Coordination sertissage", "Qualité esthétique absolue"], skills: ["Maître polisseur", "Sens esthétique exceptionnel", "Précision manuelle"], kpis: ["Qualité finition", "Standard de la maison", "Patrimoine"] },
+                    { id: 611, name: 'Z. Chalamet', role: 'Horloger Mvt Simple', department: 'Technique', avatar: 'ZC', status: 'Présent', managerId: 61, productive: true, mission: "Révision et réparation des mouvements simples.", responsibilities: ["Révision", "Réparation", "Réglage", "Test"], skills: ["CFC horloger", "Calibres maison", "Précision"], kpis: ["Productivité", "Qualité", "Délai"] },
+                    { id: 612, name: 'F. Lang', role: 'Horloger Mvt Simple', department: 'Technique', avatar: 'FL', status: 'Présent', managerId: 61, productive: true, mission: "Révision et réparation des mouvements simples et automatiques.", responsibilities: ["Révision", "Diagnostic", "Réglage", "Contrôle"], skills: ["CFC horloger", "Calibres maison", "Précision"], kpis: ["Productivité", "Qualité", "Premier coup bon"] },
+                    { id: 621, name: 'C. Marin', role: 'Horloger Complications', department: 'Technique', avatar: 'CM', status: 'Présent', managerId: 62, productive: true, mission: "Intervention sur tourbillons, répétitions minutes, calendriers perpétuels.", responsibilities: ["Tourbillon", "Sonneries", "Calendrier perpétuel", "Documentation pièce"], skills: ["Maître horloger", "Expertise rare", "Patience"], kpis: ["Excellence", "Délai", "Documentation"] },
+                    { id: 622, name: 'G. Berney', role: 'Horloger Complications', department: 'Technique', avatar: 'GB', status: 'Présent', managerId: 62, productive: true, mission: "Intervention sur grandes complications et pièces de prestige.", responsibilities: ["Grandes complications", "Pièces uniques", "Réglage fin", "Validation"], skills: ["Brevet horloger + maîtrise", "Expertise complications", "Précision"], kpis: ["Excellence", "Conformité", "Premier coup bon"] },
+                    { id: 631, name: 'H. Vasseur', role: 'Horloger Restaurateur', department: 'Technique', avatar: 'HV', status: 'Présent', managerId: 63, productive: true, mission: "Restauration de pièces historiques de la maison.", responsibilities: ["Diagnostic historique", "Restauration", "Documentation", "Authentification"], skills: ["Brevet + histoire horlogère", "Connaissance patrimoine", "Recherche"], kpis: ["Qualité restauration", "Authentification", "Documentation"] },
+                    { id: 641, name: 'M. Yard', role: 'Polisseur HH', department: 'Technique', avatar: 'MY', status: 'Présent', managerId: 64, productive: true, mission: "Polissage main des pièces haute horlogerie.", responsibilities: ["Polissage main", "Anglage", "Adoucissage", "Contrôle"], skills: ["Maîtrise polissage main", "Sens esthétique", "Patience"], kpis: ["Qualité finition", "Standard maison", "Productivité"] },
+                    { id: 91, name: 'I. Knebel', role: 'Resp. Métrologie', department: 'Qualité', avatar: 'IK', status: 'Présent', managerId: 9, productive: false, mission: "Pilote la métrologie centrale et garantit la traçabilité au SI.", responsibilities: ["Métrologie centrale", "Étalonnage raccordé", "Tests R&R", "Audits métrologiques"], skills: ["Master métrologie", "ISO 17025", "Expertise SI"], kpis: ["Traçabilité", "Capabilité", "Conformité"] },
+                    { id: 92, name: 'D. Aral', role: 'Resp. Contrôle', department: 'Qualité', avatar: 'DA', status: 'Présent', managerId: 9, productive: false, mission: "Pilote l'équipe de contrôle qualité finale.", responsibilities: ["Pilotage contrôle", "Standards qualité", "Pilotage NC", "Visitage"], skills: ["Formation qualité", "Visitage avancé", "Management"], kpis: ["Détection NC", "Délai contrôle", "Conformité"] },
+                    { id: 93, name: 'Q. Tarantino', role: 'Auditeur Qualité', department: 'Qualité', avatar: 'QT', status: 'Présent', managerId: 9, productive: false, mission: "Audite les filiales et les processus internes.", responsibilities: ["Audits filiales", "Audits internes", "Plans d'action", "Reporting"], skills: ["Auditeur ISO 9001", "Expertise SAV horloger", "Communication"], kpis: ["Audits réalisés", "Plans d'action suivis", "Conformité"] },
+                ]
+            }
+        };
+
+        const ICONS = { Store, Building2, Factory, Crown };
+
+        /* Palette vibrante */
+        const DEPT = {
+            'Direction':   { hex: '#4F46E5', light: '#EEF2FF', name: 'Direction',   bg: 'bg-indigo-500',  bgLight: 'bg-indigo-50',   text: 'text-indigo-700',  border: 'border-indigo-500' },
+            'Admin':       { hex: '#64748B', light: '#F1F5F9', name: 'Admin',       bg: 'bg-slate-500',   bgLight: 'bg-slate-50',    text: 'text-slate-700',   border: 'border-slate-500' },
+            'Client':      { hex: '#F59E0B', light: '#FEF3C7', name: 'Client',      bg: 'bg-amber-500',   bgLight: 'bg-amber-50',    text: 'text-amber-700',   border: 'border-amber-500' },
+            'Logistique':  { hex: '#0891B2', light: '#CFFAFE', name: 'Logistique',  bg: 'bg-cyan-600',    bgLight: 'bg-cyan-50',     text: 'text-cyan-700',    border: 'border-cyan-600' },
+            'Formation':   { hex: '#DB2777', light: '#FCE7F3', name: 'Formation',   bg: 'bg-pink-600',    bgLight: 'bg-pink-50',     text: 'text-pink-700',    border: 'border-pink-600' },
+            'Technique':   { hex: '#10B981', light: '#D1FAE5', name: 'Technique',   bg: 'bg-emerald-500', bgLight: 'bg-emerald-50',  text: 'text-emerald-700', border: 'border-emerald-500' },
+            'Qualité':     { hex: '#EF4444', light: '#FEE2E2', name: 'Qualité',     bg: 'bg-red-500',     bgLight: 'bg-red-50',      text: 'text-red-700',     border: 'border-red-500' },
+            'Filiale':     { hex: '#A1A1AA', light: '#F4F4F5', name: 'Filiale',     bg: 'bg-zinc-400',    bgLight: 'bg-zinc-50',     text: 'text-zinc-600',    border: 'border-zinc-400' },
+            'Tech':        { hex: '#7C3AED', light: '#EDE9FE', name: 'Tech',        bg: 'bg-violet-600',  bgLight: 'bg-violet-50',   text: 'text-violet-700',  border: 'border-violet-600' },
+        };
+
+        const STATUS = {
+            'Présent':   { dot: 'bg-emerald-500', label: 'text-emerald-700' },
+            'En congé':  { dot: 'bg-amber-500',   label: 'text-amber-700' },
+            'Formation': { dot: 'bg-violet-500',  label: 'text-violet-700' },
+            'Distant':   { dot: 'bg-zinc-400',    label: 'text-zinc-600' },
+            'Actif':     { dot: 'bg-indigo-500',  label: 'text-indigo-700' },
+        };
+
+        /* ============================================================
+           MÉTRIQUES
+           ============================================================ */
+        const computeMetrics = (members) => {
+            const total = members.length;
+            const productive = members.filter(m => m.productive).length;
+            const support = total - productive;
+            const ratio = total > 0 ? Math.round((productive / total) * 100) : 0;
+
+            const getDepth = (id, depth = 0) => {
+                const m = members.find(x => x.id === id);
+                if (!m || m.managerId === null) return depth;
+                return getDepth(m.managerId, depth + 1);
+            };
+            const maxDepth = Math.max(...members.map(m => getDepth(m.id))) + 1;
+
+            const depts = {};
+            members.forEach(m => { depts[m.department] = (depts[m.department] || 0) + 1; });
+
+            return { total, productive, support, ratio, maxDepth, depts };
+        };
+
+        /* ============================================================
+           NODE — coloré et dynamique
+           ============================================================ */
+        const Node = ({ member, showIdentity, onSelect, isSelected }) => {
+            const dept = DEPT[member.department] || DEPT.Tech;
+            const status = STATUS[member.status] || STATUS.Distant;
+            const isLeader = member.managerId === null;
+
+            return (
+                <div
+                    onClick={() => onSelect(member)}
+                    className={`node-card dept-${member.department} cursor-pointer w-[128px] rounded-lg border hairline relative overflow-hidden ${isSelected ? 'selected' : ''} ${member.isDashed ? 'border-dashed' : ''}`}
+                >
+                    {/* Top color bar */}
+                    <div className="h-1.5 w-full" style={{ background: `linear-gradient(90deg, ${dept.hex}, ${dept.hex}CC)` }}></div>
+
+                    {/* Productive badge */}
+                    {member.productive && (
+                        <div className="absolute top-3 right-2">
+                            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-sm" title="Productif">
+                                <Star size={8} className="text-white fill-white" />
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="px-3 pt-2.5 pb-2.5">
+                        {showIdentity ? (
+                            <div className="flex items-center gap-1.5 mb-2">
+                                <div className={`w-6 h-6 rounded-full ${dept.bgLight} ${dept.text} flex items-center justify-center text-[9px] font-mono font-bold shrink-0`}>
+                                    {member.avatar}
+                                </div>
+                                <div className="text-[10px] font-semibold text-zinc-700 truncate">{member.name}</div>
+                            </div>
+                        ) : (
+                            <div className="mb-2">
+                                <User size={11} className="text-zinc-300" />
+                            </div>
+                        )}
+
+                        <div className={`text-[10.5px] font-semibold leading-tight ${isLeader ? 'text-zinc-900' : 'text-zinc-700'}`}>
+                            {member.role}
+                        </div>
+
+                        <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-zinc-100">
+                            <div className="flex items-center gap-1">
+                                <div className={`w-1.5 h-1.5 rounded-full ${status.dot}`}></div>
+                                <span className="text-[8.5px] text-zinc-500 uppercase tracking-caps font-semibold">{member.status}</span>
+                            </div>
+                            <div className={`text-[8.5px] uppercase tracking-caps font-bold ${dept.text}`}>
+                                {dept.name.slice(0, 4)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        /* ============================================================
+           ORG TREE
+           ============================================================ */
+        const OrgTree = ({ root, allMembers, showIdentity, onSelect, selectedId }) => {
+            const directReports = allMembers.filter(m => m.managerId === root.id && m.layout !== 'staff');
+            const staffReports = allMembers.filter(m => m.managerId === root.id && m.layout === 'staff');
+
+            return (
+                <div className="flex flex-col items-center mx-1.5">
+                    <div className="relative">
+                        {staffReports.length > 0 && (
+                            <div className="absolute left-full top-1/2 -translate-y-1/2 flex items-center">
+                                <div className="w-5 h-px connector-h"></div>
+                                <div className="flex flex-col gap-1.5">
+                                    {staffReports.map(staff => (
+                                        <Node key={staff.id} member={staff} showIdentity={showIdentity} onSelect={onSelect} isSelected={selectedId === staff.id} />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        <Node member={root} showIdentity={showIdentity} onSelect={onSelect} isSelected={selectedId === root.id} />
+                    </div>
+
+                    {directReports.length > 0 && (
+                        <>
+                            <div className="h-5 w-px connector-v"></div>
+                            {directReports.length > 1 && (
+                                <div className="relative h-px self-stretch">
+                                    <div className="absolute inset-x-3 inset-y-0 connector-h"></div>
+                                </div>
+                            )}
+                            <div className={`flex gap-1.5 pt-0 ${directReports.length === 1 ? 'flex-col' : ''}`}>
+                                {directReports.map(child => (
+                                    <div key={child.id} className="flex flex-col items-center relative">
+                                        <div className="h-3.5 w-px connector-v"></div>
+                                        <OrgTree root={child} allMembers={allMembers} showIdentity={showIdentity} onSelect={onSelect} selectedId={selectedId} />
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </div>
+            );
+        };
+
+        /* ============================================================
+           ROLE DETAIL PANEL — coloré
+           ============================================================ */
+        const RoleDetailPanel = ({ member, allMembers, onClose }) => {
+            if (!member) return null;
+            const dept = DEPT[member.department] || DEPT.Tech;
+            const status = STATUS[member.status] || STATUS.Distant;
+            const manager = allMembers.find(m => m.id === member.managerId);
+            const reports = allMembers.filter(m => m.managerId === member.id);
+
+            return (
+                <aside className="bg-white border-l hairline w-full lg:w-[440px] flex flex-col shadow-2xl overflow-y-auto shrink-0 anim-fade">
+                    {/* Header coloré avec gradient département */}
+                    <div className="relative p-7 pb-6 overflow-hidden" style={{ background: `linear-gradient(135deg, ${dept.hex}, ${dept.hex}DD 60%, ${dept.hex}AA)` }}>
+                        <div className="absolute inset-0 opacity-20" style={{ background: `radial-gradient(circle at 80% 20%, white 0%, transparent 50%)` }}></div>
+
+                        <div className="relative">
+                            <div className="flex items-start justify-between mb-5">
+                                <div className="flex items-center gap-2 bg-white/15 backdrop-blur px-3 py-1.5 rounded-full">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                    <span className="text-[10px] uppercase tracking-caps text-white font-bold">{member.department}</span>
+                                    <span className="text-white/60">·</span>
+                                    <span className="text-[10px] uppercase tracking-caps text-white font-bold">
+                                        {member.productive ? '★ Productif' : 'Support'}
+                                    </span>
+                                </div>
+                                <button onClick={onClose} className="text-white/70 hover:text-white transition-colors -mt-1 -mr-1 p-1.5 rounded-full hover:bg-white/10">
+                                    <X size={16} />
+                                </button>
+                            </div>
+
+                            <h2 className="font-display text-[2rem] leading-[1.1] text-white mb-4 tracking-tight font-bold">
+                                {member.role}
+                            </h2>
+
+                            <div className="flex items-center gap-3 pt-4 border-t border-white/20">
+                                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[11px] font-mono font-bold" style={{ color: dept.hex }}>
+                                    {member.avatar}
+                                </div>
+                                <div>
+                                    <div className="text-sm font-semibold text-white">{member.name}</div>
+                                    <div className="text-[10px] uppercase tracking-caps text-white/70 flex items-center gap-1.5 mt-0.5 font-bold">
+                                        <span className={`w-1.5 h-1.5 rounded-full bg-white`}></span>
+                                        {member.status}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Mission */}
+                    <Section icon={Target} label="Mission" color={dept.hex}>
+                        <p className="text-[13px] leading-relaxed text-zinc-700 italic font-light">"{member.mission}"</p>
+                    </Section>
+
+                    {/* Responsabilités */}
+                    <Section icon={ClipboardList} label="Responsabilités clés" color={dept.hex}>
+                        <ul className="space-y-1.5">
+                            {member.responsibilities?.map((r, i) => (
+                                <li key={i} className="flex items-start gap-2.5 text-[13px] text-zinc-700 leading-relaxed">
+                                    <div className="mt-[7px] w-1 h-1 rounded-full shrink-0" style={{ background: dept.hex }}></div>
+                                    <span>{r}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </Section>
+
+                    {/* Compétences */}
+                    <Section icon={Award} label="Compétences requises" color={dept.hex}>
+                        <div className="flex flex-wrap gap-1.5">
+                            {member.skills?.map((s, i) => (
+                                <span key={i} className={`text-[11px] px-3 py-1 rounded-full font-medium ${dept.bgLight} ${dept.text}`}>
+                                    {s}
+                                </span>
+                            ))}
+                        </div>
+                    </Section>
+
+                    {/* KPIs */}
+                    <Section icon={Gauge} label="Indicateurs de performance" color={dept.hex}>
+                        <ul className="space-y-1">
+                            {member.kpis?.map((k, i) => (
+                                <li key={i} className="flex items-center gap-2 text-[13px] text-zinc-700 py-1">
+                                    <TrendingUp size={11} className="shrink-0" style={{ color: dept.hex }} />
+                                    <span>{k}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </Section>
+
+                    {/* Liens hiérarchiques */}
+                    <div className="p-7 pt-5 bg-gradient-to-br from-zinc-50 to-white border-t hairline">
+                        <div className="flex items-center gap-2 mb-4">
+                            <GitBranch size={12} style={{ color: dept.hex }} />
+                            <h3 className="text-[10px] uppercase tracking-caps font-bold text-zinc-500">Liens hiérarchiques</h3>
+                        </div>
+
+                        {manager && (
+                            <div className="mb-3">
+                                <div className="text-[9px] uppercase tracking-caps text-zinc-400 mb-1.5 font-bold">Rapporte à</div>
+                                <div className="flex items-center gap-2 bg-white border hairline rounded-lg px-3 py-2 hover-lift">
+                                    <ArrowUpRight size={11} style={{ color: dept.hex }} className="shrink-0" />
+                                    <span className="text-[12px] font-semibold text-zinc-800">{manager.role}</span>
+                                    <span className="text-[11px] text-zinc-400 ml-auto">{manager.name}</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {reports.length > 0 && (
+                            <div>
+                                <div className="text-[9px] uppercase tracking-caps text-zinc-400 mb-1.5 font-bold">
+                                    Encadre · <span className="tabular">{reports.length}</span> {reports.length > 1 ? 'collaborateurs' : 'collaborateur'}
+                                </div>
+                                <div className="space-y-1">
+                                    {reports.map(r => (
+                                        <div key={r.id} className="flex items-center gap-2 bg-white border hairline rounded-lg px-3 py-1.5 hover-lift">
+                                            <ChevronRight size={10} className="text-zinc-400 shrink-0" />
+                                            <span className="text-[12px] text-zinc-700">{r.role}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </aside>
+            );
+        };
+
+        const Section = ({ icon: Icon, label, children, color }) => (
+            <div className="p-7 py-5 border-b hairline">
+                <div className="flex items-center gap-2 mb-3">
+                    <Icon size={12} style={{ color: color || '#4F46E5' }} />
+                    <h3 className="text-[10px] uppercase tracking-caps font-bold text-zinc-500">{label}</h3>
+                </div>
+                {children}
+            </div>
+        );
+
+        /* ============================================================
+           TABLE VIEW
+           ============================================================ */
+        const TableView = ({ members, onSelect, selectedId }) => {
+            const [search, setSearch] = useState('');
+            const [filterDept, setFilterDept] = useState('all');
+
+            const filtered = useMemo(() => members.filter(m => {
+                const matchSearch = !search || m.name.toLowerCase().includes(search.toLowerCase()) || m.role.toLowerCase().includes(search.toLowerCase());
+                const matchDept = filterDept === 'all' || m.department === filterDept;
+                return matchSearch && matchDept;
+            }), [members, search, filterDept]);
+
+            const depts = [...new Set(members.map(m => m.department))];
+
+            return (
+                <div className="bg-white border hairline rounded-2xl overflow-hidden shadow-sm">
+                    <div className="p-4 border-b hairline flex flex-wrap gap-3 items-center bg-gradient-to-r from-zinc-50 to-white">
+                        <div className="relative flex-1 min-w-[220px]">
+                            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                                placeholder="Rechercher un rôle ou un nom..."
+                                className="w-full pl-9 pr-3 py-2 bg-white border hairline rounded-lg text-[13px] text-zinc-800 placeholder:text-zinc-400 outline-none focus:border-indigo-500 transition-colors"
+                            />
+                        </div>
+                        <select
+                            value={filterDept}
+                            onChange={e => setFilterDept(e.target.value)}
+                            className="px-3 py-2 bg-white border hairline rounded-lg text-[13px] text-zinc-800 outline-none focus:border-indigo-500 transition-colors"
+                        >
+                            <option value="all">Tous services · {members.length}</option>
+                            {depts.map(d => (
+                                <option key={d} value={d}>{d} · {members.filter(m => m.department === d).length}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead className="text-[10px] uppercase tracking-caps text-zinc-500 border-b hairline bg-zinc-50/50">
+                                <tr>
+                                    <th className="text-left px-5 py-3 font-bold">Rôle</th>
+                                    <th className="text-left px-5 py-3 font-bold">Titulaire</th>
+                                    <th className="text-left px-5 py-3 font-bold">Service</th>
+                                    <th className="text-left px-5 py-3 font-bold">Rapporte à</th>
+                                    <th className="text-center px-5 py-3 font-bold">Type</th>
+                                    <th className="text-center px-5 py-3 font-bold">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-zinc-100">
+                                {filtered.map(m => {
+                                    const mgr = members.find(x => x.id === m.managerId);
+                                    const dept = DEPT[m.department] || DEPT.Tech;
+                                    const status = STATUS[m.status] || STATUS.Distant;
+                                    return (
+                                        <tr
+                                            key={m.id}
+                                            onClick={() => onSelect(m)}
+                                            className={`cursor-pointer transition-colors hover:bg-zinc-50 ${selectedId === m.id ? 'bg-indigo-50/40' : ''}`}
+                                        >
+                                            <td className="px-5 py-2.5">
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className="w-1 h-7 rounded-full" style={{ background: dept.hex }}></div>
+                                                    <span className="font-semibold text-zinc-800 text-[13px]">{m.role}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-5 py-2.5">
+                                                <div className="flex items-center gap-2">
+                                                    <div className={`w-7 h-7 rounded-full ${dept.bgLight} flex items-center justify-center text-[9px] font-mono font-bold ${dept.text}`}>
+                                                        {m.avatar}
+                                                    </div>
+                                                    <span className="text-zinc-600 text-[13px]">{m.name}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-5 py-2.5">
+                                                <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${dept.bgLight} ${dept.text}`}>{m.department}</span>
+                                            </td>
+                                            <td className="px-5 py-2.5 text-[12px] text-zinc-500">{mgr ? mgr.role : '—'}</td>
+                                            <td className="px-5 py-2.5 text-center">
+                                                {m.productive ? (
+                                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-caps text-emerald-600">
+                                                        <Star size={10} className="fill-emerald-500 text-emerald-500" /> Prod.
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-caps text-zinc-400">
+                                                        Support
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="px-5 py-2.5 text-center">
+                                                <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-caps text-zinc-500 font-bold">
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`}></span>
+                                                    {m.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        };
+
+        /* ============================================================
+           COMPARE VIEW — coloré
+           ============================================================ */
+        const CompareView = () => {
+            const allMetrics = Object.values(ORG_MODELS).map(m => ({
+                model: m,
+                metrics: computeMetrics(m.members)
+            }));
+
+            return (
+                <div className="space-y-6 anim-fade">
+                    <div className="mb-6">
+                        <div className="inline-flex items-center gap-2 text-[10px] uppercase tracking-caps font-bold mb-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700">
+                            <Zap size={11} /> Synthèse
+                        </div>
+                        <h2 className="font-display text-3xl text-zinc-900 tracking-tight font-bold">Comparaison des cinq modèles</h2>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 stagger">
+                        {allMetrics.map(({ model, metrics }) => {
+                            const Icon = ICONS[model.icon] || Building2;
+                            return (
+                                <div key={model.key} className="bg-white border hairline rounded-2xl overflow-hidden flex flex-col shadow-sm hover-lift">
+                                    <div className="p-5 border-b hairline relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${model.accent}, ${model.accent}CC)` }}>
+                                        <div className="absolute inset-0 opacity-15" style={{ background: `radial-gradient(circle at 80% 20%, white 0%, transparent 60%)` }}></div>
+                                        <div className="relative">
+                                            <Icon size={20} className="text-white mb-3" strokeWidth={1.5} />
+                                            <div className="font-display text-[1.25rem] leading-tight text-white tracking-tight font-bold">{model.label}</div>
+                                            <div className="text-[10px] uppercase tracking-caps text-white/80 mt-1 font-bold">{model.subtitle}</div>
+                                        </div>
+                                    </div>
+                                    <div className="p-5 space-y-3 flex-1">
+                                        <CompStat label="Effectif" value={metrics.total} />
+                                        <CompStat label="Productifs" value={metrics.productive} accent suffix={`${metrics.ratio}%`} />
+                                        <CompStat label="Support" value={metrics.support} suffix={`${100 - metrics.ratio}%`} />
+                                        <CompStat label="Niveaux" value={metrics.maxDepth} />
+                                        <div className="pt-3 border-t hairline">
+                                            <div className="text-[9px] uppercase tracking-caps text-zinc-400 mb-2 font-bold">Services présents</div>
+                                            <div className="flex flex-wrap gap-1">
+                                                {Object.entries(metrics.depts).map(([d, n]) => {
+                                                    const dept = DEPT[d] || DEPT.Tech;
+                                                    return (
+                                                        <span key={d} className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 ${dept.bgLight} ${dept.text} rounded-full font-semibold`}>
+                                                            <span className="w-1 h-1 rounded-full" style={{ background: dept.hex }}></span>
+                                                            {d} <span className="tabular font-bold ml-0.5">{n}</span>
+                                                        </span>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* Graphique productifs / support */}
+                    <div className="bg-white border hairline rounded-2xl p-7 shadow-sm">
+                        <div className="mb-6">
+                            <div className="inline-flex items-center gap-2 text-[10px] uppercase tracking-caps font-bold mb-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700">
+                                <Activity size={11} /> Évolution du ratio
+                            </div>
+                            <h3 className="font-display text-xl text-zinc-900 tracking-tight font-bold">Productifs vs Support</h3>
+                        </div>
+
+                        <div className="space-y-4">
+                            {allMetrics.map(({ model, metrics }) => (
+                                <div key={model.key}>
+                                    <div className="flex items-baseline justify-between mb-1.5">
+                                        <span className="text-[13px] font-semibold text-zinc-800">{model.label}</span>
+                                        <span className="text-[11px] font-mono tabular text-zinc-500">
+                                            <span className="text-emerald-600 font-bold">{metrics.productive}</span> prod · <span className="text-zinc-600">{metrics.support}</span> support · <span className="font-bold text-zinc-800">{metrics.ratio}%</span>
+                                        </span>
+                                    </div>
+                                    <div className="flex h-7 rounded-lg overflow-hidden border hairline shadow-inner">
+                                        <div className="flex items-center justify-center text-[10px] text-white font-bold transition-all duration-700"
+                                             style={{ width: `${metrics.ratio}%`, background: 'linear-gradient(90deg, #10B981, #059669)' }}>
+                                            {metrics.ratio > 12 ? `${metrics.ratio}%` : ''}
+                                        </div>
+                                        <div className="flex items-center justify-center text-[10px] font-bold transition-all duration-700 text-zinc-600"
+                                             style={{ width: `${100 - metrics.ratio}%`, background: 'linear-gradient(90deg, #E4E4E7, #D4D4D8)' }}>
+                                            {(100 - metrics.ratio) > 12 ? `${100 - metrics.ratio}%` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="text-[12px] text-zinc-600 italic mt-6 leading-relaxed bg-indigo-50 border-l-4 border-indigo-500 pl-4 pr-4 py-3 rounded-r-lg">
+                            Plus l'organisation grandit, plus la part de fonctions support augmente. Cet équilibre est inhérent à la croissance organisationnelle : il permet d'absorber la complexité (management, qualité, logistique, formation) tout en pilotant un volume plus important.
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const CompStat = ({ label, value, accent, suffix }) => (
+            <div className="flex items-baseline justify-between">
+                <span className="text-[10px] uppercase tracking-caps text-zinc-500 font-bold">{label}</span>
+                <div className="flex items-baseline gap-1.5">
+                    <span className={`font-display text-xl tabular leading-none font-bold ${accent ? 'text-emerald-600' : 'text-zinc-900'}`}>{value}</span>
+                    {suffix && <span className="text-[10px] tabular text-zinc-400 font-mono">{suffix}</span>}
+                </div>
+            </div>
+        );
+
+        /* ============================================================
+           KPI CARD — taille réduite, plus compact
+           ============================================================ */
+        const KpiCard = ({ icon: Icon, label, value, sub, gradient, iconColor }) => (
+            <div className="bg-white border hairline rounded-xl p-4 relative overflow-hidden shadow-sm hover-lift group">
+                {/* Decorative gradient blob */}
+                <div className="absolute -top-6 -right-6 w-16 h-16 rounded-full opacity-10 group-hover:opacity-15 transition-opacity" style={{ background: gradient }}></div>
+
+                <div className="relative">
+                    <div className="flex items-start justify-between mb-2">
+                        <span className="text-[10px] uppercase tracking-caps text-zinc-500 font-bold">{label}</span>
+                        <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: gradient }}>
+                            <Icon size={12} className="text-white" strokeWidth={2.25} />
+                        </div>
+                    </div>
+                    <div className="font-display text-[1.875rem] leading-none tracking-tight tabular font-bold text-zinc-900">
+                        {value}
+                    </div>
+                    {sub && <div className="text-[10px] uppercase tracking-caps text-zinc-400 mt-1.5 font-bold">{sub}</div>}
+                </div>
+            </div>
+        );
+
+        /* ============================================================
+           MAIN APP
+           ============================================================ */
+        const App = () => {
+            const [currentModelKey, setCurrentModelKey] = useState('medium');
+            const [view, setView] = useState('org');
+            const [showIdentity, setShowIdentity] = useState(false);
+            const [selectedMember, setSelectedMember] = useState(null);
+
+            const model = ORG_MODELS[currentModelKey];
+            const root = model.members.find(m => m.managerId === null);
+            const metrics = useMemo(() => computeMetrics(model.members), [currentModelKey]);
+            const Icon = ICONS[model.icon] || Building2;
+
+            useEffect(() => { setSelectedMember(null); }, [currentModelKey, view]);
+
+            const handlePrint = () => window.print();
+
+            return (
+                <div className="vibrant-bg min-h-screen flex flex-col">
+                    {/* ============ HEADER avec gradient ============ */}
+                    <header className="gradient-header text-white no-print">
+                        <div className="max-w-[1600px] mx-auto px-7 py-5 flex items-center justify-between flex-wrap gap-4 relative">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-white/10 border border-white/15">
+                                    <Compass size={22} className="text-white" strokeWidth={2} />
+                                </div>
+                                <div>
+                                    <div className="text-[11px] uppercase tracking-caps font-bold text-amber-300">CPH-HR-08 · Module Organisation</div>
+                                    <h1 className="font-display text-[2rem] leading-none tracking-tight mt-1 font-bold">Organigramme & Rôles</h1>
+                                    <div className="text-[12px] text-white/60 mt-1 font-medium">Atelier Centre Service Horloger</div>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={handlePrint}
+                                className="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur border border-white/15 transition-all rounded-lg text-[11px] uppercase tracking-caps flex items-center gap-2 font-bold"
+                            >
+                                <Printer size={13} /> Imprimer
+                            </button>
+                        </div>
+                    </header>
+
+                    {/* ============ SUB-NAV glass ============ */}
+                    <div className="glass border-b hairline no-print sticky top-0 z-20">
+                        <div className="max-w-[1600px] mx-auto px-7 py-3 flex items-center gap-2 flex-wrap">
+                            <span className="text-[11px] uppercase tracking-caps text-zinc-500 font-bold mr-3">Taille</span>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                                {Object.values(ORG_MODELS).map(m => {
+                                    const IconM = ICONS[m.icon] || Building2;
+                                    const active = currentModelKey === m.key;
+                                    return (
+                                        <button
+                                            key={m.key}
+                                            onClick={() => { setCurrentModelKey(m.key); setView('org'); }}
+                                            className={`px-4 py-2 rounded-lg text-[14px] flex items-center gap-2 transition-all font-semibold ${
+                                                active
+                                                    ? 'tab-active'
+                                                    : 'bg-white text-zinc-700 border hairline hover:border-indigo-300 hover:shadow-sm'
+                                            }`}
+                                        >
+                                            <IconM size={15} strokeWidth={1.75} />
+                                            <span>{m.label}</span>
+                                            <span className={`text-[11px] px-1.5 py-0.5 rounded font-mono tabular font-bold ${active ? 'bg-white/20 text-white' : 'bg-zinc-100 text-zinc-600'}`}>
+                                                {m.members.length}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            <div className="ml-auto flex items-center gap-2">
+                                <span className="text-[11px] uppercase tracking-caps text-zinc-500 font-bold">Vue</span>
+                                <div className="flex bg-white rounded-lg border hairline p-0.5 shadow-sm">
+                                    {[
+                                        { id: 'org', label: 'Organigramme', icon: Network },
+                                        { id: 'table', label: 'Liste', icon: Layers },
+                                        { id: 'compare', label: 'Comparer', icon: BarChart3 },
+                                    ].map(v => {
+                                        const VIcon = v.icon;
+                                        return (
+                                            <button
+                                                key={v.id}
+                                                onClick={() => setView(v.id)}
+                                                className={`px-3 py-2 text-[13px] rounded-md flex items-center gap-1.5 transition-all font-semibold ${
+                                                    view === v.id ? 'tab-active' : 'text-zinc-500 hover:text-zinc-900'
+                                                }`}
+                                            >
+                                                <VIcon size={13} strokeWidth={1.75} /> {v.label}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ============ CONTENU ============ */}
+                    <div className="flex-1 flex overflow-hidden">
+                        <main className="flex-1 overflow-y-auto">
+                            <div className="max-w-[1400px] mx-auto px-7 py-10">
+                                {/* Présentation du modèle */}
+                                {view !== 'compare' && (
+                                    <div className="mb-10 anim-fade">
+                                        <div className="flex items-start gap-6 mb-7">
+                                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-lg" style={{ background: `linear-gradient(135deg, ${model.accent}, ${model.accent}DD)` }}>
+                                                <Icon size={28} className="text-white" strokeWidth={1.5} />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="inline-flex items-center gap-2 text-[10px] uppercase tracking-caps font-bold mb-2 px-3 py-1 rounded-full"
+                                                     style={{ background: `${model.accent}22`, color: model.accent }}>
+                                                    {model.subtitle}
+                                                </div>
+                                                <h2 className="font-display text-[2.5rem] leading-[1.1] tracking-tight mb-3 font-bold text-zinc-900">{model.label}</h2>
+                                                <p className="text-[14px] text-zinc-700 leading-relaxed max-w-3xl">{model.description}</p>
+                                                <div className="mt-4 inline-flex items-start gap-2 text-[12px] text-zinc-700 italic px-4 py-2.5 rounded-lg border-l-4"
+                                                     style={{ background: `${model.accent}10`, borderColor: model.accent }}>
+                                                    <MapPin size={12} className="mt-0.5 shrink-0" style={{ color: model.accent }} />
+                                                    {model.context}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* KPIs colorés */}
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 stagger">
+                                            <KpiCard
+                                                icon={Users}
+                                                label="Effectif"
+                                                value={metrics.total}
+                                                sub="collaborateurs"
+                                                gradient="linear-gradient(135deg, #4F46E5, #7C3AED)"
+                                            />
+                                            <KpiCard
+                                                icon={Wrench}
+                                                label="Productifs"
+                                                value={metrics.productive}
+                                                sub={`${metrics.ratio}% du total`}
+                                                gradient="linear-gradient(135deg, #10B981, #059669)"
+                                            />
+                                            <KpiCard
+                                                icon={ShieldCheck}
+                                                label="Support"
+                                                value={metrics.support}
+                                                sub={`${100 - metrics.ratio}% du total`}
+                                                gradient="linear-gradient(135deg, #F59E0B, #DB2777)"
+                                            />
+                                            <KpiCard
+                                                icon={Layers}
+                                                label="Niveaux"
+                                                value={metrics.maxDepth}
+                                                sub="hiérarchiques"
+                                                gradient="linear-gradient(135deg, #0891B2, #4F46E5)"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Vue : Organigramme */}
+                                {view === 'org' && (
+                                    <div className="bg-white border hairline rounded-2xl p-7 anim-fade shadow-sm">
+                                        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+                                            <div>
+                                                <div className="inline-flex items-center gap-2 text-[11px] uppercase tracking-caps font-bold mb-1 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700">
+                                                    <Network size={11} /> Hiérarchie
+                                                </div>
+                                                <h3 className="font-display text-xl text-zinc-900 tracking-tight font-bold mt-1">Structure de l'atelier</h3>
+                                            </div>
+                                            <label className="flex items-center gap-3 cursor-pointer">
+                                                <span className="text-[10px] uppercase tracking-caps text-zinc-500 font-bold">Identités</span>
+                                                <button
+                                                    onClick={() => setShowIdentity(!showIdentity)}
+                                                    className={`relative w-11 h-6 rounded-full transition-all ${showIdentity ? 'bg-indigo-600' : 'bg-zinc-300'}`}
+                                                >
+                                                    <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-all shadow-md ${showIdentity ? 'left-5' : 'left-0.5'}`}></div>
+                                                </button>
+                                                {showIdentity ? <Eye size={14} className="text-indigo-500" /> : <EyeOff size={14} className="text-zinc-400" />}
+                                            </label>
+                                        </div>
+
+                                        {/* Légende colorée */}
+                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] uppercase tracking-caps font-bold mb-6 pb-4 border-b hairline">
+                                            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-50 text-emerald-700">
+                                                <Star size={9} className="fill-emerald-500 text-emerald-500" />Productif
+                                            </div>
+                                            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-zinc-50 text-zinc-600">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-zinc-400"></div>Support
+                                            </div>
+                                            <div className="w-px h-4 bg-zinc-200 mx-1"></div>
+                                            {Object.entries(DEPT).filter(([d]) => metrics.depts[d]).map(([d, c]) => (
+                                                <div key={d} className={`flex items-center gap-1.5 px-2 py-1 rounded-full ${c.bgLight} ${c.text}`}>
+                                                    <div className="w-1.5 h-1.5 rounded-full" style={{ background: c.hex }}></div>
+                                                    {d}
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="overflow-x-auto pb-4">
+                                            <div className="min-w-max flex justify-center py-6">
+                                                {root && (
+                                                    <OrgTree
+                                                        root={root}
+                                                        allMembers={model.members}
+                                                        showIdentity={showIdentity}
+                                                        onSelect={setSelectedMember}
+                                                        selectedId={selectedMember?.id}
+                                                    />
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {!selectedMember && (
+                                            <div className="text-center text-[11px] text-zinc-500 italic mt-6 flex items-center justify-center gap-2 pt-4 border-t hairline font-medium">
+                                                <Sparkles size={11} className="text-pink-500" />
+                                                Cliquez sur un poste pour afficher la fiche de rôle détaillée
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Vue : Tableau */}
+                                {view === 'table' && (
+                                    <div className="anim-fade">
+                                        <TableView members={model.members} onSelect={setSelectedMember} selectedId={selectedMember?.id} />
+                                    </div>
+                                )}
+
+                                {/* Vue : Comparaison */}
+                                {view === 'compare' && <CompareView />}
+                            </div>
+                        </main>
+
+                        {/* Panel détail */}
+                        {selectedMember && view !== 'compare' && (
+                            <RoleDetailPanel
+                                member={selectedMember}
+                                allMembers={model.members}
+                                onClose={() => setSelectedMember(null)}
+                            />
+                        )}
+                    </div>
+
+                    {/* ============ FOOTER ============ */}
+                    <footer className="text-[10px] py-3 text-center uppercase tracking-caps no-print font-bold text-white border-t border-white/10"
+                            style={{ background: '#0F0F14' }}>
+                        <span className="text-amber-300">Nicolas DEROBERT</span>
+                        <span className="mx-2 text-white/40">·</span>
+                        <span className="text-white/70">Module CPH-HR-08 · Organisation des ateliers CS horlogers</span>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

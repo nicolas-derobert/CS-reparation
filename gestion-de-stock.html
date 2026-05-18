@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application SAV — Gestion des Stocks v3</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "react": "https://esm.sh/react@18",
+                "react-dom/client": "https://esm.sh/react-dom@18/client",
+                "lucide-react": "https://esm.sh/lucide-react@0.344.0"
+            }
+        }
+    </script>
+
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body { margin: 0; padding: 0; font-family: ui-sans-serif, system-ui, sans-serif; }
+        #root { height: 100vh; width: 100vw; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulseGlow { 0%, 100% { filter: drop-shadow(0 0 0 rgba(37,99,235,0)); } 50% { filter: drop-shadow(0 0 8px rgba(37,99,235,0.5)); } }
+        @keyframes drawLine { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
+        @keyframes slidePanel { from { max-height: 0; opacity: 0; } to { max-height: 800px; opacity: 1; } }
+        @keyframes popIn { 0% { transform: scale(0.85); opacity: 0; } 60% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
+        .anim-fade { animation: fadeIn 250ms ease-out; }
+        .anim-slide { animation: slidePanel 300ms ease-out; overflow: hidden; }
+        .anim-pop { animation: popIn 400ms ease-out; }
+        .anim-pulse-glow { animation: pulseGlow 2.5s ease-in-out infinite; }
+        .draw-line { stroke-dasharray: 1000; animation: drawLine 1.5s ease-out forwards; }
+        /* Loader visible avant React */
+        .preload { display: flex; align-items: center; justify-content: center; height: 100vh; color: #64748b; font-size: 14px; }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-slate-950">
+    <div id="root"><div class="preload">Chargement de l'application…</div></div>
+
+    <script type="text/babel" data-type="module">
+        import React, { useState, useEffect, useContext, createContext, useMemo } from 'react';
+        import { createRoot } from 'react-dom/client';
+        import {
+            Package, Menu, Sun, Moon, X, Briefcase, AlertTriangle, LogOut,
+            Target, ClipboardList, MinusCircle, LineChart, Calculator,
+            BookOpen, ShoppingCart, Truck, TrendingUp, Info, CheckCircle2,
+            AlertCircle, ChevronDown, ChevronUp, Plus, Play, RotateCcw,
+            Activity, Sparkles
+        } from 'lucide-react';
+
+        // ============================================================
+        // THEME
+        // ============================================================
+        const ThemeContext = createContext();
+        const useTheme = () => useContext(ThemeContext);
+
+        const getThemeClasses = (isDark) => ({
+            isDark,
+            appBg: isDark ? 'bg-slate-950' : 'bg-gray-100',
+            panelBg: isDark ? 'bg-slate-800' : 'bg-white',
+            panelBorder: isDark ? 'border-slate-700' : 'border-gray-200 shadow-sm',
+            headerBg: isDark ? 'bg-slate-900' : 'bg-white',
+            headerBorder: isDark ? 'border-slate-800' : 'border-gray-200',
+            sidebarBg: isDark ? 'bg-slate-900' : 'bg-white',
+            sidebarBorder: isDark ? 'border-slate-800' : 'border-gray-200',
+            textMain: isDark ? 'text-white' : 'text-slate-900',
+            textSec: isDark ? 'text-slate-400' : 'text-slate-500',
+            inputBg: isDark ? 'bg-slate-900' : 'bg-gray-50',
+            inputBorder: isDark ? 'border-slate-600' : 'border-gray-300',
+            tableRowHover: isDark ? 'hover:bg-slate-700/30' : 'hover:bg-gray-50',
+            accentText: isDark ? 'text-amber-500' : 'text-amber-600',
+            accentLightBg: isDark ? 'bg-amber-500/10' : 'bg-amber-50',
+            menuItemHover: isDark ? 'hover:bg-slate-800' : 'hover:bg-gray-100',
+            divider: isDark ? 'divide-slate-700' : 'divide-gray-200',
+        });
+
+        // ============================================================
+        // CONSTANTES
+        // ============================================================
+        const MONTHS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'];
+
+        const INITIAL_INVENTORY = [
+            { id: 'inv1', name: 'Couronne Acier Ø6mm',  category: 'Habillement', stock: 12, caAnnuel: 1540, min: 10, max: 20, safety: 5, stdQty: 20, price: 140.00, consoMonthly: 1,   leadTime: 1 },
+            { id: 'inv2', name: 'Joint O-Ring 32mm',    category: 'Consommable', stock: 60, caAnnuel: 800,  min: 50, max: 200, safety: 20, stdQty: 150, price: 2.00,   consoMonthly: 30,  leadTime: 1 },
+            { id: 'inv3', name: 'Mouvement Cal. 3235',  category: 'Mouvement',   stock: 2,  caAnnuel: 2600, min: 3,  max: 8,  safety: 1,  stdQty: 5,   price: 325.00, consoMonthly: 1,   leadTime: 1 },
+            { id: 'inv4', name: 'Aiguilles Set Or Rose',category: 'Habillement', stock: 4,  caAnnuel: 390,  min: 5,  max: 15, safety: 2,  stdQty: 10,  price: 65.00,  consoMonthly: 1,   leadTime: 1 },
+            { id: 'inv5', name: 'Huile Moebius 9010',   category: 'Consommable', stock: 3,  caAnnuel: 270,  min: 2,  max: 5,  safety: 1,  stdQty: 3,   price: 45.00,  consoMonthly: 0.5, leadTime: 1 },
+            { id: 'inv6', name: 'Glace Saphir Bombée',  category: 'Habillement', stock: 0,  caAnnuel: 557,  min: 5,  max: 12, safety: 2,  stdQty: 10,  price: 111.40, consoMonthly: 1,   leadTime: 1 },
+            { id: 'inv7', name: 'Ressort de barillet',  category: 'Mouvement',   stock: 15, caAnnuel: 1050, min: 8,  max: 33, safety: 4,  stdQty: 25,  price: 35.00,  consoMonthly: 2,   leadTime: 1 },
+        ];
+
+        // ============================================================
+        // UTILS
+        // ============================================================
+        const getItemStatus = (item) => {
+            if (item.stock === 0) return { key: 'rupture',  label: 'Rupture',  cls: 'bg-red-100 text-red-700 border-red-300 dark:bg-red-500/20 dark:text-red-300' };
+            if (item.stock <= item.safety) return { key: 'critique', label: 'Critique', cls: 'bg-red-50 text-red-600 border-red-200 dark:bg-red-500/10 dark:text-red-400' };
+            if (item.stock <= item.min) return { key: 'bas',     label: 'Bas',     cls: 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-300' };
+            if (item.stock >= item.max) return { key: 'sur',     label: 'Surstock',cls: 'bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-500/20 dark:text-purple-300' };
+            return { key: 'normal', label: 'Normal', cls: 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-300' };
+        };
+
+        const calculateRotation = (item) => {
+            const stockValue = item.stock * item.price;
+            return stockValue > 0 ? Math.round((item.caAnnuel / stockValue) * 100) / 100 : 0;
+        };
+
+        // ============================================================
+        // SIDEBAR
+        // ============================================================
+        const Sidebar = ({ activeTab, setActiveTab, isOpen, toggleSidebar }) => {
+            const { sidebarBg, sidebarBorder, textMain, textSec, accentText, accentLightBg, menuItemHover } = useTheme();
+            const menuItems = [
+                { id: 'inventory',  label: 'Gestion des Stocks', icon: Package },
+                { id: 'calculator', label: 'Calculateurs',       icon: Calculator },
+                { id: 'simulation', label: 'Simulation 6 mois',  icon: Activity },
+            ];
+            return (
+                <>
+                    <div className={`fixed inset-0 bg-black/50 z-20 md:hidden transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={toggleSidebar} />
+                    <div className={`fixed md:static inset-y-0 left-0 z-30 w-64 ${sidebarBg} ${textMain} border-r ${sidebarBorder} transform transition-transform md:transform-none ${isOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col`}>
+                        <div className={`p-6 border-b ${sidebarBorder} flex items-center gap-3 shrink-0`}>
+                            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                                <Briefcase size={20} />
+                            </div>
+                            <h1 className="font-bold text-lg tracking-wider uppercase">SAV Stocks</h1>
+                        </div>
+                        <div className="px-4 py-3 bg-slate-100 dark:bg-slate-800 m-4 rounded text-[10px] font-bold text-center uppercase tracking-widest text-slate-500">
+                            Module Pédagogique
+                        </div>
+                        <nav className="px-4 space-y-1 flex-1 overflow-y-auto">
+                            {menuItems.map((item) => (
+                                <button key={item.id}
+                                        onClick={() => { setActiveTab(item.id); toggleSidebar(); }}
+                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${activeTab === item.id ? `${accentLightBg} ${accentText} font-bold` : `${textSec} ${menuItemHover}`}`}>
+                                    <item.icon size={18} className="shrink-0" />
+                                    <span className="text-sm">{item.label}</span>
+                                </button>
+                            ))}
+                        </nav>
+                        <div className={`p-4 border-t ${sidebarBorder}`}>
+                            <button className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg ${textSec} hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors`}>
+                                <LogOut size={18} />
+                                <span className="text-sm font-bold">Déconnexion</span>
+                            </button>
+                        </div>
+                    </div>
+                </>
+            );
+        };
+
+        // ============================================================
+        // PAGE GESTION DES STOCKS
+        // ============================================================
+        const InventoryPage = ({ inventory, setInventory }) => {
+            const { textMain, textSec, panelBg, panelBorder, tableRowHover, divider } = useTheme();
+            const [showStats, setShowStats] = useState(false);
+            const [outflowTarget, setOutflowTarget] = useState(null);
+            const [showGuide, setShowGuide] = useState(false);
+
+            const stats = useMemo(() => {
+                const totalValue = inventory.reduce((a, i) => a + i.stock * i.price, 0);
+                const ruptures = inventory.filter(i => i.stock === 0).length;
+                const critiques = inventory.filter(i => i.stock > 0 && i.stock <= i.safety).length;
+                const bas = inventory.filter(i => i.stock > i.safety && i.stock <= i.min).length;
+                const surstock = inventory.filter(i => i.stock >= i.max).length;
+                const normal = inventory.length - ruptures - critiques - bas - surstock;
+                const avgRot = inventory.reduce((a, i) => a + calculateRotation(i), 0) / inventory.length;
+                return { totalValue, ruptures, critiques, bas, surstock, normal, avgRot: Math.round(avgRot * 100) / 100 };
+            }, [inventory]);
+
+            const manualOutflow = (itemId, qty) => {
+                setInventory(prev => prev.map(i => i.id === itemId ? { ...i, stock: Math.max(0, i.stock - qty) } : i));
+            };
+
+            return (
+                <div className="p-6 max-w-7xl mx-auto anim-fade pb-24">
+                    {showGuide && <StockEducationModal onClose={() => setShowGuide(false)} />}
+
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                        <h2 className={`text-2xl font-bold ${textMain} flex items-center gap-3 uppercase tracking-widest`}>
+                            <Package className="text-amber-500" /> Gestion de stock
+                        </h2>
+                        <div className="flex gap-2">
+                            <button onClick={() => setShowStats(!showStats)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 rounded-lg text-xs font-bold uppercase hover:bg-blue-100 transition-colors">
+                                {showStats ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
+                                Vue d'ensemble
+                            </button>
+                            <button onClick={() => setShowGuide(true)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded-lg text-xs font-bold uppercase hover:bg-amber-100 transition-colors">
+                                <BookOpen size={14}/> Guide
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* PANNEAU VUE D'ENSEMBLE DÉPLIABLE */}
+                    {showStats && (
+                        <div className="anim-slide mb-6 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className={`${panelBg} border ${panelBorder} p-5 rounded-xl`}>
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="p-2 bg-blue-100 dark:bg-blue-500/20 rounded-lg text-blue-600"><Package size={20}/></div>
+                                        <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${(stats.ruptures + stats.critiques) > 0 ? 'bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400'}`}>
+                                            {stats.ruptures + stats.critiques + stats.bas} alertes
+                                        </span>
+                                    </div>
+                                    <h3 className={`${textSec} text-xs uppercase font-bold`}>Valeur totale</h3>
+                                    <p className={`text-2xl font-bold ${textMain} mt-1`}>
+                                        {new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF' }).format(stats.totalValue)}
+                                    </p>
+                                </div>
+
+                                <div className={`${panelBg} border ${panelBorder} p-5 rounded-xl`}>
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="p-2 bg-amber-100 dark:bg-amber-500/20 rounded-lg text-amber-600"><Target size={20}/></div>
+                                        <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">cible 1 - 1,5</span>
+                                    </div>
+                                    <h3 className={`${textSec} text-xs uppercase font-bold`}>Rotation moyenne</h3>
+                                    <p className={`text-2xl font-bold ${textMain} mt-1`}>{stats.avgRot} <span className="text-xs font-normal text-slate-400">tours/an</span></p>
+                                </div>
+
+                                <div className={`${panelBg} border ${panelBorder} p-5 rounded-xl`}>
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="p-2 bg-purple-100 dark:bg-purple-500/20 rounded-lg text-purple-600"><ClipboardList size={20}/></div>
+                                        <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">références</span>
+                                    </div>
+                                    <h3 className={`${textSec} text-xs uppercase font-bold`}>Suivies en stock</h3>
+                                    <p className={`text-2xl font-bold ${textMain} mt-1`}>{inventory.length}</p>
+                                </div>
+                            </div>
+
+                            <div className={`${panelBg} border ${panelBorder} p-5 rounded-xl`}>
+                                <h3 className={`font-bold ${textMain} mb-4 text-sm uppercase tracking-widest`}>Répartition par statut</h3>
+                                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                                    {[
+                                        { label: 'Normal',   count: stats.normal,    color: 'bg-emerald-500', text: 'text-emerald-600' },
+                                        { label: 'Bas',      count: stats.bas,       color: 'bg-amber-500',   text: 'text-amber-600' },
+                                        { label: 'Critique', count: stats.critiques, color: 'bg-red-500',     text: 'text-red-600' },
+                                        { label: 'Rupture',  count: stats.ruptures,  color: 'bg-red-700',     text: 'text-red-700' },
+                                        { label: 'Surstock', count: stats.surstock,  color: 'bg-purple-500',  text: 'text-purple-600' },
+                                    ].map(s => (
+                                        <div key={s.label} className="text-center p-3 rounded-lg bg-slate-50 dark:bg-slate-900/50">
+                                            <div className={`w-3 h-3 rounded-full ${s.color} mx-auto mb-2`}></div>
+                                            <p className={`text-[10px] font-bold uppercase ${textSec}`}>{s.label}</p>
+                                            <p className={`text-xl font-bold ${s.text}`}>{s.count}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* TABLEAU PRINCIPAL */}
+                    <div className={`${panelBg} border ${panelBorder} rounded-xl overflow-hidden`}>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-xs whitespace-nowrap">
+                                <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase">
+                                    <tr>
+                                        <th className="p-3 text-center w-20">Action</th>
+                                        <th className="p-3">Composant</th>
+                                        <th className="p-3">Catégorie</th>
+                                        <th className="p-3 text-center">Stock</th>
+                                        <th className="p-3 text-center">Séc.</th>
+                                        <th className="p-3 text-center">Min</th>
+                                        <th className="p-3 text-center">Max</th>
+                                        <th className="p-3 text-center">Statut</th>
+                                        <th className="p-3 text-center">Rotation</th>
+                                        <th className="p-3 text-right">Valeur</th>
+                                    </tr>
+                                </thead>
+                                <tbody className={`divide-y ${divider}`}>
+                                    {inventory.map(item => {
+                                        const status = getItemStatus(item);
+                                        const rot = calculateRotation(item);
+                                        const value = item.stock * item.price;
+                                        return (
+                                            <tr key={item.id} className={tableRowHover}>
+                                                <td className="p-3 text-center">
+                                                    <button onClick={() => setOutflowTarget(item)} title="Sortie de stock"
+                                                            className="p-1.5 bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-500/20 rounded text-purple-600">
+                                                        <MinusCircle size={14}/>
+                                                    </button>
+                                                </td>
+                                                <td className={`p-3 font-bold ${textMain}`}>{item.name}</td>
+                                                <td className={`p-3 ${textSec}`}>{item.category}</td>
+                                                <td className={`p-3 text-center font-mono font-bold ${status.key === 'rupture' || status.key === 'critique' ? 'text-red-600' : textMain}`}>{item.stock}</td>
+                                                <td className={`p-3 text-center ${textSec}`}>{item.safety}</td>
+                                                <td className={`p-3 text-center ${textSec}`}>{item.min}</td>
+                                                <td className={`p-3 text-center ${textSec}`}>{item.max}</td>
+                                                <td className="p-3 text-center">
+                                                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase border ${status.cls}`}>{status.label}</span>
+                                                </td>
+                                                <td className="p-3 text-center">{rot}</td>
+                                                <td className={`p-3 text-right font-mono ${textMain}`}>{value.toLocaleString('fr-CH')} CHF</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {outflowTarget && (
+                        <QuickOutflowModal item={outflowTarget} onClose={() => setOutflowTarget(null)} onConfirm={manualOutflow} />
+                    )}
+                </div>
+            );
+        };
+
+        // ============================================================
+        // MODAL SORTIE STOCK
+        // ============================================================
+        const QuickOutflowModal = ({ item, onClose, onConfirm }) => {
+            const [qty, setQty] = useState(1);
+            const { panelBg, panelBorder, textMain, textSec, inputBg, inputBorder } = useTheme();
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+                    <div className={`${panelBg} border ${panelBorder} p-6 rounded-xl shadow-2xl max-w-sm w-full anim-pop`} onClick={e => e.stopPropagation()}>
+                        <h3 className={`font-bold ${textMain} text-lg mb-1`}>Sortie de stock</h3>
+                        <p className={`text-xs ${textSec} mb-4`}>{item.name} — disponible : <b>{item.stock}</b></p>
+                        <div className="mb-6">
+                            <label className={`text-[10px] uppercase font-bold ${textSec} mb-1 block`}>Quantité</label>
+                            <input type="number" min="1" max={item.stock} value={qty}
+                                   onChange={(e) => setQty(parseInt(e.target.value) || 1)}
+                                   className={`w-full ${inputBg} border ${inputBorder} p-2 rounded ${textMain}`} />
+                        </div>
+                        <div className="flex gap-3">
+                            <button onClick={onClose} className={`flex-1 py-2 rounded-lg border ${inputBorder} ${textMain} text-sm font-bold`}>Annuler</button>
+                            <button onClick={() => { onConfirm(item.id, qty); onClose(); }}
+                                    disabled={qty > item.stock || qty <= 0}
+                                    className="flex-1 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold disabled:opacity-50">
+                                Confirmer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ============================================================
+        // MODAL GUIDE PÉDAGOGIQUE
+        // ============================================================
+        const StockEducationModal = ({ onClose }) => {
+            const { panelBg, textMain, textSec } = useTheme();
+            const [activeSection, setActiveSection] = useState('role');
+            const sections = [
+                { id: 'role',   label: 'Rôle des stocks',    icon: Package },
+                { id: 'maxi',   label: 'Stock maxi',         icon: Target },
+                { id: 'mini',   label: 'Stock mini',         icon: AlertCircle },
+                { id: 'control',label: 'Inventaire',         icon: ClipboardList },
+            ];
+            const content = {
+                role: (<>
+                    <h4 className="font-bold text-lg text-blue-600 mb-3">Le rôle des stocks</h4>
+                    <p className="mb-3">Le stock conditionne la capacité de l'entreprise à <strong>tenir ses promesses</strong> (délais, fiabilité). Il faut viser le <strong>juste niveau</strong> : équilibre entre service fiable et coût maîtrisé.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                        <div className="p-4 border rounded-lg bg-red-50 dark:bg-red-500/10 border-red-200">
+                            <strong className="block text-red-700 dark:text-red-300 mb-1">Trop peu</strong>
+                            <p className="text-xs">Ruptures, retards, insatisfaction, surcharge SAV.</p>
+                        </div>
+                        <div className="p-4 border rounded-lg bg-amber-50 dark:bg-amber-500/10 border-amber-200">
+                            <strong className="block text-amber-700 dark:text-amber-300 mb-1">Trop</strong>
+                            <p className="text-xs">Capital immobilisé, coûts stockage, obsolescence.</p>
+                        </div>
+                    </div>
+                </>),
+                maxi: (<>
+                    <h4 className="font-bold text-lg text-blue-600 mb-3">Stock maxi</h4>
+                    <p className="text-sm mb-3">Le stock maxi définit la <strong>limite supérieure</strong> à ne pas dépasser. Il est calculé pour atteindre un taux de rotation cible (1 à 1,5 pour un SAV).</p>
+                    <div className="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg border-l-4 border-blue-500 mb-3">
+                        <p className="text-xs font-bold text-slate-500 uppercase mb-1">Formule</p>
+                        <p className="italic font-medium text-sm">Stock maxi = (Prévision ventes × Prix) / Rotation cible / Prix</p>
+                    </div>
+                    <p className="text-xs italic">Pour la démonstration interactive, voyez l'onglet <strong>Calculateurs</strong>.</p>
+                </>),
+                mini: (<>
+                    <h4 className="font-bold text-lg text-blue-600 mb-3">Stock mini (point de commande)</h4>
+                    <p className="text-sm mb-3">Le stock mini n'est pas un simple plancher : c'est le <strong>seuil de déclenchement</strong> d'une commande, calibré pour ne pas tomber sous le stock de sécurité pendant le délai fournisseur.</p>
+                    <div className="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg border-l-4 border-amber-500">
+                        <p className="text-xs font-bold text-slate-500 uppercase mb-1">Formule</p>
+                        <p className="italic font-medium text-sm">Stock mini = Conso mensuelle × Délai réappro + Sécurité</p>
+                    </div>
+                </>),
+                control: (<>
+                    <h4 className="font-bold text-lg text-blue-600 mb-3">Inventaire</h4>
+                    <p className="text-sm mb-3">L'inventaire doit être tenu <strong>tous les 6 mois</strong> (ou en inventaire tournant continu).</p>
+                    <ul className="list-disc pl-5 text-sm space-y-1">
+                        <li>Pièces contrôlées et conformes</li>
+                        <li>Rangement permettant identification rapide</li>
+                        <li>Système rigoureux et performant</li>
+                    </ul>
+                </>),
+            };
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onClose}>
+                    <div className={`${panelBg} w-full max-w-4xl h-[80vh] rounded-2xl shadow-2xl flex overflow-hidden border border-slate-200 dark:border-slate-700 anim-pop`} onClick={e => e.stopPropagation()}>
+                        <div className="w-64 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex flex-col">
+                            <div className="p-5 border-b border-slate-200 dark:border-slate-700">
+                                <h3 className={`font-bold ${textMain} flex items-center gap-2`}><BookOpen className="text-amber-500" size={18}/> Guide</h3>
+                            </div>
+                            <nav className="flex-1 p-3 space-y-1">
+                                {sections.map(s => (
+                                    <button key={s.id} onClick={() => setActiveSection(s.id)}
+                                            className={`w-full flex items-center gap-2 p-2.5 rounded-lg text-xs transition-all ${activeSection === s.id ? 'bg-blue-500 text-white shadow-md' : `${textSec} hover:bg-slate-200 dark:hover:bg-slate-800`}`}>
+                                        <s.icon size={14}/><span>{s.label}</span>
+                                    </button>
+                                ))}
+                            </nav>
+                        </div>
+                        <div className="flex-1 flex flex-col min-w-0">
+                            <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-end">
+                                <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-500"><X size={18}/></button>
+                            </div>
+                            <div className={`flex-1 p-6 overflow-y-auto ${textMain} text-sm`}>{content[activeSection]}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ============================================================
+        // (StockMaxiDiagram et StockMiniDiagram supprimés — remplacés par ManagementChart unique)
+        // ============================================================
+
+        // ============================================================
+        // GRAPHIQUE DE GESTION (dents de scie) — illustre maxi / mini / sécurité
+        // ============================================================
+        const ManagementChart = ({ stockMaxi, stockMini, securite, conso, delai }) => {
+            const { isDark } = useTheme();
+            const W = 820, H = 320;
+            const m = { top: 30, right: 110, bottom: 45, left: 60 };
+            const plotW = W - m.left - m.right;
+            const plotH = H - m.top - m.bottom;
+
+            const yMax = Math.max(stockMaxi * 1.25, 10);
+            const yScale = (v) => m.top + plotH - (v / yMax) * plotH;
+
+            // Cycle : on consomme depuis stockMaxi jusqu'à stockMini → on commande → on continue à descendre vers sécurité pendant le délai → livraison instantanée → retour à stockMaxi
+            // Durée descente normale : (stockMaxi - stockMini) / conso mois
+            // Durée délai : delai mois
+            // On affiche 2 cycles
+            const dureeNormale = conso > 0 ? (stockMaxi - stockMini) / conso : 0;
+            const dureeCycle = dureeNormale + delai;
+            const totalMois = Math.max(dureeCycle * 2, 6);
+            const xScale = (t) => m.left + (t / totalMois) * plotW;
+
+            // Génération des points pour 2 cycles
+            const points = [];
+            let t = 0;
+            // Cycle 1
+            points.push([t, stockMaxi]);
+            t += dureeNormale;
+            points.push([t, stockMini]);     // déclenchement commande
+            t += delai;
+            points.push([t, securite]);      // arrivée du délai → on est à la sécurité
+            points.push([t, stockMaxi]);     // livraison instantanée
+            // Cycle 2
+            t += dureeNormale;
+            points.push([t, stockMini]);
+            t += delai;
+            points.push([t, securite]);
+            points.push([t, stockMaxi]);
+            // On limite à totalMois
+            const filtered = points.filter(p => p[0] <= totalMois);
+            const polyPoints = filtered.map(p => `${xScale(p[0])},${yScale(p[1])}`).join(' ');
+
+            const grid = isDark ? '#334155' : '#e5e7eb';
+            const axis = isDark ? '#64748b' : '#9ca3af';
+            const text = isDark ? '#cbd5e1' : '#475569';
+
+            const yTicks = 5;
+            const tickValues = Array.from({length: yTicks + 1}, (_, i) => Math.round((yMax / yTicks) * i));
+
+            return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto">
+                    {/* Zones colorées */}
+                    <rect x={m.left} y={m.top} width={plotW} height={Math.max(0, yScale(stockMaxi) - m.top)}
+                          fill="#a855f7" fillOpacity={isDark ? 0.10 : 0.05}/>
+                    <rect x={m.left} y={yScale(stockMaxi)} width={plotW} height={Math.max(0, yScale(stockMini) - yScale(stockMaxi))}
+                          fill="#10b981" fillOpacity={isDark ? 0.12 : 0.07}/>
+                    <rect x={m.left} y={yScale(stockMini)} width={plotW} height={Math.max(0, yScale(securite) - yScale(stockMini))}
+                          fill="#f59e0b" fillOpacity={isDark ? 0.15 : 0.09}/>
+                    <rect x={m.left} y={yScale(securite)} width={plotW} height={Math.max(0, yScale(0) - yScale(securite))}
+                          fill="#ef4444" fillOpacity={isDark ? 0.15 : 0.09}/>
+
+                    {/* Grille */}
+                    {tickValues.map((v, i) => (
+                        <line key={i} x1={m.left} y1={yScale(v)} x2={m.left + plotW} y2={yScale(v)}
+                              stroke={grid} strokeWidth="1" strokeDasharray="2 3"/>
+                    ))}
+
+                    {/* Axes */}
+                    <line x1={m.left} y1={m.top} x2={m.left} y2={m.top + plotH} stroke={axis} strokeWidth="1.5"/>
+                    <line x1={m.left} y1={m.top + plotH} x2={m.left + plotW} y2={m.top + plotH} stroke={axis} strokeWidth="1.5"/>
+
+                    {tickValues.map((v, i) => (
+                        <text key={i} x={m.left - 8} y={yScale(v) + 4} textAnchor="end" fontSize="11" fill={text}>{v}</text>
+                    ))}
+
+                    {/* Axe temps */}
+                    {Array.from({length: Math.ceil(totalMois) + 1}, (_, i) => i).map(i => (
+                        <g key={i}>
+                            <line x1={xScale(i)} y1={m.top + plotH} x2={xScale(i)} y2={m.top + plotH + 4} stroke={axis} strokeWidth="1"/>
+                            <text x={xScale(i)} y={m.top + plotH + 18} textAnchor="middle" fontSize="10" fill={text}>M{i}</text>
+                        </g>
+                    ))}
+                    <text x={m.left + plotW/2} y={H - 6} textAnchor="middle" fontSize="10" fontWeight="bold" fill={text}>TEMPS (mois)</text>
+                    <text x={20} y={m.top + plotH/2} textAnchor="middle" fontSize="10" fontWeight="bold" fill={text}
+                          transform={`rotate(-90, 20, ${m.top + plotH/2})`}>QUANTITÉ EN STOCK</text>
+
+                    {/* Lignes seuils */}
+                    <line x1={m.left} y1={yScale(stockMaxi)} x2={m.left + plotW} y2={yScale(stockMaxi)} stroke="#10b981" strokeWidth="1.5" strokeDasharray="6 3"/>
+                    <line x1={m.left} y1={yScale(stockMini)} x2={m.left + plotW} y2={yScale(stockMini)} stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="6 3"/>
+                    <line x1={m.left} y1={yScale(securite)} x2={m.left + plotW} y2={yScale(securite)} stroke="#ef4444" strokeWidth="1.5" strokeDasharray="6 3"/>
+
+                    {/* Labels seuils à droite */}
+                    <g>
+                        <rect x={m.left + plotW + 4} y={yScale(stockMaxi) - 11} width="100" height="22" rx="3" fill="#10b981" fillOpacity="0.2"/>
+                        <text x={m.left + plotW + 10} y={yScale(stockMaxi) + 4} fontSize="11" fontWeight="bold" fill="#10b981">MAXI = {stockMaxi}</text>
+                    </g>
+                    <g>
+                        <rect x={m.left + plotW + 4} y={yScale(stockMini) - 11} width="100" height="22" rx="3" fill="#f59e0b" fillOpacity="0.2"/>
+                        <text x={m.left + plotW + 10} y={yScale(stockMini) + 4} fontSize="11" fontWeight="bold" fill="#f59e0b">MINI = {stockMini}</text>
+                    </g>
+                    <g>
+                        <rect x={m.left + plotW + 4} y={yScale(securite) - 11} width="100" height="22" rx="3" fill="#ef4444" fillOpacity="0.2"/>
+                        <text x={m.left + plotW + 10} y={yScale(securite) + 4} fontSize="11" fontWeight="bold" fill="#ef4444">SÉC. = {securite}</text>
+                    </g>
+
+                    {/* Courbe dents de scie */}
+                    <polyline fill="none" stroke="#2563eb" strokeWidth="2.5"
+                              strokeLinejoin="round" strokeLinecap="round"
+                              points={polyPoints}
+                              className="draw-line" key={`l-${stockMaxi}-${stockMini}-${securite}-${conso}-${delai}`}/>
+
+                    {/* Annotations sur le 1er cycle */}
+                    {filtered.length >= 2 && (
+                        <g>
+                            {/* Point déclenchement commande */}
+                            <circle cx={xScale(dureeNormale)} cy={yScale(stockMini)} r="6" fill="#fbbf24" stroke="#f59e0b" strokeWidth="2"/>
+                            <text x={xScale(dureeNormale) + 10} y={yScale(stockMini) - 12} fontSize="10" fontWeight="bold" fill="#92400e">
+                                ⓘ Commande
+                            </text>
+                            {/* Point livraison */}
+                            <circle cx={xScale(dureeNormale + delai)} cy={yScale(securite)} r="6" fill="#fbbf24" stroke="#ef4444" strokeWidth="2"/>
+                            <text x={xScale(dureeNormale + delai) + 10} y={yScale(securite) + 16} fontSize="10" fontWeight="bold" fill="#991b1b">
+                                ⓘ Livraison
+                            </text>
+                        </g>
+                    )}
+                </svg>
+            );
+        };
+
+        // ============================================================
+        // PAGE CALCULATEURS (refonte : explications haut, paramètres, graphique, 2 colonnes calculs)
+        // ============================================================
+        const CalculatorsPage = () => {
+            const { textMain, textSec, panelBg, panelBorder, inputBg, inputBorder } = useTheme();
+
+            // Paramètres communs pour les deux calculs
+            const [prevision, setPrevision] = useState(30);
+            const [prix, setPrix] = useState(2);
+            const [rotation, setRotation] = useState(1.5);
+            const [conso, setConso] = useState(2.5);
+            const [delai, setDelai] = useState(1);
+            const [securite, setSecurite] = useState(3);
+
+            // Calculs Stock Maxi
+            const ca = prevision * prix;
+            const valeurCible = rotation > 0 ? ca / rotation : 0;
+            const stockMaxi = prix > 0 ? Math.ceil(valeurCible / prix) : 0;
+
+            // Calculs Stock Mini
+            const consoDelai = conso * delai;
+            const stockMini = Math.ceil(consoDelai + securite);
+
+            // Mini composant pour afficher un paramètre numérique éditable
+            const ParamCard = ({ label, value, onChange, unit, color, step = 1, min = 0, max }) => {
+                const colorMap = {
+                    blue:  { bg: 'bg-blue-50 dark:bg-blue-500/10',   border: 'border-blue-200 dark:border-blue-500/30',   text: 'text-blue-700 dark:text-blue-400',  inputText: 'text-blue-700 dark:text-blue-300',  inputBorder: 'border-blue-200 dark:border-blue-500/30',  focus: 'focus:border-blue-500'  },
+                    amber: { bg: 'bg-amber-50 dark:bg-amber-500/10', border: 'border-amber-200 dark:border-amber-500/30', text: 'text-amber-700 dark:text-amber-400', inputText: 'text-amber-700 dark:text-amber-300', inputBorder: 'border-amber-200 dark:border-amber-500/30', focus: 'focus:border-amber-500' },
+                    red:   { bg: 'bg-red-50 dark:bg-red-500/10',     border: 'border-red-200 dark:border-red-500/30',     text: 'text-red-700 dark:text-red-400',   inputText: 'text-red-700 dark:text-red-300',   inputBorder: 'border-red-200 dark:border-red-500/30',   focus: 'focus:border-red-500'   },
+                };
+                const c = colorMap[color] || colorMap.blue;
+                return (
+                    <div className={`p-4 rounded-xl border-2 ${c.bg} ${c.border}`}>
+                        <p className={`text-[10px] font-bold uppercase ${c.text} tracking-wider mb-2`}>{label}</p>
+                        <input type="number" min={min} max={max} step={step} value={value}
+                               onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+                               className={`w-full bg-transparent text-2xl font-bold font-mono ${c.inputText} outline-none border-b ${c.inputBorder} ${c.focus} transition-colors`}/>
+                        <p className={`text-[10px] ${c.text} mt-1`}>{unit}</p>
+                    </div>
+                );
+            };
+
+            // Étape de calcul réutilisable
+            const Step = ({ num, label, formula, result, interpretation, color = 'blue', highlight = false }) => {
+                const colorMap = {
+                    blue:  { bg: 'bg-blue-50 dark:bg-blue-500/10 border-l-4 border-blue-500',   text: 'text-blue-700 dark:text-blue-300',   resultText: 'text-blue-600',   bubble: 'bg-blue-500', interpBg: 'bg-blue-100/50 dark:bg-blue-500/5 border-blue-300 dark:border-blue-500/40' },
+                    amber: { bg: 'bg-amber-50 dark:bg-amber-500/10 border-l-4 border-amber-500', text: 'text-amber-700 dark:text-amber-300', resultText: 'text-amber-600', bubble: 'bg-amber-500', interpBg: 'bg-amber-100/50 dark:bg-amber-500/5 border-amber-300 dark:border-amber-500/40' },
+                };
+                const c = colorMap[color] || colorMap.blue;
+                return (
+                    <div className={`p-4 rounded-lg ${highlight ? c.bg : 'bg-slate-50 dark:bg-slate-900/50 border-l-4 border-slate-300'}`}>
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className={`w-6 h-6 rounded-full ${c.bubble} text-white text-xs font-bold flex items-center justify-center shrink-0`}>{num}</span>
+                            <p className={`text-xs font-bold uppercase ${highlight ? c.text : textSec} tracking-wide`}>{label}</p>
+                        </div>
+                        <p className={`font-mono text-sm ${textMain} ml-8`}>{formula}</p>
+                        <p className={`font-mono text-lg ml-8 mt-1 ${highlight ? `${c.resultText} font-bold` : textMain}`}>
+                            = <strong>{result}</strong>
+                        </p>
+                        {interpretation && (
+                            <div className={`ml-8 mt-3 p-2.5 rounded border ${c.interpBg} flex gap-2`}>
+                                <span className="text-base shrink-0">💡</span>
+                                <p className={`text-xs italic leading-relaxed ${textMain}`}>{interpretation}</p>
+                            </div>
+                        )}
+                    </div>
+                );
+            };
+
+            return (
+                <div className="p-6 max-w-7xl mx-auto anim-fade pb-24 space-y-6">
+                    <div>
+                        <h2 className={`text-2xl font-bold ${textMain} flex items-center gap-3 uppercase tracking-widest`}>
+                            <Calculator className="text-amber-500"/> Calculateurs pédagogiques
+                        </h2>
+                        <p className={`${textSec} text-sm mt-1`}>Stock MINI (à gauche) et stock MAXI (à droite) — calculs détaillés au-dessus, visualisation commune en bas.</p>
+                    </div>
+
+                    {/* ===== GRILLE 2 COLONNES COHÉRENTE : MINI à gauche, MAXI à droite ===== */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+                        {/* ---------- LIGNE 1 : EXPLICATIONS ---------- */}
+                        <div className={`${panelBg} border-2 border-amber-200 dark:border-amber-500/30 rounded-xl p-5`}>
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="p-2 bg-amber-100 dark:bg-amber-500/20 rounded-lg text-amber-600"><AlertCircle size={18}/></div>
+                                <h3 className={`font-bold ${textMain} text-base`}>Qu'est-ce que le stock <span className="text-amber-600">mini</span> ?</h3>
+                            </div>
+                            <p className={`text-sm ${textSec} leading-relaxed`}>
+                                C'est le <strong className={textMain}>seuil de déclenchement</strong> d'une commande (point de commande). Quand le stock atteint ce niveau, on commande pour ne pas tomber en rupture pendant le délai fournisseur.
+                            </p>
+                            <p className={`text-xs ${textSec} mt-2 italic`}>
+                                Ce n'est PAS un plancher : c'est un signal d'action.
+                            </p>
+
+                            <div className="mt-4 pt-4 border-t border-amber-200 dark:border-amber-500/30">
+                                <p className={`text-xs font-bold uppercase ${textMain} mb-2 tracking-wider`}>De quoi dépend-il ?</p>
+                                <p className={`text-xs ${textSec} mb-2 leading-relaxed`}>
+                                    Selon le cours : « il convient de connaître le <strong className={textMain}>nombre moyen de pièces servies</strong> sur la durée de rotation et la <strong className={textMain}>durée de réapprovisionnement</strong> pour remettre l'article à son niveau stock maximum. »
+                                </p>
+                                <ul className="space-y-1.5 text-xs">
+                                    <li className="flex gap-2"><span className="text-amber-600 font-bold shrink-0">①</span><span className={textSec}><strong className={textMain}>La consommation moyenne</strong> : plus on consomme vite, plus le point de commande doit être anticipé.</span></li>
+                                    <li className="flex gap-2"><span className="text-amber-600 font-bold shrink-0">②</span><span className={textSec}><strong className={textMain}>Le délai de réapprovisionnement</strong> : plus il est long, plus il faut commander tôt.</span></li>
+                                    <li className="flex gap-2"><span className="text-red-600 font-bold shrink-0">③</span><span className={textSec}><strong className={textMain}>Le stock de sécurité</strong> : marge contre les imprévus (retards fournisseur, pics de demande).</span></li>
+                                </ul>
+                                <p className={`text-xs italic mt-3 ${textSec}`}>
+                                    Logique : pendant le délai, on continue à consommer. Le stock mini doit donc couvrir cette consommation <strong>+ la sécurité</strong>.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className={`${panelBg} border-2 border-blue-200 dark:border-blue-500/30 rounded-xl p-5`}>
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="p-2 bg-blue-100 dark:bg-blue-500/20 rounded-lg text-blue-600"><Target size={18}/></div>
+                                <h3 className={`font-bold ${textMain} text-base`}>Qu'est-ce que le stock <span className="text-blue-600">maxi</span> ?</h3>
+                            </div>
+                            <p className={`text-sm ${textSec} leading-relaxed`}>
+                                C'est la <strong className={textMain}>limite supérieure</strong> à ne pas dépasser. Il est calculé pour atteindre un <strong className={textMain}>taux de rotation cible</strong> (entre 1 et 1,5 pour un SAV).
+                            </p>
+                            <p className={`text-xs ${textSec} mt-2 italic`}>
+                                Dépasser le stock maxi = capital immobilisé et risque d'obsolescence.
+                            </p>
+
+                            <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-500/30">
+                                <p className={`text-xs font-bold uppercase ${textMain} mb-2 tracking-wider`}>De quoi dépend-il ?</p>
+                                <p className={`text-xs ${textSec} mb-2 leading-relaxed`}>
+                                    Selon le cours : « le taux de rotation annuelle du stock pour un SAV est habituellement compris entre 1 et 1,5 fois », et se calcule par <strong className={textMain}>CA réalisé ÷ valeur moyenne du stock</strong>.
+                                </p>
+                                <ul className="space-y-1.5 text-xs">
+                                    <li className="flex gap-2"><span className="text-blue-600 font-bold shrink-0">①</span><span className={textSec}><strong className={textMain}>La prévision de ventes</strong> : volume annuel attendu, basé sur l'expérience.</span></li>
+                                    <li className="flex gap-2"><span className="text-blue-600 font-bold shrink-0">②</span><span className={textSec}><strong className={textMain}>Le prix de vente unitaire</strong> : convertit la valeur cible en quantité de pièces.</span></li>
+                                    <li className="flex gap-2"><span className="text-blue-600 font-bold shrink-0">③</span><span className={textSec}><strong className={textMain}>Le taux de rotation cible</strong> : politique du SAV (1 = stock large, 1,5 = stock tendu).</span></li>
+                                </ul>
+                                <p className={`text-xs italic mt-3 ${textSec}`}>
+                                    Logique : on dimensionne le stock pour qu'il se renouvelle le bon nombre de fois par an. <strong>À réajuster chaque année</strong> selon les ventes réelles.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* ---------- LIGNE 2 : PARAMÈTRES ---------- */}
+                        <div className={`${panelBg} border ${panelBorder} rounded-xl p-5`}>
+                            <h3 className={`font-bold ${textMain} text-sm uppercase tracking-widest mb-4 flex items-center gap-2`}>
+                                <Sparkles size={16} className="text-amber-500"/> Paramètres du stock MINI
+                            </h3>
+                            <div className="space-y-3">
+                                <ParamCard label="Consommation mensuelle" value={conso} onChange={setConso} unit="pièces / mois" color="amber" step={0.5} min={0}/>
+                                <ParamCard label="Délai réapprovisionnement" value={delai} onChange={setDelai} unit="mois" color="amber" step={0.5} min={0}/>
+                                <ParamCard label="Stock de sécurité" value={securite} onChange={setSecurite} unit="pièces" color="red" min={0}/>
+                            </div>
+                        </div>
+
+                        <div className={`${panelBg} border ${panelBorder} rounded-xl p-5`}>
+                            <h3 className={`font-bold ${textMain} text-sm uppercase tracking-widest mb-4 flex items-center gap-2`}>
+                                <Sparkles size={16} className="text-blue-500"/> Paramètres du stock MAXI
+                            </h3>
+                            <div className="space-y-3">
+                                <ParamCard label="Prévision ventes annuelles" value={prevision} onChange={setPrevision} unit="pièces / an" color="blue" min={1}/>
+                                <ParamCard label="Prix unitaire" value={prix} onChange={setPrix} unit="CHF" color="blue" step={0.1} min={0}/>
+                                <ParamCard label="Rotation cible" value={rotation} onChange={setRotation} unit="tours / an" color="blue" step={0.05} min={0.5} max={3}/>
+                            </div>
+                        </div>
+
+                        {/* ---------- LIGNE 3 : CALCULS DÉTAILLÉS ---------- */}
+                        <div className={`${panelBg} border-2 border-amber-200 dark:border-amber-500/30 rounded-xl p-5`}>
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className={`font-bold ${textMain} flex items-center gap-2 text-base`}>
+                                    <AlertCircle size={18} className="text-amber-600"/> Calcul du stock MINI
+                                </h3>
+                                <span className="px-2 py-1 bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded text-[10px] font-bold uppercase">2 étapes</span>
+                            </div>
+                            <div className="space-y-3">
+                                <Step num="1"
+                                      label="Conso pendant le délai"
+                                      formula={`Conso/mois (${conso}) × Délai (${delai} mois)`}
+                                      result={`${consoDelai.toFixed(1)} pièces`}
+                                      interpretation={`Pendant les ${delai} mois que met le fournisseur à livrer, l'atelier va consommer ${consoDelai.toFixed(1)} pièces. C'est la quantité minimale qu'il faut avoir en stock au moment de passer la commande pour ne pas tomber à zéro avant la livraison.`}
+                                      color="amber"/>
+                                <div className="flex justify-center text-amber-400">↓</div>
+                                <Step num="2"
+                                      label="Ajouter le stock de sécurité"
+                                      formula={`Conso délai (${consoDelai.toFixed(1)}) + Sécurité (${securite})`}
+                                      result={`${stockMini} pièces (point de commande)`}
+                                      interpretation={`Dès que le stock descend à ${stockMini} pièces, on déclenche une commande. La marge de ${securite} pièces protège contre un retard fournisseur ou un pic de consommation imprévu : à la livraison, on aura encore au moins ${securite} pièces en réserve.`}
+                                      color="amber"
+                                      highlight/>
+                            </div>
+                            <div className="mt-4 p-3 bg-slate-50 dark:bg-slate-900/50 rounded text-xs">
+                                <p className={textSec}>
+                                    <strong>Lecture :</strong> quand le stock atteint <strong>{stockMini}</strong>, on déclenche une commande. Pendant les <strong>{delai} mois</strong> qui suivent, on consomme <strong>{consoDelai.toFixed(1)} pcs</strong> et il reste exactement le stock de sécurité (<strong>{securite}</strong>) à la livraison.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className={`${panelBg} border-2 border-blue-200 dark:border-blue-500/30 rounded-xl p-5`}>
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className={`font-bold ${textMain} flex items-center gap-2 text-base`}>
+                                    <Target size={18} className="text-blue-600"/> Calcul du stock MAXI
+                                </h3>
+                                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 rounded text-[10px] font-bold uppercase">3 étapes</span>
+                            </div>
+                            <div className="space-y-3">
+                                <Step num="1"
+                                      label="Estimer le CA annuel"
+                                      formula={`Prévision (${prevision}) × Prix (${prix})`}
+                                      result={`${ca.toFixed(2)} CHF / an`}
+                                      interpretation={`Sur une année, la vente de cette référence devrait générer ${ca.toFixed(0)} CHF de chiffre d'affaires. C'est l'enveloppe économique de référence pour dimensionner le stock.`}
+                                      color="blue"/>
+                                <div className="flex justify-center text-blue-400">↓</div>
+                                <Step num="2"
+                                      label="Valeur cible du stock"
+                                      formula={`CA (${ca.toFixed(2)}) ÷ Rotation (${rotation.toFixed(2)})`}
+                                      result={`${valeurCible.toFixed(2)} CHF`}
+                                      interpretation={`Pour que le stock se renouvelle ${rotation.toFixed(2)} fois par an, sa valeur moyenne ne doit pas dépasser ${valeurCible.toFixed(0)} CHF. Au-delà, le taux de rotation chute et le capital immobilisé augmente.`}
+                                      color="blue"/>
+                                <div className="flex justify-center text-blue-400">↓</div>
+                                <Step num="3"
+                                      label="Convertir en pièces"
+                                      formula={`Valeur (${valeurCible.toFixed(2)}) ÷ Prix (${prix})`}
+                                      result={`${stockMaxi} pièces`}
+                                      interpretation={`On ne stocke jamais plus de ${stockMaxi} pièces de cette référence. Si les ventes réelles s'écartent de la prévision, ce stock maxi doit être réajusté l'année suivante (à la baisse si on a vendu moins, à la hausse sinon).`}
+                                      color="blue"
+                                      highlight/>
+                            </div>
+                            <div className="mt-4 p-3 bg-slate-50 dark:bg-slate-900/50 rounded text-xs">
+                                <p className={textSec}>
+                                    <strong>Lecture :</strong> on calibre le stock pour qu'il se renouvelle <strong>{rotation.toFixed(2)} fois</strong> par an, en cohérence avec le CA de <strong>{ca.toFixed(0)} CHF</strong>.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* ---------- LIGNE 4 : QUESTIONS / RÉPONSES (risques) ---------- */}
+                        <div className={`${panelBg} border-2 border-amber-200 dark:border-amber-500/30 rounded-xl p-5`}>
+                            <h3 className={`font-bold ${textMain} flex items-center gap-2 text-base mb-4`}>
+                                <Info size={18} className="text-amber-600"/> Que se passe-t-il si… ?
+                            </h3>
+                            <div className="space-y-3">
+                                <div className="p-3 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30">
+                                    <p className={`text-xs font-bold uppercase text-red-700 dark:text-red-300 mb-2 flex items-center gap-1.5`}>
+                                        <span className="text-base">↓</span> Stock MINI <span className="underline">trop faible</span>
+                                    </p>
+                                    <p className={`text-xs ${textSec} leading-relaxed`}>
+                                        On commande <strong className={textMain}>trop tard</strong> : la consommation pendant le délai fait passer le stock sous le seuil de sécurité, voire à zéro. Conséquences : <strong>ruptures à l'atelier</strong>, retards de réparation, urgences fournisseurs coûteuses, insatisfaction client.
+                                    </p>
+                                </div>
+                                <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/30">
+                                    <p className={`text-xs font-bold uppercase text-purple-700 dark:text-purple-300 mb-2 flex items-center gap-1.5`}>
+                                        <span className="text-base">↑</span> Stock MINI <span className="underline">trop grand</span>
+                                    </p>
+                                    <p className={`text-xs ${textSec} leading-relaxed`}>
+                                        On commande <strong className={textMain}>trop tôt</strong> : le stock moyen reste élevé en permanence. Conséquences : <strong>capital immobilisé inutilement</strong>, frais de stockage majorés, occupation d'espace, taux de rotation qui chute.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`${panelBg} border-2 border-blue-200 dark:border-blue-500/30 rounded-xl p-5`}>
+                            <h3 className={`font-bold ${textMain} flex items-center gap-2 text-base mb-4`}>
+                                <Info size={18} className="text-blue-600"/> Que se passe-t-il si… ?
+                            </h3>
+                            <div className="space-y-3">
+                                <div className="p-3 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30">
+                                    <p className={`text-xs font-bold uppercase text-red-700 dark:text-red-300 mb-2 flex items-center gap-1.5`}>
+                                        <span className="text-base">↓</span> Stock MAXI <span className="underline">trop faible</span>
+                                    </p>
+                                    <p className={`text-xs ${textSec} leading-relaxed`}>
+                                        Le stock ne couvre pas la demande annuelle attendue. Conséquences : <strong className={textMain}>commandes trop fréquentes</strong>, surcharge administrative, exposition aux délais fournisseurs, risques de ruptures répétées, perte de marge sur les commandes urgentes.
+                                    </p>
+                                </div>
+                                <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/30">
+                                    <p className={`text-xs font-bold uppercase text-purple-700 dark:text-purple-300 mb-2 flex items-center gap-1.5`}>
+                                        <span className="text-base">↑</span> Stock MAXI <span className="underline">trop grand</span>
+                                    </p>
+                                    <p className={`text-xs ${textSec} leading-relaxed`}>
+                                        Le taux de rotation tombe sous 1. Conséquences : <strong className={textMain}>capital fortement immobilisé</strong>, coûts de stockage élevés, risque d'<strong>obsolescence</strong> des pièces (surtout pour les modèles en fin de garantie de disponibilité), trésorerie tendue. Selon le cours, « une mauvaise gestion peut mettre en péril la survie de l'entreprise. »
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {/* ===== GRAPHIQUE COMMUN (en bas, pleine largeur) ===== */}
+                    <div className={`${panelBg} border ${panelBorder} rounded-xl p-5`}>
+                        <h3 className={`font-bold ${textMain} text-sm uppercase tracking-widest mb-4 flex items-center gap-2`}>
+                            <TrendingUp size={16} className="text-blue-500"/> Visualisation : cycle de gestion de stock
+                        </h3>
+                        <ManagementChart
+                            stockMaxi={stockMaxi}
+                            stockMini={stockMini}
+                            securite={securite}
+                            conso={conso}
+                            delai={delai}
+                        />
+                        <div className="flex flex-wrap gap-3 mt-3 justify-center text-[11px]">
+                            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-purple-500/20 border border-purple-400"></span>Surstock</span>
+                            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500/20 border border-emerald-400"></span>Zone optimale</span>
+                            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-amber-500/20 border border-amber-400"></span>Zone d'alerte</span>
+                            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-red-500/20 border border-red-400"></span>Zone critique</span>
+                            <span className="flex items-center gap-1.5"><span className="w-4 h-0.5 bg-blue-600"></span>Cycle de stock</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+                // ============================================================
+        // PAGE SIMULATION 6 MOIS — simplifiée : grand graphique + panneau d'actions
+        // ============================================================
+        const SimulationPage = ({ inventory }) => {
+            const { textMain, textSec, panelBg, panelBorder, inputBg, inputBorder, divider } = useTheme();
+            const [selectedId, setSelectedId] = useState(inventory[0]?.id);
+            const [stockInitial, setStockInitial] = useState(inventory[0]?.stock || 0);
+            const [events, setEvents] = useState([]); // { id, monthIndex, type, qty }
+
+            const selectedItem = inventory.find(i => i.id === selectedId);
+            const LEAD_TIME = 1;
+
+            useEffect(() => {
+                if (selectedItem) setStockInitial(selectedItem.stock);
+                setEvents([]);
+            }, [selectedId]);
+
+            // Calcul progressif sur 6 mois
+            const monthsData = useMemo(() => {
+                if (!selectedItem) return [];
+                let stock = stockInitial;
+                const data = [];
+                for (let m = 0; m < 6; m++) {
+                    const startStock = stock;
+                    const arrivals = events.filter(e => e.monthIndex === m - LEAD_TIME && e.type === 'commande');
+                    arrivals.forEach(a => { stock += a.qty; });
+                    const afterArrivals = stock;
+                    const exits = events.filter(e => e.monthIndex === m && e.type === 'sortie');
+                    exits.forEach(e => { stock = Math.max(0, stock - e.qty); });
+                    const orders = events.filter(e => e.monthIndex === m && e.type === 'commande');
+                    data.push({ month: m, startStock, afterArrivals, endStock: stock, arrivals, exits, orders });
+                }
+                return data;
+            }, [selectedItem, stockInitial, events]);
+
+            // Sous-composant : cellule d'action pour un mois donné
+            const MonthActionCell = ({ monthIndex, monthLabel, onAdd }) => {
+                const [sortieQty, setSortieQty] = useState(1);
+                const [commandeQty, setCommandeQty] = useState(5);
+                return (
+                    <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-2 bg-slate-50/50 dark:bg-slate-900/30">
+                        <p className={`text-center text-xs font-bold uppercase ${textMain} mb-2 tracking-wider`}>
+                            {monthLabel}
+                            <span className="block text-[9px] font-normal text-slate-400">M{monthIndex + 1}</span>
+                        </p>
+                        {/* SORTIE */}
+                        <div className="mb-2">
+                            <div className="flex gap-1 mb-1">
+                                <input type="number" min="1" value={sortieQty}
+                                       onChange={(e) => setSortieQty(Math.max(1, parseInt(e.target.value)||1))}
+                                       className={`w-full ${inputBg} border ${inputBorder} p-1.5 rounded text-xs font-mono text-center ${textMain}`}/>
+                            </div>
+                            <button onClick={() => { onAdd('sortie', sortieQty); setSortieQty(1); }}
+                                    className="w-full flex items-center justify-center gap-1 py-1.5 rounded bg-red-100 hover:bg-red-200 dark:bg-red-500/20 dark:hover:bg-red-500/30 text-red-700 dark:text-red-300 text-[10px] font-bold uppercase transition-colors">
+                                <MinusCircle size={11}/> Sortie
+                            </button>
+                        </div>
+                        {/* COMMANDE */}
+                        <div>
+                            <div className="flex gap-1 mb-1">
+                                <input type="number" min="1" value={commandeQty}
+                                       onChange={(e) => setCommandeQty(Math.max(1, parseInt(e.target.value)||1))}
+                                       className={`w-full ${inputBg} border ${inputBorder} p-1.5 rounded text-xs font-mono text-center ${textMain}`}/>
+                            </div>
+                            <button onClick={() => { onAdd('commande', commandeQty); setCommandeQty(5); }}
+                                    className="w-full flex items-center justify-center gap-1 py-1.5 rounded bg-blue-100 hover:bg-blue-200 dark:bg-blue-500/20 dark:hover:bg-blue-500/30 text-blue-700 dark:text-blue-300 text-[10px] font-bold uppercase transition-colors"
+                                    title={monthIndex < 5 ? `Livraison début ${MONTHS[monthIndex+1]}` : 'Livraison hors simulation'}>
+                                <ShoppingCart size={11}/> Commander
+                            </button>
+                        </div>
+                    </div>
+                );
+            };
+
+            const reset = () => {
+                setEvents([]);
+                setStockInitial(selectedItem?.stock || 0);
+            };
+
+            return (
+                <div className="p-6 max-w-7xl mx-auto anim-fade pb-24 space-y-6">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <h2 className={`text-2xl font-bold ${textMain} flex items-center gap-3 uppercase tracking-widest`}>
+                                <Activity className="text-amber-500"/> Simulation 6 mois
+                            </h2>
+                            <p className={`${textSec} text-sm mt-1`}>Délai de réapprovisionnement fixé à <strong>1 mois</strong> — toute commande arrive au début du mois suivant.</p>
+                        </div>
+                        <button onClick={reset}
+                                className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-bold uppercase hover:bg-slate-200 transition-colors">
+                            <RotateCcw size={14}/> Réinitialiser
+                        </button>
+                    </div>
+
+                    {/* CONFIGURATION ARTICLE */}
+                    <div className={`${panelBg} border ${panelBorder} rounded-xl p-5`}>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                            <div>
+                                <label className={`text-xs font-bold uppercase ${textSec} mb-1 block`}>Article simulé</label>
+                                <select value={selectedId} onChange={(e) => setSelectedId(e.target.value)}
+                                        className={`w-full ${inputBg} border ${inputBorder} p-2 rounded ${textMain} text-sm`}>
+                                    {inventory.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className={`text-xs font-bold uppercase ${textSec} mb-1 block`}>Stock initial (début Jan)</label>
+                                <input type="number" min="0" value={stockInitial}
+                                       onChange={(e) => setStockInitial(Math.max(0, parseInt(e.target.value)||0))}
+                                       className={`w-full ${inputBg} border ${inputBorder} p-2 rounded ${textMain} text-sm font-mono`}/>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 text-center">
+                                <div className="p-2 bg-red-50 dark:bg-red-500/10 rounded">
+                                    <p className="text-[9px] font-bold text-red-600 uppercase">Sécurité</p>
+                                    <p className="text-lg font-bold text-red-600">{selectedItem?.safety}</p>
+                                </div>
+                                <div className="p-2 bg-amber-50 dark:bg-amber-500/10 rounded">
+                                    <p className="text-[9px] font-bold text-amber-600 uppercase">Min</p>
+                                    <p className="text-lg font-bold text-amber-600">{selectedItem?.min}</p>
+                                </div>
+                                <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 rounded">
+                                    <p className="text-[9px] font-bold text-emerald-600 uppercase">Max</p>
+                                    <p className="text-lg font-bold text-emerald-600">{selectedItem?.max}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* GRAPHIQUE CONSOLIDÉ (au-dessus du tableau) */}
+                    {selectedItem && (
+                        <div className={`${panelBg} border ${panelBorder} rounded-xl p-6`}>
+                            <h3 className={`font-bold ${textMain} text-sm uppercase tracking-wider mb-4 flex items-center gap-2`}>
+                                <TrendingUp size={16} className="text-blue-500"/> Évolution du stock sur 6 mois
+                            </h3>
+                            <ConsolidatedChart monthsData={monthsData} item={selectedItem} events={events}/>
+                            <div className="flex flex-wrap gap-3 mt-3 justify-center text-[11px]">
+                                <span className="flex items-center gap-1.5"><span className="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center text-[8px] font-bold text-white">C</span>Commande passée</span>
+                                <span className="flex items-center gap-1.5"><span className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-[8px] font-bold text-white">L</span>Livraison reçue</span>
+                                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-purple-500/20 border border-purple-400"></span>Surstock</span>
+                                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500/20 border border-emerald-400"></span>Zone optimale</span>
+                                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-amber-500/20 border border-amber-400"></span>Zone d'alerte</span>
+                                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-red-500/20 border border-red-400"></span>Zone critique</span>
+                            </div>
+
+                            {/* Actions par mois — intégrées dans le même bloc que le graphique */}
+                            <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-700">
+                                <h4 className={`font-bold ${textMain} text-sm uppercase tracking-widest mb-4 flex items-center gap-2`}>
+                                    <Plus size={16} className="text-blue-500"/> Actions par mois
+                                </h4>
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                                    {MONTHS.map((label, idx) => (
+                                        <MonthActionCell key={idx}
+                                                         monthIndex={idx}
+                                                         monthLabel={label}
+                                                         onAdd={(type, qty) => {
+                                                             if (qty > 0) {
+                                                                 setEvents(prev => [...prev, {
+                                                                     id: Date.now() + Math.random(),
+                                                                     monthIndex: idx,
+                                                                     type,
+                                                                     qty
+                                                                 }]);
+                                                             }
+                                                         }}/>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* TABLEAU RÉCAP STOCK PAR MOIS (placé directement sous le graphique) */}
+                    {selectedItem && (
+                        <div className={`${panelBg} border ${panelBorder} rounded-xl p-5`}>
+                            <h3 className={`font-bold ${textMain} text-sm uppercase tracking-widest mb-3 flex items-center gap-2`}>
+                                <ClipboardList size={16} className="text-purple-500"/> Tableau des stocks par mois
+                            </h3>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm text-center">
+                                    <thead>
+                                        <tr className="border-b border-slate-200 dark:border-slate-700">
+                                            <th className={`p-2 text-left text-[10px] font-bold uppercase ${textSec}`}>Indicateur</th>
+                                            {MONTHS.map((m, i) => (
+                                                <th key={i} className={`p-2 text-[10px] font-bold uppercase ${textSec}`}>
+                                                    {m}<span className="block text-[8px] font-normal text-slate-400">M{i+1}</span>
+                                                </th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr className="border-b border-slate-100 dark:border-slate-800">
+                                            <td className={`p-2 text-left text-xs font-bold ${textSec}`}>Stock début</td>
+                                            {monthsData.map((d, i) => (
+                                                <td key={i} className={`p-2 font-mono text-xs ${textMain}`}>{d.startStock}</td>
+                                            ))}
+                                        </tr>
+                                        <tr className="border-b border-slate-100 dark:border-slate-800 bg-red-50/30 dark:bg-red-500/5">
+                                            <td className="p-2 text-left text-xs font-bold text-red-700 dark:text-red-400">− Sorties</td>
+                                            {monthsData.map((d, i) => {
+                                                const sor = d.exits.reduce((a, e) => a + e.qty, 0);
+                                                return <td key={i} className={`p-2 font-mono text-xs ${sor > 0 ? 'text-red-600 font-bold' : 'text-slate-300'}`}>{sor > 0 ? `−${sor}` : '—'}</td>;
+                                            })}
+                                        </tr>
+                                        <tr className="border-b border-slate-100 dark:border-slate-800 bg-blue-50/30 dark:bg-blue-500/5">
+                                            <td className="p-2 text-left text-xs font-bold text-blue-700 dark:text-blue-400">Commandes passées</td>
+                                            {monthsData.map((d, i) => {
+                                                const cmd = d.orders.reduce((a, e) => a + e.qty, 0);
+                                                return <td key={i} className={`p-2 font-mono text-xs ${cmd > 0 ? 'text-blue-600 font-bold' : 'text-slate-300'}`}>{cmd > 0 ? cmd : '—'}</td>;
+                                            })}
+                                        </tr>
+                                        <tr className="border-b border-slate-100 dark:border-slate-800 bg-emerald-50/30 dark:bg-emerald-500/5">
+                                            <td className="p-2 text-left text-xs font-bold text-emerald-700 dark:text-emerald-400">+ Livraisons reçues</td>
+                                            {monthsData.map((d, i) => {
+                                                const liv = d.arrivals.reduce((a, e) => a + e.qty, 0);
+                                                return <td key={i} className={`p-2 font-mono text-xs ${liv > 0 ? 'text-emerald-600 font-bold' : 'text-slate-300'}`}>{liv > 0 ? `+${liv}` : '—'}</td>;
+                                            })}
+                                        </tr>
+                                        <tr>
+                                            <td className={`p-2 text-left text-xs font-bold ${textMain}`}>Stock FIN</td>
+                                            {monthsData.map((d, i) => {
+                                                const status = getItemStatus({ ...selectedItem, stock: d.endStock });
+                                                return (
+                                                    <td key={i} className="p-1">
+                                                        <span className={`inline-block px-2 py-1 rounded font-mono text-sm font-bold border ${status.cls}`}>
+                                                            {d.endStock}
+                                                        </span>
+                                                    </td>
+                                                );
+                                            })}
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                </div>
+            );
+        };
+
+        // ============================================================
+        // (MonthCard et MonthMiniChart supprimés — la simulation a été simplifiée)
+        // ============================================================
+
+        // ============================================================
+        // GRAPHIQUE CONSOLIDÉ 6 MOIS — avec indicateurs commande/livraison + boutons mois alignés
+        // ============================================================
+        const ConsolidatedChart = ({ monthsData, item, events }) => {
+            const { isDark } = useTheme();
+            const W = 820, H = 460;
+            const m = { top: 70, right: 100, bottom: 100, left: 55 };
+            const plotW = W - m.left - m.right;
+            const plotH = H - m.top - m.bottom;
+
+            const maxStock = Math.max(...monthsData.map(d => Math.max(d.startStock, d.afterArrivals, d.endStock)), item.max, 10);
+            const yMax = maxStock * 1.15;
+
+            const xScale = (i) => m.left + (i / 5) * plotW;
+            const yScale = (v) => m.top + plotH - (v / yMax) * plotH;
+
+            const text = isDark ? '#cbd5e1' : '#475569';
+            const grid = isDark ? '#334155' : '#e5e7eb';
+            const axis = isDark ? '#64748b' : '#9ca3af';
+
+            const yTicks = 5;
+            const tickValues = Array.from({length: yTicks + 1}, (_, i) => Math.round((yMax/yTicks)*i));
+
+            const points = monthsData.map((d, i) => `${xScale(i)},${yScale(d.endStock)}`).join(' ');
+
+            // Indicateurs commande / livraison par mois (sommés)
+            const monthIndicators = MONTHS.map((_, mIdx) => {
+                const commandeQty = events.filter(e => e.monthIndex === mIdx && e.type === 'commande').reduce((a, e) => a + e.qty, 0);
+                const livraisonQty = events.filter(e => e.monthIndex === mIdx - 1 && e.type === 'commande').reduce((a, e) => a + e.qty, 0);
+                return { mIdx, commandeQty, livraisonQty };
+            });
+
+            return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto">
+                    {/* === Zone indicateurs (haut du graphique) === */}
+                    {monthIndicators.map(ind => {
+                        const x = xScale(ind.mIdx);
+                        const elements = [];
+                        if (ind.commandeQty > 0) {
+                            // Décalage à gauche si livraison aussi présente
+                            const xc = ind.livraisonQty > 0 ? x - 18 : x;
+                            elements.push(
+                                <g key={`cmd-${ind.mIdx}`}>
+                                    <circle cx={xc} cy={28} r="12" fill="#2563eb" stroke="#1e40af" strokeWidth="2"/>
+                                    <text x={xc} y={32} textAnchor="middle" fontSize="12" fontWeight="bold" fill="#ffffff">C</text>
+                                    <text x={xc} y={56} textAnchor="middle" fontSize="11" fontWeight="bold" fill="#2563eb">+{ind.commandeQty}</text>
+                                </g>
+                            );
+                        }
+                        if (ind.livraisonQty > 0) {
+                            const xl = ind.commandeQty > 0 ? x + 18 : x;
+                            elements.push(
+                                <g key={`liv-${ind.mIdx}`}>
+                                    <circle cx={xl} cy={28} r="12" fill="#10b981" stroke="#047857" strokeWidth="2"/>
+                                    <text x={xl} y={32} textAnchor="middle" fontSize="12" fontWeight="bold" fill="#ffffff">L</text>
+                                    <text x={xl} y={56} textAnchor="middle" fontSize="11" fontWeight="bold" fill="#10b981">+{ind.livraisonQty}</text>
+                                </g>
+                            );
+                        }
+                        return <g key={`ind-${ind.mIdx}`}>{elements}</g>;
+                    })}
+
+                    {/* Flèches pointillées commande → livraison */}
+                    {events.filter(e => e.type === 'commande' && e.monthIndex < 5).map((e, idx) => {
+                        const x1 = xScale(e.monthIndex);
+                        const x2 = xScale(e.monthIndex + 1);
+                        // Si même mois multiples événements, décale
+                        const ind1 = monthIndicators[e.monthIndex];
+                        const ind2 = monthIndicators[e.monthIndex + 1];
+                        const xStart = (ind1.livraisonQty > 0 ? x1 - 18 : x1) + 14;
+                        const xEnd = (ind2.commandeQty > 0 ? x2 + 18 : x2) - 14;
+                        return (
+                            <g key={`arr-${idx}`}>
+                                <line x1={xStart} y1={28} x2={xEnd - 5} y2={28}
+                                      stroke="#94a3b8" strokeWidth="1.2" strokeDasharray="3 2"/>
+                                <polygon points={`${xEnd-5},${28-3} ${xEnd},${28} ${xEnd-5},${28+3}`} fill="#94a3b8"/>
+                            </g>
+                        );
+                    })}
+
+                    {/* === Zones colorées === */}
+                    <rect x={m.left} y={m.top} width={plotW} height={Math.max(0, yScale(item.max) - m.top)}
+                          fill="#a855f7" fillOpacity={isDark ? 0.10 : 0.05}/>
+                    <rect x={m.left} y={yScale(item.max)} width={plotW} height={Math.max(0, yScale(item.min) - yScale(item.max))}
+                          fill="#10b981" fillOpacity={isDark ? 0.12 : 0.06}/>
+                    <rect x={m.left} y={yScale(item.min)} width={plotW} height={Math.max(0, yScale(item.safety) - yScale(item.min))}
+                          fill="#f59e0b" fillOpacity={isDark ? 0.15 : 0.08}/>
+                    <rect x={m.left} y={yScale(item.safety)} width={plotW} height={Math.max(0, yScale(0) - yScale(item.safety))}
+                          fill="#ef4444" fillOpacity={isDark ? 0.15 : 0.08}/>
+
+                    {/* Grille horizontale */}
+                    {tickValues.map((v, i) => (
+                        <line key={i} x1={m.left} y1={yScale(v)} x2={m.left + plotW} y2={yScale(v)}
+                              stroke={grid} strokeWidth="1" strokeDasharray="2 3"/>
+                    ))}
+
+                    {/* Lignes verticales pour chaque mois (alignement visuel) */}
+                    {monthsData.map((d, i) => (
+                        <line key={`v-${i}`} x1={xScale(i)} y1={m.top} x2={xScale(i)} y2={m.top + plotH}
+                              stroke={grid} strokeWidth="1" strokeDasharray="1 3"/>
+                    ))}
+
+                    {/* Axes */}
+                    <line x1={m.left} y1={m.top} x2={m.left} y2={m.top + plotH} stroke={axis} strokeWidth="1.5"/>
+                    <line x1={m.left} y1={m.top + plotH} x2={m.left + plotW} y2={m.top + plotH} stroke={axis} strokeWidth="1.5"/>
+
+                    {tickValues.map((v, i) => (
+                        <text key={i} x={m.left - 8} y={yScale(v) + 4} textAnchor="end" fontSize="11" fill={text}>{v}</text>
+                    ))}
+
+                    {/* Seuils */}
+                    <line x1={m.left} y1={yScale(item.max)} x2={m.left + plotW} y2={yScale(item.max)} stroke="#10b981" strokeWidth="1.5" strokeDasharray="6 3"/>
+                    <line x1={m.left} y1={yScale(item.min)} x2={m.left + plotW} y2={yScale(item.min)} stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="6 3"/>
+                    <line x1={m.left} y1={yScale(item.safety)} x2={m.left + plotW} y2={yScale(item.safety)} stroke="#ef4444" strokeWidth="1.5" strokeDasharray="6 3"/>
+
+                    {/* Labels seuils */}
+                    <text x={m.left + plotW + 6} y={yScale(item.max) + 4} fontSize="10" fontWeight="bold" fill="#10b981">MAX {item.max}</text>
+                    <text x={m.left + plotW + 6} y={yScale(item.min) + 4} fontSize="10" fontWeight="bold" fill="#f59e0b">MIN {item.min}</text>
+                    <text x={m.left + plotW + 6} y={yScale(item.safety) + 4} fontSize="10" fontWeight="bold" fill="#ef4444">SÉC {item.safety}</text>
+
+                    {/* Courbe */}
+                    <polyline fill="none" stroke="#2563eb" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" points={points}/>
+
+                    {/* Points sur la courbe */}
+                    {monthsData.map((d, i) => (
+                        <g key={i}>
+                            <circle cx={xScale(i)} cy={yScale(d.endStock)} r="6"
+                                    fill={isDark ? '#0f172a' : '#fff'} stroke="#2563eb" strokeWidth="2.5"/>
+                            <text x={xScale(i)} y={yScale(d.endStock) - 12} textAnchor="middle" fontSize="11" fontWeight="bold" fill={text}>
+                                {d.endStock}
+                            </text>
+                        </g>
+                    ))}
+
+                    {/* Labels axes */}
+                    <text x={20} y={m.top + plotH/2} textAnchor="middle" fontSize="10" fontWeight="bold" fill={text}
+                          transform={`rotate(-90, 20, ${m.top + plotH/2})`}>STOCK FIN DE MOIS</text>
+
+                    {/* === Étiquettes mois alignées sur les abscisses (non cliquables : les actions sont sous le graphique) === */}
+                    {MONTHS.map((label, i) => {
+                        const x = xScale(i);
+                        const btnY = m.top + plotH + 15;
+                        return (
+                            <g key={`lbl-${i}`}>
+                                {/* Ligne de raccord verticale */}
+                                <line x1={x} y1={m.top + plotH} x2={x} y2={btnY}
+                                      stroke={isDark ? '#475569' : '#cbd5e1'}
+                                      strokeWidth={1}/>
+                                {/* Rectangle libellé */}
+                                <rect x={x - 32} y={btnY} width={64} height={50} rx={8}
+                                      fill={isDark ? '#1e293b' : '#f8fafc'}
+                                      stroke={isDark ? '#475569' : '#cbd5e1'}
+                                      strokeWidth={1.5}/>
+                                {/* Label mois */}
+                                <text x={x} y={btnY + 22} textAnchor="middle" fontSize="13" fontWeight="bold"
+                                      fill={isDark ? '#cbd5e1' : '#475569'}>
+                                    {label}
+                                </text>
+                                {/* Mois N */}
+                                <text x={x} y={btnY + 40} textAnchor="middle" fontSize="9"
+                                      fill={isDark ? '#64748b' : '#94a3b8'}>
+                                    M{i + 1}
+                                </text>
+                            </g>
+                        );
+                    })}
+                </svg>
+            );
+        };
+
+        // ============================================================
+        // APP PRINCIPALE
+        // ============================================================
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('inventory');
+            const [isSidebarOpen, setSidebarOpen] = useState(false);
+            const [isDark, setIsDark] = useState(false);
+            const [inventory, setInventory] = useState(INITIAL_INVENTORY);
+
+            const themeValues = getThemeClasses(isDark);
+
+            const renderContent = () => {
+                switch (activeTab) {
+                    case 'inventory':  return <InventoryPage inventory={inventory} setInventory={setInventory}/>;
+                    case 'calculator': return <CalculatorsPage/>;
+                    case 'simulation': return <SimulationPage inventory={inventory}/>;
+                    default: return <InventoryPage inventory={inventory} setInventory={setInventory}/>;
+                }
+            };
+
+            return (
+                <ThemeContext.Provider value={themeValues}>
+                    <div className={`flex h-screen ${themeValues.appBg} ${themeValues.textMain} overflow-hidden antialiased`}>
+                        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab}
+                                 isOpen={isSidebarOpen} toggleSidebar={() => setSidebarOpen(!isSidebarOpen)}/>
+                        <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                            <header className={`${themeValues.headerBg} border-b ${themeValues.headerBorder} p-4 flex justify-between items-center shadow-sm`}>
+                                <div className="flex items-center gap-4">
+                                    <button onClick={() => setSidebarOpen(true)} className="md:hidden text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg">
+                                        <Menu size={20}/>
+                                    </button>
+                                    <h2 className="font-bold text-sm uppercase tracking-widest text-slate-500 hidden md:block">
+                                        SAV — Module pédagogique
+                                    </h2>
+                                </div>
+                                <button onClick={() => setIsDark(!isDark)}
+                                        className={`p-2 rounded-lg ${isDark ? 'bg-slate-800 text-amber-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'} transition-colors`}>
+                                    {isDark ? <Sun size={18}/> : <Moon size={18}/>}
+                                </button>
+                            </header>
+                            <div className="flex-1 overflow-y-auto">{renderContent()}</div>
+                        </main>
+                    </div>
+                </ThemeContext.Provider>
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App/>);
+    </script>
+</body>
+</html>
