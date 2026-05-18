@@ -483,6 +483,34 @@
                         quote: "Pour déterminer le seuil de stock mini, qui ne correspond pas seulement au stock minimum mais surtout au moment de déclenchement d’une commande de réapprovisionnement..."
                     },
                     {
+                        question: "À quoi sert principalement le STOCK MAXI d'une référence ?",
+                        options: ["À fixer le prix de vente de la pièce", "À déterminer la quantité plafond à ne pas dépasser pour viser le juste niveau de stock", "À déclencher automatiquement une commande au fournisseur", "À calculer le salaire du magasinier"],
+                        correctAnswer: 1,
+                        explanation: "Le stock maxi définit la quantité maximale d'une référence à détenir. Il évite le sur-stockage (immobilisation d'argent, obsolescence) tout en garantissant la disponibilité.",
+                        quote: "Stock maxi : Une fois la décision prise de stocker une référence il convient d’en déterminer la quantité annuelle sachant que le taux de rotation annuelle du stock pour un SAV est habituellement compris entre 1 et 1,5 fois."
+                    },
+                    {
+                        question: "Sur quelle base le STOCK MAXI d'une pièce est-il calculé en SAV ?",
+                        options: ["Sur l'espace disponible dans le tiroir", "Sur le chiffre d'affaires prévu divisé par le taux de rotation visé (entre 1 et 1,5 fois/an)", "Sur le nombre d'employés de l'atelier", "Au hasard, selon l'intuition du responsable"],
+                        correctAnswer: 1,
+                        explanation: "On part de la prévision de vente, on en déduit le CA, puis on divise par le taux de rotation cible (1 à 1,5). On obtient la valeur du stock puis la quantité en pièces.",
+                        quote: "Estimation du chiffre d’affaires : 60.- / Valeur du stock : 60/1,5 = 40 / Stock maxi : 40/2 = 20 pièces. Le taux de rotation annuelle du stock pour un SAV est habituellement compris entre 1 et 1,5 fois."
+                    },
+                    {
+                        question: "À quoi sert principalement le STOCK MINI d'une référence ?",
+                        options: ["À fixer la quantité minimum stockée à 0 pièce", "À indiquer le moment exact de déclenchement d'une commande de réapprovisionnement", "À déterminer combien de pièces peuvent être jetées", "À calculer la TVA sur les pièces"],
+                        correctAnswer: 1,
+                        explanation: "Le stock mini n'est pas qu'un minimum : c'est surtout le SEUIL D'ALERTE qui dit « il faut commander maintenant » pour ne pas tomber en rupture pendant le délai de livraison.",
+                        quote: "Pour déterminer le seuil de stock mini, qui ne correspond pas seulement au stock minimum mais surtout au moment de déclenchement d’une commande de réapprovisionnement, il convient de connaître le nombre moyen de pièces servies sur la durée de rotation et la durée de réapprovisionnement..."
+                    },
+                    {
+                        question: "Quels éléments faut-il connaître pour déterminer correctement le STOCK MINI ?",
+                        options: ["Uniquement le prix de vente de la pièce", "Le nombre moyen de pièces servies sur la durée de rotation ET la durée de réapprovisionnement", "La couleur de l'emballage et le poids du colis", "Le nom du fournisseur uniquement"],
+                        correctAnswer: 1,
+                        explanation: "Il faut estimer la consommation pendant le délai de livraison : si on consomme X pièces/semaine et que le fournisseur livre en 3 semaines, le stock mini doit couvrir au minimum cette consommation.",
+                        quote: "...il convient de connaître le nombre moyen de pièces servies sur la durée de rotation et la durée de réapprovisionnement pour remettre l’article à son niveau stock maximum."
+                    },
+                    {
                         question: "Dans l'horlogerie de prestige, quelle durée de garantie de disponibilité des pièces observe-t-on généralement ?",
                         options: ["2 ans", "5 ans", "15 ans", "À vie"],
                         correctAnswer: 3,
