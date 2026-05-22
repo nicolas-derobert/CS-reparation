@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SAV — Vrai ou Faux : Swipe Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; touch-action: pan-y; }
+
+        /* ----- Cartes de swipe ----- */
+        .swipe-card {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            cursor: grab;
+            user-select: none;
+        }
+        .swipe-card.dragging { transition: none; cursor: grabbing; }
+        .swipe-card.gone-left  { transform: translate(-150%, 50px) rotate(-30deg) !important; opacity: 0 !important; }
+        .swipe-card.gone-right { transform: translate(150%,  50px) rotate(30deg)  !important; opacity: 0 !important; }
+
+        /* ----- Indicateurs VRAI / FAUX overlay sur la carte ----- */
+        .stamp {
+            position: absolute;
+            top: 30px;
+            padding: 10px 24px;
+            border: 4px solid;
+            border-radius: 12px;
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            opacity: 0;
+            transition: opacity 0.15s;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+        .stamp-true  { right: 24px; color: #16a34a; border-color: #16a34a; transform: rotate(15deg); }
+        .stamp-false { left: 24px;  color: #e11d48; border-color: #e11d48; transform: rotate(-15deg); }
+
+        /* ----- Timer pulse ----- */
+        @keyframes pulseRed {
+            0%, 100% { background-color: #fecaca; }
+            50% { background-color: #fca5a5; }
+        }
+        .timer-warning { animation: pulseRed 0.6s infinite; }
+
+        /* ----- Animations fade ----- */
+        .fade-in { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ----- Scroll content ----- */
+        .content-scroll::-webkit-scrollbar { width: 6px; }
+        .content-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+
+        /* ----- Boutons d'action ----- */
+        .action-btn {
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .action-btn:active { transform: scale(0.92); }
+
+        /* ----- Optimisations mobile (smartphone) ----- */
+        #active-card { touch-action: none; }
+        @supports (padding: max(0px)) {
+            body {
+                padding-left:  max(0.75rem, env(safe-area-inset-left));
+                padding-right: max(0.75rem, env(safe-area-inset-right));
+                padding-top:   max(0.75rem, env(safe-area-inset-top));
+                padding-bottom:max(0.75rem, env(safe-area-inset-bottom));
+            }
+        }
+        @media (max-width: 640px) {
+            #card-container { height: 300px !important; }
+            #active-card    { min-height: 300px !important; padding: 1rem !important; }
+            .stamp { font-size: 22px; padding: 6px 16px; top: 18px; }
+            .action-btn { min-height: 56px; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-slate-100 via-white to-slate-50 min-h-screen flex items-center justify-center p-3 sm:p-6">
+
+    <div class="w-full max-w-2xl">
+
+        <!-- =============== ÉCRAN D'ACCUEIL =============== -->
+        <div id="start-screen" class="bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 sm:p-10 text-center fade-in">
+            <div class="w-20 h-20 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center shadow-lg ring-4 ring-slate-100">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                </svg>
+            </div>
+            <h1 class="text-2xl sm:text-4xl font-black text-slate-900 mb-2">Vrai ou Faux ?</h1>
+            <p class="text-slate-600 mb-2 text-base sm:text-lg">Service Après-Vente — Swipe Challenge</p>
+            <p class="text-xs text-slate-400 mb-8">Glissez ↞ pour <span class="font-bold text-rose-600">FAUX</span>, glissez ↠ pour <span class="font-bold text-emerald-600">VRAI</span></p>
+
+            <h2 class="text-sm font-bold text-slate-700 mb-4 uppercase tracking-wider">Choisissez votre niveau</h2>
+            <div class="space-y-3 mb-8 text-left">
+                <button data-difficulty="apprenti" class="difficulty-btn w-full p-4 rounded-2xl border-2 border-emerald-200 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-400 active:scale-[0.98] transition flex items-center justify-between group">
+                    <div class="flex items-center gap-3">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500 ring-4 ring-emerald-100 shadow-sm"></span>
+                        <div class="text-left">
+                            <div class="font-bold text-emerald-900">Apprenti</div>
+                            <div class="text-xs text-emerald-700">Pour découvrir les notions</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-black text-emerald-700 text-lg">30 s</div>
+                        <div class="text-[10px] text-emerald-600">par affirmation</div>
+                    </div>
+                </button>
+                <button data-difficulty="compagnon" class="difficulty-btn w-full p-4 rounded-2xl border-2 border-amber-200 bg-amber-50 hover:bg-amber-100 hover:border-amber-400 active:scale-[0.98] transition flex items-center justify-between group">
+                    <div class="flex items-center gap-3">
+                        <span class="w-3 h-3 rounded-full bg-amber-500 ring-4 ring-amber-100 shadow-sm"></span>
+                        <div class="text-left">
+                            <div class="font-bold text-amber-900">Compagnon</div>
+                            <div class="text-xs text-amber-700">Pour consolider ses acquis</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-black text-amber-700 text-lg">18 s</div>
+                        <div class="text-[10px] text-amber-600">par affirmation</div>
+                    </div>
+                </button>
+                <button data-difficulty="maitre" class="difficulty-btn w-full p-4 rounded-2xl border-2 border-rose-200 bg-rose-50 hover:bg-rose-100 hover:border-rose-400 active:scale-[0.98] transition flex items-center justify-between group">
+                    <div class="flex items-center gap-3">
+                        <span class="w-3 h-3 rounded-full bg-rose-500 ring-4 ring-rose-100 shadow-sm"></span>
+                        <div class="text-left">
+                            <div class="font-bold text-rose-900">Maître</div>
+                            <div class="text-xs text-rose-700">Réflexes &amp; maîtrise totale</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-black text-rose-700 text-lg">10 s</div>
+                        <div class="text-[10px] text-rose-600">par affirmation</div>
+                    </div>
+                </button>
+            </div>
+
+            <button id="start-btn" disabled class="w-full px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold text-lg hover:bg-slate-800 transition shadow-lg disabled:opacity-40 disabled:cursor-not-allowed">
+                Commencer le quiz
+            </button>
+            <p class="mt-4 text-xs text-slate-500">22 affirmations · Citations & articles CO inclus</p>
+        </div>
+
+        <!-- =============== ÉCRAN DE QUIZ =============== -->
+        <div id="quiz-screen" class="hidden bg-white rounded-3xl shadow-2xl border border-slate-200 p-4 sm:p-6">
+
+            <!-- Barre supérieure : retour menu (toujours visible) + niveau -->
+            <div class="flex items-center justify-between mb-3">
+                <button id="abandon-btn" type="button" aria-label="Retour au menu" class="action-btn flex items-center gap-1.5 px-3 py-2 -ml-1 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:bg-slate-200 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    <span class="text-xs font-black uppercase tracking-wider">Menu</span>
+                </button>
+                <span id="difficulty-badge" class="px-3 py-1 text-white text-[10px] font-black uppercase tracking-wider rounded-full shadow-sm" style="background-color:#0f172a">--</span>
+            </div>
+
+            <!-- Stats : progression + score + timer -->
+            <div class="flex items-center justify-between mb-4 gap-3 pt-3 border-t border-slate-100">
+                <div class="flex flex-col">
+                    <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Progression</span>
+                    <span id="progress-text" class="text-sm font-bold text-slate-800">1 / 22</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Score</span>
+                    <span id="score-text" class="text-sm font-bold text-blue-700">0</span>
+                </div>
+                <div class="flex flex-col items-end">
+                    <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Temps</span>
+                    <span id="timer-text" class="text-sm font-bold text-slate-800 tabular-nums">--</span>
+                </div>
+            </div>
+
+            <!-- Timer bar -->
+            <div class="w-full bg-slate-100 rounded-full h-2 mb-5 overflow-hidden">
+                <div id="timer-bar" class="bg-gradient-to-r from-emerald-500 via-amber-400 to-rose-500 h-full transition-all duration-200" style="width: 100%"></div>
+            </div>
+
+            <!-- Conteneur de cartes (swipe) -->
+            <div id="card-container" class="relative w-full" style="height: 380px;">
+                <!-- Les cartes sont injectées ici en JS -->
+            </div>
+
+            <!-- Boutons d'action -->
+            <div id="action-buttons" class="flex justify-center gap-4 mt-5">
+                <button id="false-btn" class="action-btn flex-1 max-w-[160px] px-5 py-4 rounded-2xl bg-rose-500 text-white font-black text-lg shadow-lg hover:bg-rose-600 flex items-center justify-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    FAUX
+                </button>
+                <button id="true-btn" class="action-btn flex-1 max-w-[160px] px-5 py-4 rounded-2xl bg-emerald-500 text-white font-black text-lg shadow-lg hover:bg-emerald-600 flex items-center justify-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    VRAI
+                </button>
+            </div>
+
+            <!-- Zone d'explication (cachée) -->
+            <div id="explanation-zone" class="hidden mt-5 fade-in"></div>
+
+            <!-- Bouton suivant (caché) -->
+            <button id="next-btn" class="hidden w-full mt-5 px-6 py-3.5 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition shadow-md flex items-center justify-center gap-2">
+                <span id="next-btn-text">Affirmation suivante</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+        </div>
+
+        <!-- =============== ÉCRAN DE FIN =============== -->
+        <div id="end-screen" class="hidden bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 sm:p-10 text-center">
+            <div id="final-circle" class="w-32 h-32 sm:w-40 sm:h-40 rounded-full flex items-center justify-center mx-auto bg-slate-50 border-4 mb-6 shadow-inner">
+                <div>
+                    <div id="final-score" class="text-3xl sm:text-5xl font-black text-slate-900">0/22</div>
+                    <div id="final-percent" class="text-xs sm:text-sm font-bold text-slate-500 mt-1">0%</div>
+                </div>
+            </div>
+            <h2 id="final-title" class="text-2xl sm:text-3xl font-black text-slate-900 mb-3">Quiz terminé !</h2>
+            <p id="final-message" class="text-sm sm:text-base text-slate-600 mb-6 max-w-md mx-auto leading-relaxed"></p>
+
+            <!-- Stats détaillées -->
+            <div class="grid grid-cols-3 gap-2 sm:gap-3 max-w-md mx-auto mb-8">
+                <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+                    <div id="stat-correct" class="text-2xl font-black text-emerald-700">0</div>
+                    <div class="text-[10px] uppercase tracking-wide text-emerald-600 font-bold">Bonnes</div>
+                </div>
+                <div class="bg-rose-50 border border-rose-200 rounded-xl p-3">
+                    <div id="stat-wrong" class="text-2xl font-black text-rose-700">0</div>
+                    <div class="text-[10px] uppercase tracking-wide text-rose-600 font-bold">Erreurs</div>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                    <div id="stat-timeout" class="text-2xl font-black text-amber-700">0</div>
+                    <div class="text-[10px] uppercase tracking-wide text-amber-600 font-bold">Hors temps</div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 justify-center mb-6">
+                <button id="review-btn" class="px-6 py-3 bg-white text-slate-700 border-2 border-slate-200 rounded-xl font-bold hover:bg-slate-50">Voir la correction détaillée</button>
+                <button id="restart-btn" class="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-md">Rejouer</button>
+            </div>
+
+            <!-- Zone de révision (cachée par défaut) -->
+            <div id="review-zone" class="hidden mt-6 text-left max-h-[60vh] overflow-y-auto content-scroll pr-2 border-t border-slate-200 pt-6"></div>
+        </div>
+    </div>
+
+<script>
+/* =================================================================
+   BASE LÉGALE — articles du Code des Obligations sur fedlex.admin.ch
+   ================================================================= */
+const CO_BASE_URL = "https://www.fedlex.admin.ch/eli/cc/27/317_321_377/fr";
+const COarticle = (num, alinea = null) => ({
+    label: alinea ? `art. ${num} al. ${alinea} CO` : `art. ${num} CO`,
+    url: `${CO_BASE_URL}#a${num}`
+});
+
+/* =================================================================
+   AFFIRMATIONS — Niveau taxonomie C2 (Compréhension)
+   Toutes les affirmations exigent l'interprétation du cours, pas
+   la simple restitution. Pages = pages du support PDF.
+   ================================================================= */
+const affirmations = [
+    {
+        text: "L'objectif central du Service Après-Vente se limite à réparer les pannes des produits déjà vendus au client.",
+        answer: false,
+        explanation: "Le SAV a une portée beaucoup plus large : il vise aussi à <strong>fidéliser le client</strong>, <strong>maintenir l'image de marque</strong>, et faire remonter des informations qui contribuent à <strong>améliorer les futurs produits</strong>. Réduire le SAV à la seule réparation est une vision incomplète.",
+        quote: "Le Service Après-Vente a pour objectif de maintenir en état de fonctionnement des biens durables en fournissant un service de qualité, rapide et efficace à un prix raisonnable.",
+        page: 1
+    },
+    {
+        text: "Selon le droit suisse, la garantie légale du vendeur ne peut jamais être réduite, quel que soit le contrat conclu.",
+        answer: false,
+        explanation: "La garantie est de nature <strong>dispositive</strong> : le vendeur peut, dans le contrat ou les CGV, l'exclure totalement ou partiellement. La protection ne s'applique strictement que dans la relation <strong>professionnel → particulier privé</strong>, où elle ne peut être réduite (sauf à 1 an pour l'occasion).",
+        quote: "Comme ce droit est de nature dispositive, le vendeur a la possibilité – au sein du contrat ou des conditions générales – d'exclure totalement ou partiellement la garantie concernant tous ou certains types de défauts.",
+        page: 20,
+        legal: COarticle(210, 1)
+    },
+    {
+        text: "Un ratio de personnel non-productif élevé (50–100 %) est nécessairement le signe d'une mauvaise gestion de l'atelier.",
+        answer: false,
+        explanation: "Un ratio élevé indique une <strong>faible rentabilité</strong>, mais il s'accompagne typiquement d'une <strong>forte satisfaction client</strong>. C'est donc un choix stratégique assumé (encadrement, support, contrôle) — pas un défaut de gestion.",
+        quote: "Ratio « non productif » entre 50% et 100% → Objectifs principaux : Faible rentabilité / Forte Satisfaction client.",
+        page: 12
+    },
+    {
+        text: "Le goodwill est un service que le réparateur est obligé d'accorder dès lors que le client en fait la demande.",
+        answer: false,
+        explanation: "Le goodwill est, par définition, un <strong>geste de courtoisie volontaire</strong>, en dehors du cadre légal de la garantie. C'est celui qui prend la décision (fabricant, distributeur, détaillant…) qui en assume le coût — il n'y a aucune obligation.",
+        quote: "Le goodwill est un service de courtoisie offert au consommateur, sous forme de pièce de rechange ou de réparation, gratuite ou à un prix réduit, au-delà d'un service normal de garantie.",
+        page: 20
+    },
+    {
+        text: "Pour une montre de gamme « Prestige », la garantie de disponibilité des pièces de rechange est habituellement de 15 ans.",
+        answer: false,
+        explanation: "C'est la gamme <strong>« Haut de gamme et luxe »</strong> qui est garantie 15 ans. La gamme <strong>Prestige</strong> bénéficie, elle, d'une disponibilité <strong>à vie</strong>.",
+        quote: "Prestige → À vie. Haut de gamme et luxe → 15 ans. Moyenne gamme → 10 ans. Mode → 5 ans. Bas de gamme → 2 ans.",
+        page: 47
+    },
+    {
+        text: "Le seuil de stock mini correspond simplement à la quantité minimale d'une pièce qu'on tolère en magasin.",
+        answer: false,
+        explanation: "C'est une lecture incomplète. Le stock mini est <strong>avant tout le seuil de déclenchement d'une commande</strong> de réapprovisionnement. Il doit être calculé pour couvrir la consommation pendant le délai de livraison du fournisseur.",
+        quote: "Pour déterminer le seuil de stock mini, qui ne correspond pas seulement au stock minimum mais surtout au moment de déclenchement d'une commande de réapprovisionnement, il convient de connaître le nombre moyen de pièces servies sur la durée de rotation et la durée de réapprovisionnement.",
+        page: 50
+    },
+    {
+        text: "Selon le cours, entre 75 % et 95 % des clients mécontents qui n'expriment pas leur plainte n'achèteront plus jamais à la marque.",
+        answer: true,
+        explanation: "C'est la raison fondamentale pour laquelle il faut <strong>provoquer le feedback négatif</strong> : un mécontentement silencieux est presque toujours irrécupérable, tandis qu'un mécontentement entendu et traité peut devenir un facteur de fidélisation.",
+        quote: "75% à 95% des clients mécontents et qui n'ont pas fait part de leurs plaintes n'achèteront plus jamais de produit de la marque.",
+        page: 63
+    },
+    {
+        text: "Le numéro d'une opération dans une gamme opératoire change selon la position qu'elle occupe dans la séquence.",
+        answer: false,
+        explanation: "C'est précisément l'inverse. Le N° d'une opération est <strong>fixe et unique</strong>, indépendamment de la gamme dans laquelle elle s'insère ou de sa position. Cela permet la traçabilité et la cohérence des temps standards.",
+        quote: "Le numéro de l'opération (quelle que soit sa position dans la gamme le N° d'une opération reste toujours le même).",
+        page: 44
+    },
+    {
+        text: "La garantie de réparation est toujours prise en charge par le fabricant initial de la montre, même si la réparation a été faite dans un autre centre.",
+        answer: false,
+        explanation: "La garantie de réparation est <strong>prise en charge par le centre qui a effectué la dernière réparation</strong>, et non par le fabricant. C'est la marge du travail réalisé qui couvre l'éventuelle re-réparation.",
+        quote: "La garantie de réparation est prise en charge par le centre qui a effectué la dernière réparation. La couverture du coût de travail de garantie de réparation est incluse dans la marge du travail et des fournitures de réparation.",
+        page: 18
+    },
+    {
+        text: "Lors d'une vente d'occasion entre un professionnel et un particulier, la garantie peut être réduite à 1 an selon l'art. 210 al. 4 CO.",
+        answer: true,
+        explanation: "C'est la seule exception légale à la règle des 2 ans dans la relation professionnel → particulier privé. Pour une <strong>vente d'occasion</strong>, la durée peut être réduite à un an, mais pas en deçà.",
+        quote: "Lors d'un contrat liant un professionnel à une personne pour ses besoins privés, la durée de la garantie peut être prolongée mais ne peut pas être réduite – sauf à un an s'il s'agit d'une vente de choses d'occasion.",
+        page: 20,
+        legal: COarticle(210, 4)
+    },
+    {
+        text: "L'inventaire physique du stock doit être réalisé tous les 6 mois, sauf si l'entreprise pratique l'inventaire tournant.",
+        answer: true,
+        explanation: "C'est exactement la règle du cours. L'inventaire semestriel est la <strong>fréquence par défaut</strong> ; l'inventaire tournant (vérifications continues par familles) peut s'y substituer car il offre une rigueur équivalente.",
+        quote: "Un inventaire du stock doit être tenu tous les six mois si le département des fournitures ne pratique pas l'inventaire tournant.",
+        page: 51
+    },
+    {
+        text: "Conquérir un nouveau client coûte environ 5 fois moins cher que de fidéliser un client existant.",
+        answer: false,
+        explanation: "L'affirmation est <strong>strictement inversée</strong>. C'est la <strong>fidélisation</strong> qui coûte 5 fois moins cher que la conquête. Cette inversion est l'une des erreurs de raisonnement les plus fréquentes en stratégie SAV.",
+        quote: "Garder et fidéliser un client coûte 5 fois moins cher que d'en gagner un nouveau.",
+        page: 63
+    },
+    {
+        text: "Un client satisfait partage son expérience avec environ 3 personnes, alors qu'un client insatisfait en parle à 10.",
+        answer: true,
+        explanation: "Ce déséquilibre <strong>3 vs 10</strong> illustre la dissymétrie réputationnelle : une mauvaise expérience se diffuse beaucoup plus largement qu'une bonne. C'est la justification chiffrée du soin extrême à apporter au traitement des réclamations.",
+        quote: "Un client satisfait en fait part à 3 personnes, un consommateur insatisfait en fait part à 10 personnes.",
+        page: 63
+    },
+    {
+        text: "Les frais d'affranchissement (envoi, assurance) d'un travail effectué sous garantie de réparation sont à la charge du client final.",
+        answer: false,
+        explanation: "Pour la <strong>garantie de réparation</strong>, ces frais sont à la charge <strong>du réparateur</strong>. Attention à ne pas confondre avec la garantie de vente, où les frais d'affranchissement font partie d'une convention séparée.",
+        quote: "Les frais d'affranchissement et d'assurance pour un travail effectué sous garantie de réparation sont à la charge du réparateur.",
+        page: 18
+    },
+    {
+        text: "La catégorie de réparation (garantie, devis, restauration) attribuée lors du diagnostic est figée pour tout le reste du processus.",
+        answer: false,
+        explanation: "Par <strong>souci de flexibilité</strong>, la catégorie doit être <strong>modifiable à tout moment</strong>. Exemple typique : un démontage révèle un choc caché qui annule la garantie initialement supposée.",
+        quote: "Par souci de flexibilité, la catégorie doit être modifiable à tout moment du processus de réparation.",
+        page: 26
+    },
+    {
+        text: "L'art. 197 al. 1 CO permet à l'acheteur de faire valoir la garantie en cas d'absence de qualité promise du bien vendu.",
+        answer: true,
+        explanation: "L'article 197 fonde le droit à la garantie sur <strong>deux motifs</strong> : (1) défauts qui enlèvent ou diminuent la valeur/utilité de la chose, et (2) absence de qualité promise. C'est la base légale en amont de la durée de 2 ans de l'art. 210.",
+        quote: "L'acheteur peut faire valoir cette garantie quand l'objet de la vente présente des défauts qui lui enlèvent ou diminuent sa valeur ou son utilité ou en cas d'absence de qualité promise.",
+        page: 20,
+        legal: COarticle(197, 1)
+    },
+    {
+        text: "Lorsqu'un test d'étanchéité échoue lors du contrôle final, il est préférable de ne pas en informer le client pour préserver l'image de la marque.",
+        answer: false,
+        explanation: "C'est exactement l'opposé de la bonne pratique. Le cours est explicite : si l'étanchéité ne peut être garantie, il est <strong>important de le rappeler au client</strong>. Cacher l'information expose à un sinistre et à un litige bien plus graves pour l'image.",
+        quote: "Étanchéité : Test d'étanchéité pour s'assurer que la montre est bien résistante à l'eau selon les spécifications. Si ce n'est pas le cas, il est important de le rappeler aux clients.",
+        page: 54
+    },
+    {
+        text: "En Suisse, les factures doivent être archivées pendant au minimum 10 ans, conformément à la législation en vigueur.",
+        answer: true,
+        explanation: "C'est une obligation légale stricte du droit suisse. Cette durée correspond à la période de prescription comptable et fiscale, applicable à tous les documents de facturation.",
+        quote: "Archivage des factures : Conserver les factures pendant une durée minimale de 10 ans, conformément à la législation suisse.",
+        page: 59
+    },
+    {
+        text: "Le taux de rotation annuel typique du stock d'un SAV horloger se situe entre 3 et 5 fois.",
+        answer: false,
+        explanation: "C'est très exagéré. Pour un SAV, le taux de rotation typique est <strong>entre 1 et 1,5 fois par an</strong>. Cette rotation lente est inhérente au métier : il faut détenir des pièces parfois rares pour honorer la promesse de disponibilité.",
+        quote: "Le taux de rotation annuelle du stock pour un SAV est habituellement compris entre 1 et 1,5 fois.",
+        page: 49
+    },
+    {
+        text: "Selon les buts de la gestion des réclamations énoncés dans le cours, une réclamation devrait idéalement être résolue en moins d'une semaine.",
+        answer: true,
+        explanation: "La rapidité de traitement (<strong>1 semaine maximum</strong>) figure explicitement parmi les buts. Au-delà, l'impatience client se transforme en perte de confiance, voire en exposition publique négative.",
+        quote: "Résoudre les réclamations rapidement (1 semaine maxi).",
+        page: 59
+    },
+    {
+        text: "Pour reconquérir un client parti chez un concurrent, la meilleure approche est de critiquer ouvertement ce concurrent.",
+        answer: false,
+        explanation: "Le cours recommande exactement l'inverse : <strong>ne pas rabaisser le concurrent</strong>, mais mettre en avant ses propres points forts. Critiquer le concurrent décrédibilise le commerçant et conforte le client dans son choix de départ.",
+        quote: "S'il évoque les avantages fournis par un concurrent, ne pas chercher à rabaisser ce dernier, mais plutôt à mettre en avant ses propres points forts.",
+        page: 62
+    },
+    {
+        text: "Il peut être économiquement justifié de renoncer à certains clients chroniquement insatisfaits aux attentes irréalistes.",
+        answer: true,
+        explanation: "Le cours valide cette posture, contre-intuitive mais lucide : tous les clients ne sont pas bons à garder. Les <strong>clients toxiques</strong> consomment des ressources disproportionnées et mettent en péril la stabilité financière de l'entreprise.",
+        quote: "Certains consommateurs sont chroniquement insatisfaits ou ont des attentes irréalistes. Vouloir les exaucer mettrait en danger la stabilité financière de l'entreprise. Mieux vaut renoncer à faire des affaires avec ces personnes pour se concentrer sur ses clients fidèles.",
+        page: 62
+    }
+];
+
+/* =================================================================
+   PARAMÈTRES DE DIFFICULTÉ
+   ================================================================= */
+const DIFFICULTY = {
+    apprenti:  { label: "Apprenti",  time: 30, hex: "#10b981" },
+    compagnon: { label: "Compagnon", time: 18, hex: "#f59e0b" },
+    maitre:    { label: "Maître",    time: 10, hex: "#f43f5e" }
+};
+
+/* =================================================================
+   ÉTAT
+   ================================================================= */
+let state = {
+    difficulty: null,
+    shuffled: [],
+    index: 0,
+    score: 0,
+    stats: { correct: 0, wrong: 0, timeout: 0 },
+    answers: [], // { affirmation, userAnswer, isCorrect, timedOut }
+    timer: null,
+    timeLeft: 0,
+    locked: false
+};
+
+/* =================================================================
+   DOM
+   ================================================================= */
+const $ = (id) => document.getElementById(id);
+
+/* =================================================================
+   INITIALISATION
+   ================================================================= */
+let selectedDifficulty = null;
+
+document.querySelectorAll('.difficulty-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.difficulty-btn').forEach(b => {
+            b.classList.remove('ring-4', 'ring-offset-2', 'ring-slate-800');
+        });
+        btn.classList.add('ring-4', 'ring-offset-2', 'ring-slate-800');
+        selectedDifficulty = btn.dataset.difficulty;
+        $('start-btn').disabled = false;
+    });
+});
+
+$('start-btn').addEventListener('click', () => {
+    if (!selectedDifficulty) return;
+    startQuiz(selectedDifficulty);
+});
+
+$('restart-btn').addEventListener('click', () => {
+    $('end-screen').classList.add('hidden');
+    $('start-screen').classList.remove('hidden');
+    $('review-zone').classList.add('hidden');
+    $('review-zone').innerHTML = '';
+    selectedDifficulty = null;
+    document.querySelectorAll('.difficulty-btn').forEach(b => {
+        b.classList.remove('ring-4', 'ring-offset-2', 'ring-slate-800');
+    });
+    $('start-btn').disabled = true;
+});
+
+$('review-btn').addEventListener('click', () => {
+    const z = $('review-zone');
+    if (z.classList.contains('hidden')) {
+        renderReview();
+        z.classList.remove('hidden');
+        $('review-btn').innerText = 'Masquer la correction';
+    } else {
+        z.classList.add('hidden');
+        $('review-btn').innerText = 'Voir la correction détaillée';
+    }
+});
+
+$('abandon-btn').addEventListener('click', () => {
+    // Arrêt du timer
+    if (state.timer) clearInterval(state.timer);
+    state.locked = true;
+    // Nettoyage défensif de tous les éléments du quiz
+    $('quiz-screen').classList.add('hidden');
+    $('explanation-zone').classList.add('hidden');
+    $('explanation-zone').innerHTML = '';
+    $('next-btn').classList.add('hidden');
+    $('action-buttons').classList.remove('hidden');
+    $('card-container').innerHTML = '';
+    // Retour à l'écran d'accueil
+    $('start-screen').classList.remove('hidden');
+    $('end-screen').classList.add('hidden');
+    $('start-btn').disabled = true;
+    selectedDifficulty = null;
+    document.querySelectorAll('.difficulty-btn').forEach(b => {
+        b.classList.remove('ring-4', 'ring-offset-2', 'ring-slate-800');
+    });
+});
+
+/* =================================================================
+   LANCEMENT DU QUIZ
+   ================================================================= */
+function startQuiz(diff) {
+    state = {
+        difficulty: diff,
+        shuffled: shuffleArray([...affirmations]),
+        index: 0,
+        score: 0,
+        stats: { correct: 0, wrong: 0, timeout: 0 },
+        answers: [],
+        timer: null,
+        timeLeft: 0,
+        locked: false
+    };
+    $('start-screen').classList.add('hidden');
+    $('end-screen').classList.add('hidden');
+    $('quiz-screen').classList.remove('hidden');
+
+    // Badge de niveau dans l'en-tête (couleur dynamique via style inline)
+    const badge = $('difficulty-badge');
+    badge.innerText = DIFFICULTY[diff].label;
+    badge.style.backgroundColor = DIFFICULTY[diff].hex;
+
+    renderCard();
+}
+
+function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+/* =================================================================
+   RENDU D'UNE CARTE
+   ================================================================= */
+function renderCard() {
+    state.locked = false;
+    const aff = state.shuffled[state.index];
+
+    // En-tête
+    $('progress-text').innerText = `${state.index + 1} / ${state.shuffled.length}`;
+    $('score-text').innerText = state.score;
+
+    // Cartes
+    const c = $('card-container');
+    c.innerHTML = `
+        <div id="active-card" class="swipe-card bg-white border-2 border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col" style="min-height: 380px;">
+            <div class="flex items-center justify-between mb-4">
+                <span class="px-3 py-1 bg-slate-900 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Affirmation</span>
+                <span class="text-xs font-bold text-slate-400">${state.index + 1}/${state.shuffled.length}</span>
+            </div>
+            <div class="flex-1 flex items-center justify-center text-center py-4">
+                <p class="text-base sm:text-xl font-semibold text-slate-800 leading-relaxed">${aff.text}</p>
+            </div>
+            <div class="text-center pt-4 border-t border-slate-100">
+                <p class="text-xs text-slate-400">
+                    <span class="hidden sm:inline">Glissez la carte ou cliquez sur un bouton</span>
+                    <span class="sm:hidden">Swipez ← FAUX ou VRAI →</span>
+                </p>
+            </div>
+            <div class="stamp stamp-true">VRAI</div>
+            <div class="stamp stamp-false">FAUX</div>
+        </div>
+    `;
+
+    // Cacher l'explication et le bouton next
+    $('explanation-zone').classList.add('hidden');
+    $('explanation-zone').innerHTML = '';
+    $('next-btn').classList.add('hidden');
+    $('action-buttons').classList.remove('hidden');
+
+    // Attacher les listeners
+    attachSwipeListeners();
+    $('true-btn').onclick = () => answer(true);
+    $('false-btn').onclick = () => answer(false);
+
+    // Démarrer le timer
+    startTimer();
+}
+
+/* =================================================================
+   TIMER
+   ================================================================= */
+function startTimer() {
+    state.timeLeft = DIFFICULTY[state.difficulty].time;
+    updateTimerDisplay();
+    state.timer = setInterval(() => {
+        state.timeLeft -= 0.1;
+        if (state.timeLeft <= 0) {
+            state.timeLeft = 0;
+            clearInterval(state.timer);
+            updateTimerDisplay();
+            handleTimeout();
+        } else {
+            updateTimerDisplay();
+        }
+    }, 100);
+}
+
+function updTimerWarning(percent) {
+    const bar = $('timer-bar');
+    if (percent < 25) bar.classList.add('timer-warning');
+    else bar.classList.remove('timer-warning');
+}
+
+function updateTimerDisplay() {
+    const total = DIFFICULTY[state.difficulty].time;
+    const pct = Math.max(0, (state.timeLeft / total) * 100);
+    $('timer-bar').style.width = pct + '%';
+    $('timer-text').innerText = Math.ceil(state.timeLeft) + 's';
+    updTimerWarning(pct);
+}
+
+function handleTimeout() {
+    if (state.locked) return;
+    state.locked = true;
+    const aff = state.shuffled[state.index];
+    state.stats.timeout++;
+    state.answers.push({ affirmation: aff, userAnswer: null, isCorrect: false, timedOut: true });
+    showExplanation(null, true);
+}
+
+/* =================================================================
+   GESTION DE LA RÉPONSE
+   ================================================================= */
+function answer(userValue) {
+    if (state.locked) return;
+    state.locked = true;
+    clearInterval(state.timer);
+
+    const aff = state.shuffled[state.index];
+    const isCorrect = (userValue === aff.answer);
+
+    if (isCorrect) {
+        state.score++;
+        state.stats.correct++;
+    } else {
+        state.stats.wrong++;
+    }
+    state.answers.push({ affirmation: aff, userAnswer: userValue, isCorrect, timedOut: false });
+
+    // Animation de sortie de la carte
+    const card = $('active-card');
+    if (card) {
+        card.classList.add(userValue ? 'gone-right' : 'gone-left');
+    }
+
+    setTimeout(() => showExplanation(userValue, false), 400);
+}
+
+/* =================================================================
+   EXPLICATION
+   ================================================================= */
+function showExplanation(userValue, isTimeout) {
+    const aff = state.shuffled[state.index];
+    const isCorrect = !isTimeout && (userValue === aff.answer);
+
+    $('action-buttons').classList.add('hidden');
+    $('card-container').innerHTML = '';
+
+    const zone = $('explanation-zone');
+    let headerHTML;
+    if (isTimeout) {
+        headerHTML = `
+            <div class="p-4 sm:p-5 rounded-2xl bg-amber-50 border-2 border-amber-300 mb-4 flex items-start gap-3">
+                <svg class="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div>
+                    <p class="font-black text-amber-900 mb-1">Temps écoulé !</p>
+                    <p class="text-sm text-amber-800">La bonne réponse était : <strong>${aff.answer ? 'VRAI' : 'FAUX'}</strong></p>
+                </div>
+            </div>`;
+    } else if (isCorrect) {
+        headerHTML = `
+            <div class="p-4 sm:p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-300 mb-4 flex items-start gap-3">
+                <svg class="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div>
+                    <p class="font-black text-emerald-900 mb-1">Bonne réponse !</p>
+                    <p class="text-sm text-emerald-800">L'affirmation était bien <strong>${aff.answer ? 'VRAIE' : 'FAUSSE'}</strong>.</p>
+                </div>
+            </div>`;
+    } else {
+        headerHTML = `
+            <div class="p-4 sm:p-5 rounded-2xl bg-rose-50 border-2 border-rose-300 mb-4 flex items-start gap-3">
+                <svg class="w-6 h-6 text-rose-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <div>
+                    <p class="font-black text-rose-900 mb-1">Réponse incorrecte</p>
+                    <p class="text-sm text-rose-800">La bonne réponse était : <strong>${aff.answer ? 'VRAI' : 'FAUX'}</strong></p>
+                </div>
+            </div>`;
+    }
+
+    const explanationHTML = `
+        <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 mb-4">
+            <p class="text-[10px] sm:text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Analyse</p>
+            <p class="text-sm sm:text-base text-slate-800 leading-relaxed">${aff.explanation}</p>
+        </div>
+    `;
+
+    const quoteHTML = `
+        <div class="p-4 sm:p-5 rounded-2xl bg-amber-50 border border-amber-200 mb-4">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                <div class="flex-1">
+                    <p class="text-[10px] sm:text-xs font-black text-amber-700 uppercase tracking-wider mb-1.5">Extrait du support de cours · page ${aff.page}</p>
+                    <p class="text-sm italic text-amber-900 leading-relaxed">« ${aff.quote} »</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    let legalHTML = '';
+    if (aff.legal) {
+        legalHTML = `
+            <div class="p-4 sm:p-5 rounded-2xl bg-indigo-50 border border-indigo-200 mb-4">
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-indigo-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path></svg>
+                    <div class="flex-1">
+                        <p class="text-[10px] sm:text-xs font-black text-indigo-700 uppercase tracking-wider mb-1.5">Référence légale (Code des Obligations)</p>
+                        <a href="${aff.legal.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-sm font-bold text-indigo-700 hover:text-indigo-900 hover:underline">
+                            ${aff.legal.label}
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </a>
+                        <p class="text-[11px] text-indigo-600 mt-1">Consulter le texte officiel sur fedlex.admin.ch</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    zone.innerHTML = headerHTML + explanationHTML + quoteHTML + legalHTML;
+    zone.classList.remove('hidden');
+
+    // Bouton suivant
+    const nextBtn = $('next-btn');
+    $('next-btn-text').innerText = (state.index === state.shuffled.length - 1) ? 'Voir mon résultat final' : 'Affirmation suivante';
+    nextBtn.classList.remove('hidden');
+    nextBtn.onclick = goNext;
+}
+
+function goNext() {
+    state.index++;
+    if (state.index >= state.shuffled.length) {
+        showEndScreen();
+    } else {
+        renderCard();
+    }
+}
+
+/* =================================================================
+   ÉCRAN FINAL
+   ================================================================= */
+function showEndScreen() {
+    $('quiz-screen').classList.add('hidden');
+    $('end-screen').classList.remove('hidden');
+
+    const total = state.shuffled.length;
+    const percent = Math.round((state.score / total) * 100);
+
+    $('final-score').innerText = `${state.score}/${total}`;
+    $('final-percent').innerText = `${percent}%`;
+    $('stat-correct').innerText = state.stats.correct;
+    $('stat-wrong').innerText = state.stats.wrong;
+    $('stat-timeout').innerText = state.stats.timeout;
+
+    const circle = $('final-circle');
+    circle.classList.remove('border-emerald-500', 'border-blue-500', 'border-amber-500', 'border-rose-500', 'bg-emerald-50', 'bg-blue-50', 'bg-amber-50', 'bg-rose-50');
+
+    let title, msg;
+    if (percent === 100) {
+        circle.classList.add('border-emerald-500', 'bg-emerald-50');
+        title = "🏆 Sans-faute !";
+        msg = `Vous maîtrisez parfaitement les notions du SAV au niveau <strong>${DIFFICULTY[state.difficulty].label}</strong>. La rapidité et la précision sont au rendez-vous.`;
+    } else if (percent >= 80) {
+        circle.classList.add('border-blue-500', 'bg-blue-50');
+        title = "Excellent résultat";
+        msg = `Vous maîtrisez très solidement la matière au niveau <strong>${DIFFICULTY[state.difficulty].label}</strong>. Quelques nuances à consolider en révision.`;
+    } else if (percent >= 60) {
+        circle.classList.add('border-amber-500', 'bg-amber-50');
+        title = "Bon résultat";
+        msg = `Niveau <strong>${DIFFICULTY[state.difficulty].label}</strong>. Une relecture des chapitres concernés vous aidera à fixer les notions encore incertaines.`;
+    } else {
+        circle.classList.add('border-rose-500', 'bg-rose-50');
+        title = "À retravailler";
+        msg = `Niveau <strong>${DIFFICULTY[state.difficulty].label}</strong>. Une reprise du support de cours s'impose, en particulier sur les questions où le temps a manqué.`;
+    }
+    $('final-title').innerText = title;
+    $('final-message').innerHTML = msg;
+}
+
+/* =================================================================
+   REVUE DÉTAILLÉE
+   ================================================================= */
+function renderReview() {
+    const z = $('review-zone');
+    z.innerHTML = state.answers.map((a, i) => {
+        const aff = a.affirmation;
+        let badge;
+        if (a.timedOut) badge = `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black uppercase">Hors temps</span>`;
+        else if (a.isCorrect) badge = `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase">Correct</span>`;
+        else badge = `<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-black uppercase">Erreur</span>`;
+
+        const legalLink = aff.legal
+            ? `<div class="mt-2 text-xs"><a href="${aff.legal.url}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-indigo-700 font-bold hover:underline">${aff.legal.label} ↗</a></div>`
+            : '';
+
+        return `
+            <div class="mb-4 p-4 rounded-xl border ${a.isCorrect ? 'border-emerald-200 bg-emerald-50/30' : a.timedOut ? 'border-amber-200 bg-amber-50/30' : 'border-rose-200 bg-rose-50/30'}">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-xs font-bold text-slate-500">N°${i + 1}</span>
+                    ${badge}
+                    <span class="ml-auto text-[10px] font-bold text-slate-500">Réponse : ${aff.answer ? 'VRAI' : 'FAUX'}</span>
+                </div>
+                <p class="text-sm font-semibold text-slate-800 mb-2">${aff.text}</p>
+                <p class="text-xs text-slate-600 leading-relaxed mb-2">${aff.explanation}</p>
+                <p class="text-xs italic text-amber-800 bg-amber-50 p-2 rounded border border-amber-200">« ${aff.quote} » <span class="text-[10px] font-bold not-italic text-amber-600">— p. ${aff.page}</span></p>
+                ${legalLink}
+            </div>
+        `;
+    }).join('');
+}
+
+/* =================================================================
+   SWIPE — gestion tactile et souris
+   ================================================================= */
+function attachSwipeListeners() {
+    const card = $('active-card');
+    if (!card) return;
+    let startX = 0, currentX = 0, isDragging = false;
+
+    const onStart = (clientX) => {
+        if (state.locked) return;
+        isDragging = true;
+        startX = clientX;
+        card.classList.add('dragging');
+    };
+
+    const onMove = (clientX) => {
+        if (!isDragging) return;
+        currentX = clientX - startX;
+        const rotation = currentX / 20;
+        card.style.transform = `translate(${currentX}px, 0) rotate(${rotation}deg)`;
+
+        // Indicateurs visuels
+        const trueStamp = card.querySelector('.stamp-true');
+        const falseStamp = card.querySelector('.stamp-false');
+        if (currentX > 50) {
+            trueStamp.style.opacity = Math.min(1, currentX / 150);
+            falseStamp.style.opacity = 0;
+        } else if (currentX < -50) {
+            falseStamp.style.opacity = Math.min(1, -currentX / 150);
+            trueStamp.style.opacity = 0;
+        } else {
+            trueStamp.style.opacity = 0;
+            falseStamp.style.opacity = 0;
+        }
+    };
+
+    const onEnd = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        card.classList.remove('dragging');
+        const threshold = 120;
+        if (currentX > threshold) {
+            answer(true);
+        } else if (currentX < -threshold) {
+            answer(false);
+        } else {
+            // snap back
+            card.style.transform = '';
+            card.querySelector('.stamp-true').style.opacity = 0;
+            card.querySelector('.stamp-false').style.opacity = 0;
+        }
+        currentX = 0;
+    };
+
+    // Touch
+    card.addEventListener('touchstart', (e) => onStart(e.touches[0].clientX), { passive: true });
+    card.addEventListener('touchmove',  (e) => onMove(e.touches[0].clientX),  { passive: true });
+    card.addEventListener('touchend',   onEnd);
+
+    // Mouse
+    card.addEventListener('mousedown', (e) => onStart(e.clientX));
+    document.addEventListener('mousemove', (e) => { if (isDragging) onMove(e.clientX); });
+    document.addEventListener('mouseup', onEnd);
+}
+</script>
+</body>
+</html>
