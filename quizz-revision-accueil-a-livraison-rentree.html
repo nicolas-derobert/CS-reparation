@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Révision SAV – CPH_HO_02 De l'accueil à la livraison – EHG</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <style>
+    /* ==========================================================================
+       CHARTE GRAPHIQUE EHG — tokens (extrait ehg.css v1.0) + styles de l'application
+       ========================================================================== */
+    @import url('https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+    :root {
+      --ehg-noir:#141414; --ehg-or:#AA8802; --ehg-blanc:#FFFFFF;
+      --ehg-or-clair:#D4B24C; --ehg-or-pale:#F4EDD6; --ehg-or-fonce:#7D6400;
+      --ehg-graphite:#3A3A3A; --ehg-acier:#898989; --ehg-perle:#EAEAEA; --ehg-brume:#F6F6F6;
+      --ehg-ok:#2E6B4B; --ehg-ok-pale:#E4EFE8; --ehg-alerte:#AA8802; --ehg-alerte-pale:#F4EDD6;
+      --ehg-erreur:#9B2C2C; --ehg-erreur-pale:#F5E4E4; --ehg-info:#3A3A3A; --ehg-info-pale:#EAEAEA;
+      --ehg-font-titre:"Jost","Century Gothic","Futura","Avenir Next","Calibri Light",sans-serif;
+      --ehg-font-texte:"Source Sans 3","Calibri","Segoe UI","Helvetica Neue",Arial,sans-serif;
+      --ehg-font-serif:"Playfair Display","Cambria","Georgia","Times New Roman",serif;
+      --ehg-fs-xs:.75rem; --ehg-fs-sm:.875rem; --ehg-fs-base:1rem; --ehg-fs-md:1.25rem; --ehg-fs-lg:1.5625rem; --ehg-fs-xl:1.953rem; --ehg-fs-2xl:2.441rem; --ehg-fs-3xl:3.052rem;
+      --ehg-sp-1:.25rem; --ehg-sp-2:.5rem; --ehg-sp-3:.75rem; --ehg-sp-4:1rem; --ehg-sp-6:1.5rem; --ehg-sp-8:2rem; --ehg-sp-12:3rem;
+      --ehg-radius:4px; --ehg-radius-lg:8px; --ehg-filet:1px solid var(--ehg-perle);
+      --ehg-ombre:0 1px 2px rgba(20,20,20,.06),0 4px 12px rgba(20,20,20,.06);
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html{font-size:100%}
+    body{margin:0;font-family:var(--ehg-font-texte);font-size:var(--ehg-fs-base);line-height:1.55;color:var(--ehg-noir);background:var(--ehg-brume);-webkit-font-smoothing:antialiased;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+    h1,h2,h3,h4{font-family:var(--ehg-font-titre);font-weight:400;line-height:1.15;color:var(--ehg-noir);margin:0 0 var(--ehg-sp-4);letter-spacing:-.005em}
+    h2{font-size:var(--ehg-fs-xl)} h3{font-size:var(--ehg-fs-lg)} h4{font-size:var(--ehg-fs-md);font-weight:500}
+    p{margin:0 0 var(--ehg-sp-4)}
+    button{font:inherit;cursor:pointer}
+    a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--ehg-or);outline-offset:2px}
+    ::selection{background:var(--ehg-or-pale)}
+    .ehg-surtitre{display:block;font-family:var(--ehg-font-titre);font-size:var(--ehg-fs-xs);font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ehg-acier);margin-bottom:var(--ehg-sp-2)}
+    .ehg-chiffre{font-family:var(--ehg-font-serif);font-variant-numeric:lining-nums;color:var(--ehg-or)}
+    .ehg-note{font-size:var(--ehg-fs-sm);color:var(--ehg-acier)}
+
+    /* Boutons */
+    .ehg-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--ehg-sp-2);font-family:var(--ehg-font-titre);font-size:var(--ehg-fs-sm);font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:.7rem 1.4rem;border-radius:var(--ehg-radius);border:1px solid var(--ehg-noir);background:var(--ehg-noir);color:var(--ehg-blanc);text-decoration:none;line-height:1;transition:background .15s,color .15s,border-color .15s}
+    .ehg-btn:hover{background:var(--ehg-graphite);border-color:var(--ehg-graphite)}
+    .ehg-btn--secondaire{background:transparent;color:var(--ehg-noir)}
+    .ehg-btn--secondaire:hover{background:var(--ehg-brume);color:var(--ehg-noir);border-color:var(--ehg-noir)}
+    .ehg-btn--or{background:var(--ehg-or);border-color:var(--ehg-or);color:var(--ehg-blanc)}
+    .ehg-btn--or:hover{background:var(--ehg-or-fonce);border-color:var(--ehg-or-fonce)}
+    .ehg-btn--erreur{background:transparent;color:var(--ehg-erreur);border-color:var(--ehg-erreur)}
+    .ehg-btn--erreur:hover{background:var(--ehg-erreur-pale);border-color:var(--ehg-erreur);color:var(--ehg-erreur)}
+    .ehg-btn svg{width:1rem;height:1rem}
+
+    /* Cartes, encadrés, badges */
+    .ehg-carte{background:var(--ehg-blanc);border:var(--ehg-filet);border-radius:var(--ehg-radius-lg);padding:var(--ehg-sp-6);box-shadow:var(--ehg-ombre)}
+    .ehg-carte__chiffre{font-family:var(--ehg-font-serif);font-size:var(--ehg-fs-xl);line-height:1;color:var(--ehg-or);margin-bottom:var(--ehg-sp-1)}
+    .ehg-encadre{display:flex;gap:var(--ehg-sp-4);align-items:flex-start;padding:var(--ehg-sp-4) var(--ehg-sp-6);border-radius:var(--ehg-radius-lg);background:var(--ehg-info-pale);color:var(--ehg-noir);margin-bottom:var(--ehg-sp-4)}
+    .ehg-encadre>:last-child{margin-bottom:0}
+    .ehg-encadre__icone{flex:0 0 1.5rem;font-family:var(--ehg-font-serif);font-size:1.25rem;line-height:1.3;color:var(--ehg-graphite)}
+    .ehg-encadre--or{background:var(--ehg-alerte-pale)} .ehg-encadre--or .ehg-encadre__icone{color:var(--ehg-or)}
+    .ehg-encadre--ok{background:var(--ehg-ok-pale)} .ehg-encadre--ok .ehg-encadre__icone{color:var(--ehg-ok)}
+    .ehg-encadre--erreur{background:var(--ehg-erreur-pale)} .ehg-encadre--erreur .ehg-encadre__icone{color:var(--ehg-erreur)}
+    .ehg-badge{display:inline-block;font-family:var(--ehg-font-titre);font-size:var(--ehg-fs-xs);font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:.25em .7em;border-radius:999px;background:var(--ehg-perle);color:var(--ehg-graphite);line-height:1.4;vertical-align:middle;white-space:nowrap}
+    .ehg-badge--or{background:var(--ehg-or);color:var(--ehg-blanc)}
+    .ehg-badge--or-pale{background:var(--ehg-or-pale);color:var(--ehg-or-fonce)}
+    .ehg-badge--noir{background:var(--ehg-noir);color:var(--ehg-blanc)}
+    .ehg-badge--ok{background:var(--ehg-ok-pale);color:var(--ehg-ok)}
+    .ehg-badge--erreur{background:var(--ehg-erreur-pale);color:var(--ehg-erreur)}
+    .ehg-tableau{width:100%;border-collapse:collapse;font-size:var(--ehg-fs-sm);margin-bottom:var(--ehg-sp-6)}
+    .ehg-tableau th,.ehg-tableau td{padding:.6rem .8rem;text-align:left;vertical-align:top;border-bottom:var(--ehg-filet)}
+    .ehg-tableau thead th{font-family:var(--ehg-font-titre);font-weight:500;font-size:var(--ehg-fs-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--ehg-graphite);border-bottom:2px solid var(--ehg-noir);background:var(--ehg-blanc)}
+    .ehg-tableau tbody tr:hover{background:var(--ehg-brume)}
+    .ehg-tableau td.num,.ehg-tableau th.num{text-align:center;font-variant-numeric:tabular-nums}
+    .ehg-input{width:100%;font:inherit;color:var(--ehg-noir);background:var(--ehg-blanc);border:1px solid var(--ehg-acier);border-radius:var(--ehg-radius);padding:.65rem .75rem}
+    .ehg-input:focus{border-color:var(--ehg-noir);outline:2px solid var(--ehg-or);outline-offset:1px}
+    .ehg-progress{height:6px;background:var(--ehg-perle);border-radius:999px;overflow:hidden}
+    .ehg-progress>span{display:block;height:100%;background:var(--ehg-or);border-radius:999px;transition:width .3s ease-out}
+    .ehg-citation{font-family:var(--ehg-font-serif);font-size:var(--ehg-fs-base);font-style:italic;line-height:1.45;color:var(--ehg-graphite);margin:0}
+    .ehg-citation::before{content:"« ";color:var(--ehg-or)} .ehg-citation::after{content:" »";color:var(--ehg-or)}
+
+    /* ---------- Mise en page application (mode mobile / ordinateur) ----------
+       Le mode est piloté par la classe body.mode-mobile ou body.mode-desktop,
+       détectée automatiquement (largeur < 768 px) ou forcée par le commutateur. */
+    .app{display:flex;height:100vh;height:100dvh;flex-direction:row}
+    .lateral{background:var(--ehg-noir);color:var(--ehg-blanc);display:flex;flex-direction:column;flex-shrink:0;width:18rem;height:100%;transition:transform .25s ease}
+    .mode-desktop .lateral{width:18rem} @media(min-width:64rem){.mode-desktop .lateral{width:20rem}}
+    .lateral__entete{padding:var(--ehg-sp-6);border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;gap:var(--ehg-sp-3)}
+    .lateral__logo{display:flex;align-items:baseline;gap:var(--ehg-sp-3)}
+    .lateral__millesime{font-family:var(--ehg-font-serif);font-size:var(--ehg-fs-xl);color:var(--ehg-or-clair);line-height:1;letter-spacing:.02em}
+    .lateral__titre{font-family:var(--ehg-font-titre);font-size:var(--ehg-fs-md);font-weight:400;color:var(--ehg-blanc);margin:0;line-height:1.15}
+    .lateral__sous{font-family:var(--ehg-font-titre);font-size:var(--ehg-fs-xs);letter-spacing:.12em;text-transform:uppercase;color:var(--ehg-acier);margin:var(--ehg-sp-2) 0 0}
+    .lateral__onglets{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:var(--ehg-sp-1);padding:var(--ehg-sp-4);scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
+    .onglet{display:flex;align-items:center;gap:var(--ehg-sp-3);width:100%;text-align:left;background:none;border:0;border-left:2px solid transparent;padding:.7rem .9rem;font-family:var(--ehg-font-titre);font-size:var(--ehg-fs-sm);letter-spacing:.03em;color:var(--ehg-acier);border-radius:0 var(--ehg-radius) var(--ehg-radius) 0;transition:color .15s,background .15s;min-height:44px}
+    .onglet:hover{color:var(--ehg-blanc);background:rgba(255,255,255,.05)}
+    .onglet[aria-selected="true"]{color:var(--ehg-blanc);border-left-color:var(--ehg-or);background:rgba(255,255,255,.07)}
+    .onglet__num{font-family:var(--ehg-font-serif);font-size:var(--ehg-fs-md);line-height:1;color:var(--ehg-or-clair);min-width:1.4rem}
+    .onglet__etat{margin-left:auto;font-size:var(--ehg-fs-xs);font-family:var(--ehg-font-serif);color:var(--ehg-acier)}
+    .onglet__etat--ok{color:var(--ehg-or-clair)}
+    .lateral__pied{padding:var(--ehg-sp-4) var(--ehg-sp-6);border-top:1px solid rgba(255,255,255,.08)}
+    .lateral__pied .ehg-btn{width:100%}
+    .lateral__pied .ehg-note{display:block;margin-top:var(--ehg-sp-3);text-align:center;font-size:var(--ehg-fs-xs);line-height:1.4}
+    .compteur{font-family:var(--ehg-font-serif);font-size:var(--ehg-fs-xs);letter-spacing:0;text-transform:none;opacity:.85;margin-left:var(--ehg-sp-1)}
+
+    /* Commutateur de mode (dans le bandeau) */
+    .mode-switch{display:flex;border:1px solid rgba(255,255,255,.2);border-radius:999px;overflow:hidden;margin-top:var(--ehg-sp-3)}
+    .mode-switch button{flex:1;background:none;border:0;color:var(--ehg-acier);font-family:var(--ehg-font-titre);font-size:var(--ehg-fs-xs);letter-spacing:.08em;text-transform:uppercase;padding:.45rem .5rem;display:flex;align-items:center;justify-content:center;gap:.35rem}
+    .mode-switch button svg{width:.9rem;height:.9rem}
+    .mode-switch button[aria-pressed="true"]{background:var(--ehg-or);color:var(--ehg-blanc)}
+
+    /* Barre supérieure mobile + bouton fermer du tiroir (masqués sur ordinateur) */
+    .barre-mobile{display:none}
+    .lateral__fermer{display:none;background:none;border:0;color:var(--ehg-acier);padding:.4rem;line-height:0}
+    .lateral__fermer svg{width:1.4rem;height:1.4rem}
+    .voile{display:none}
+
+    /* ===== MODE MOBILE ===== */
+    .mode-mobile .app{flex-direction:column}
+    .mode-mobile .barre-mobile{display:flex;align-items:center;justify-content:space-between;gap:var(--ehg-sp-3);background:var(--ehg-noir);color:var(--ehg-blanc);padding:.6rem var(--ehg-sp-4);border-bottom:1px solid var(--ehg-or);position:sticky;top:0;z-index:30;flex-shrink:0}
+    .barre-mobile__logo{display:flex;align-items:baseline;gap:var(--ehg-sp-2);min-width:0}
+    .barre-mobile__logo .lateral__millesime{font-size:var(--ehg-fs-md)}
+    .barre-mobile__logo span:last-child{font-family:var(--ehg-font-titre);font-size:var(--ehg-fs-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .barre-mobile__actions{display:flex;gap:var(--ehg-sp-1)}
+    .barre-mobile button.ico{background:none;border:1px solid rgba(255,255,255,.18);border-radius:var(--ehg-radius);color:var(--ehg-blanc);width:44px;height:44px;display:flex;align-items:center;justify-content:center;position:relative}
+    .barre-mobile button.ico svg{width:1.3rem;height:1.3rem}
+    .barre-mobile button.ico .pastille{position:absolute;top:-6px;right:-6px;background:var(--ehg-or);color:var(--ehg-blanc);font-family:var(--ehg-font-serif);font-size:.6rem;border-radius:999px;padding:.1rem .35rem;line-height:1.2}
+    .mode-mobile .lateral{position:fixed;inset:0 auto 0 0;width:min(85vw,20rem);z-index:50;transform:translateX(-100%);box-shadow:0 0 40px rgba(0,0,0,.4)}
+    .mode-mobile .lateral.ouvert{transform:translateX(0)}
+    .mode-mobile .lateral__fermer{display:block}
+    .mode-mobile .voile{display:block;position:fixed;inset:0;background:rgba(20,20,20,.55);z-index:40;opacity:0;pointer-events:none;transition:opacity .25s}
+    .mode-mobile .voile.ouvert{opacity:1;pointer-events:auto}
+    .mode-mobile .principal{display:flex;flex-direction:column}
+    .mode-mobile .principal__contenu{width:100%;flex:1 0 auto;padding:var(--ehg-sp-3) var(--ehg-sp-3) calc(var(--ehg-sp-8) + env(safe-area-inset-bottom))}
+    .mode-mobile .ecran{padding:var(--ehg-sp-4);border-radius:var(--ehg-radius-lg)}
+    .mode-mobile .ecran__entete h2{font-size:var(--ehg-fs-md)}
+    .mode-mobile .question{font-size:1.1rem}
+    .mode-mobile .option{padding:.75rem .85rem;font-size:var(--ehg-fs-sm);min-height:48px}
+    .mode-mobile .option__lettre{flex-basis:2rem;height:2rem;font-size:var(--ehg-fs-sm)}
+    .mode-mobile .suite .ehg-btn,.mode-mobile .actions .ehg-btn,.mode-mobile .bilan__pied .ehg-btn,.mode-mobile .bilan-formulaire .ehg-btn{width:100%}
+    .mode-mobile .actions,.mode-mobile .bilan__pied{flex-direction:column}
+    .mode-mobile .kpis{grid-template-columns:repeat(2,1fr)}
+    .mode-mobile .bilan-formulaire{flex-direction:column}
+    .mode-mobile .theme-ligne .ehg-progress{display:none}
+    .mode-mobile .theme-ligne{flex-wrap:wrap}
+    .mode-mobile .ehg-tableau{display:block;overflow-x:auto;white-space:nowrap}
+    .mode-mobile .ehg-tableau td:nth-child(2){white-space:normal;min-width:14rem}
+    .mode-mobile .erreur-carte{padding:var(--ehg-sp-3) var(--ehg-sp-4)}
+    .mode-mobile .ehg-encadre{padding:var(--ehg-sp-3) var(--ehg-sp-4);gap:var(--ehg-sp-3)}
+    /* Barre de navigation basse (mobile) */
+    .nav-basse{display:none}
+    .mode-mobile .nav-basse{display:flex;margin-top:auto;justify-content:space-between;align-items:center;gap:var(--ehg-sp-2);position:sticky;bottom:0;background:var(--ehg-blanc);border-top:var(--ehg-filet);padding:.5rem var(--ehg-sp-3) calc(.5rem + env(safe-area-inset-bottom));z-index:20}
+    .nav-basse button{background:none;border:0;color:var(--ehg-graphite);font-family:var(--ehg-font-titre);font-size:var(--ehg-fs-xs);letter-spacing:.06em;text-transform:uppercase;padding:.4rem .6rem;min-height:40px;display:flex;align-items:center;gap:.3rem}
+    .nav-basse button:disabled{opacity:.35}
+    .nav-basse button svg{width:1rem;height:1rem}
+    .nav-basse .nav-basse__theme{font-family:var(--ehg-font-serif);color:var(--ehg-or);font-size:var(--ehg-fs-sm)}
+
+    /* ===== MODE ORDINATEUR : suppression des anciennes règles mobiles ===== */
+    .principal{flex:1;min-height:0;height:100%;overflow-y:auto;background:var(--ehg-brume);-webkit-overflow-scrolling:touch}
+    .principal__contenu{max-width:54rem;margin:0 auto;padding:var(--ehg-sp-12) var(--ehg-sp-8)}
+    .ecran{background:var(--ehg-blanc);border:var(--ehg-filet);border-radius:var(--ehg-radius-lg);box-shadow:var(--ehg-ombre);padding:var(--ehg-sp-8)}
+    .ecran__entete{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--ehg-sp-4);padding-bottom:var(--ehg-sp-4);border-bottom:var(--ehg-filet);margin-bottom:var(--ehg-sp-6)}
+    .ecran__entete h2{margin:0;font-size:var(--ehg-fs-lg)}
+    .masque{display:none!important}
+
+    /* Progression */
+    .progression{margin-bottom:var(--ehg-sp-8)}
+    .progression__meta{display:flex;justify-content:space-between;font-family:var(--ehg-font-titre);font-size:var(--ehg-fs-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--ehg-acier);margin-bottom:var(--ehg-sp-2)}
+    .progression__meta b{color:var(--ehg-or);font-weight:500}
+
+    /* Question & options */
+    .question{font-family:var(--ehg-font-titre);font-size:var(--ehg-fs-md);font-weight:400;line-height:1.35;color:var(--ehg-noir);margin:0 0 var(--ehg-sp-6)}
+    .question{font-size:1.4rem}
+    .options{display:flex;flex-direction:column;gap:var(--ehg-sp-3);margin-bottom:var(--ehg-sp-6)}
+    .option{display:flex;align-items:center;gap:var(--ehg-sp-4);width:100%;text-align:left;background:var(--ehg-blanc);border:1px solid var(--ehg-perle);border-radius:var(--ehg-radius-lg);padding:.9rem 1.1rem;color:var(--ehg-noir);font-size:var(--ehg-fs-base);line-height:1.4;transition:border-color .15s,background .15s}
+    .option:hover:not(:disabled){border-color:var(--ehg-or);background:var(--ehg-or-pale)}
+    .option:disabled{cursor:default}
+    .option__lettre{flex:0 0 2.25rem;height:2.25rem;border-radius:50%;border:1px solid var(--ehg-perle);display:flex;align-items:center;justify-content:center;font-family:var(--ehg-font-serif);font-size:var(--ehg-fs-base);color:var(--ehg-graphite);background:var(--ehg-brume);transition:all .15s}
+    .option:hover:not(:disabled) .option__lettre{border-color:var(--ehg-or);color:var(--ehg-or)}
+    .option--ok{border-color:var(--ehg-ok);background:var(--ehg-ok-pale);color:var(--ehg-ok)}
+    .option--ok .option__lettre{background:var(--ehg-ok);border-color:var(--ehg-ok);color:var(--ehg-blanc)}
+    .option--erreur{border-color:var(--ehg-erreur);background:var(--ehg-erreur-pale);color:var(--ehg-erreur)}
+    .option--erreur .option__lettre{background:var(--ehg-erreur);border-color:var(--ehg-erreur);color:var(--ehg-blanc)}
+    .option--neutre{opacity:.5}
+
+    .suite{display:flex;justify-content:flex-end;padding-top:var(--ehg-sp-4);border-top:var(--ehg-filet)}
+    .fade-in{animation:fadeIn .35s ease-in-out}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+    /* Score de thème */
+    .score{text-align:center}
+    .score__cercle{width:8.5rem;height:8.5rem;border-radius:50%;margin:0 auto var(--ehg-sp-6);display:flex;align-items:center;justify-content:center;border:2px solid var(--ehg-perle);background:var(--ehg-brume)}
+    .score__cercle span{font-family:var(--ehg-font-serif);font-size:var(--ehg-fs-2xl);color:var(--ehg-noir);line-height:1}
+    .score__cercle--ok{border-color:var(--ehg-ok);background:var(--ehg-ok-pale)}.score__cercle--ok span{color:var(--ehg-ok)}
+    .score__cercle--or{border-color:var(--ehg-or);background:var(--ehg-or-pale)}.score__cercle--or span{color:var(--ehg-or)}
+    .score__cercle--erreur{border-color:var(--ehg-erreur);background:var(--ehg-erreur-pale)}.score__cercle--erreur span{color:var(--ehg-erreur)}
+    .score p{max-width:32rem;margin:0 auto var(--ehg-sp-8);color:var(--ehg-graphite)}
+    .actions{display:flex;flex-wrap:wrap;gap:var(--ehg-sp-3);justify-content:center}
+
+    /* Bilan */
+    .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--ehg-sp-3);margin-bottom:var(--ehg-sp-6)}
+    .kpis{grid-template-columns:repeat(4,1fr)}
+    .kpi{border:var(--ehg-filet);border-radius:var(--ehg-radius-lg);padding:var(--ehg-sp-4);text-align:center;background:var(--ehg-blanc)}
+    .kpi .ehg-surtitre{margin-bottom:var(--ehg-sp-1)}
+    .kpi__val{font-family:var(--ehg-font-serif);font-size:var(--ehg-fs-xl);line-height:1;color:var(--ehg-noir)}
+    .kpi__val small{font-size:var(--ehg-fs-sm);color:var(--ehg-acier)}
+    .kpi--ok .kpi__val{color:var(--ehg-ok)} .kpi--erreur .kpi__val{color:var(--ehg-erreur)} .kpi--or .kpi__val{color:var(--ehg-or)}
+    .bilan-formulaire{display:flex;flex-direction:column;gap:var(--ehg-sp-3);margin-bottom:var(--ehg-sp-8)}
+    .bilan-formulaire{flex-direction:row}.bilan-formulaire .ehg-input{flex:1}
+    .bilan h4{margin:var(--ehg-sp-6) 0 var(--ehg-sp-3);padding-bottom:var(--ehg-sp-2);border-bottom:var(--ehg-filet)}
+    .theme-ligne{display:flex;align-items:center;gap:var(--ehg-sp-4);padding:var(--ehg-sp-3) 0;border-bottom:var(--ehg-filet)}
+    .theme-ligne__titre{flex:1;min-width:0}
+    .theme-ligne__titre strong{display:block;font-family:var(--ehg-font-titre);font-weight:500;font-size:var(--ehg-fs-sm)}
+    .theme-ligne .ehg-progress{width:8rem;flex-shrink:0}
+    .theme-ligne__score{font-family:var(--ehg-font-serif);min-width:3rem;text-align:right}
+    .ehg-progress>span.ok{background:var(--ehg-ok)} .ehg-progress>span.erreur{background:var(--ehg-erreur)}
+    .erreur-carte{border:var(--ehg-filet);border-left:0;border-radius:var(--ehg-radius-lg);padding:var(--ehg-sp-4) var(--ehg-sp-6);margin-bottom:var(--ehg-sp-3);background:var(--ehg-blanc)}
+    .erreur-carte p{margin:0 0 var(--ehg-sp-1);font-size:var(--ehg-fs-sm)}
+    .erreur-carte .q{font-family:var(--ehg-font-titre);font-size:var(--ehg-fs-base);margin-bottom:var(--ehg-sp-2)}
+    .erreur-carte .rep-erreur{color:var(--ehg-erreur)} .erreur-carte .rep-ok{color:var(--ehg-ok)}
+    .erreur-carte .expl{color:var(--ehg-graphite);font-style:italic;margin-top:var(--ehg-sp-2)}
+    .bilan__pied{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--ehg-sp-3);padding-top:var(--ehg-sp-6);margin-top:var(--ehg-sp-8);border-top:var(--ehg-filet)}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+    </style>
+</head>
+<body>
+<div class="app">
+
+    <!-- Barre supérieure (mode mobile uniquement) -->
+    <header class="barre-mobile">
+        <button class="ico" onclick="toggleDrawer(true)" aria-label="Ouvrir les thèmes"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <div class="barre-mobile__logo"><span class="lateral__millesime">1824</span><span>Révision SAV</span></div>
+        <div class="barre-mobile__actions">
+            <button class="ico" onclick="showBilan()" aria-label="Bilan et PDF"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span class="pastille" id="bilan-counter-mobile">0</span></button>
+        </div>
+    </header>
+    <div class="voile" id="voile" onclick="toggleDrawer(false)"></div>
+
+    <!-- Bandeau latéral / tiroir -->
+    <aside class="lateral" id="lateral">
+        <div class="lateral__entete">
+            <div class="lateral__logo">
+                <span class="lateral__millesime">1824</span>
+                <div>
+                    <h1 class="lateral__titre">Révision SAV</h1>
+                    <p class="lateral__sous">De l'accueil à la livraison</p>
+                </div>
+            </div>
+            <button class="lateral__fermer" onclick="toggleDrawer(false)" aria-label="Fermer"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </div>
+        <nav class="lateral__onglets" id="tabs-container" role="tablist"></nav>
+        <div class="lateral__pied">
+            <button onclick="showBilan()" class="ehg-btn ehg-btn--or">
+                <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <span>Bilan &amp; PDF</span>
+                <span id="bilan-counter" class="compteur">0/58</span>
+            </button>
+            <div class="mode-switch" role="group" aria-label="Affichage">
+                <button id="mode-auto" onclick="setMode('auto')" aria-pressed="true">Auto</button>
+                <button id="mode-mobile" onclick="setMode('mobile')" aria-pressed="false"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>Mobile</button>
+                <button id="mode-desktop" onclick="setMode('desktop')" aria-pressed="false"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Ordinateur</button>
+            </div>
+            <span class="ehg-note">École d'Horlogerie de Genève<br>CPH_HO_02 · Semestre 5</span>
+        </div>
+    </aside>
+
+    <!-- Contenu principal -->
+    <main class="principal" id="main-content">
+        <div class="principal__contenu">
+
+            <!-- Quiz -->
+            <section id="quiz-screen" class="ecran">
+                <div class="ecran__entete">
+                    <div>
+                        <span class="ehg-surtitre">Thème</span>
+                        <h2 id="current-theme-title">Titre du thème</h2>
+                    </div>
+                    <span class="ehg-badge">Quiz</span>
+                </div>
+                <div class="progression">
+                    <div class="progression__meta">
+                        <span id="progress-text">Question 1 sur 6</span>
+                        <b id="progress-percentage">0%</b>
+                    </div>
+                    <div class="ehg-progress"><span id="progress-bar" style="width:0%"></span></div>
+                </div>
+                <h3 id="question-text" class="question"></h3>
+                <div id="options-container" class="options"></div>
+
+                <div id="explanation-container" class="fade-in masque">
+                    <div id="explanation-box" class="ehg-encadre">
+                        <span class="ehg-encadre__icone" id="explanation-icon">i</span>
+                        <div>
+                            <p id="explanation-title" style="font-family:var(--ehg-font-titre);font-weight:500;margin-bottom:var(--ehg-sp-1)"></p>
+                            <p id="explanation-text" style="margin:0;font-size:var(--ehg-fs-sm)"></p>
+                        </div>
+                    </div>
+                    <div id="quote-box" class="ehg-encadre ehg-encadre--or masque">
+                        <span class="ehg-encadre__icone">”</span>
+                        <div>
+                            <span class="ehg-surtitre">Extrait du support de cours</span>
+                            <p id="explanation-quote" class="ehg-citation"></p>
+                        </div>
+                    </div>
+                    <div class="suite">
+                        <button id="next-btn" onclick="handleNextQuestion()" class="ehg-btn">
+                            <span>Question suivante</span>
+                            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Score du thème -->
+            <section id="score-screen" class="ecran score masque">
+                <span class="ehg-surtitre">Résultat du thème</span>
+                <div class="score__cercle" id="score-circle"><span id="final-score-text">0/6</span></div>
+                <h2 id="score-title">Thème terminé</h2>
+                <p id="score-message"></p>
+                <div class="actions">
+                    <button onclick="restartTheme()" class="ehg-btn ehg-btn--secondaire">Rejouer ce thème</button>
+                    <button onclick="showBilan()" class="ehg-btn ehg-btn--or">Voir mon bilan</button>
+                    <button onclick="goToNextTheme()" id="next-theme-btn" class="ehg-btn">
+                        <span>Thème suivant</span>
+                        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Bilan -->
+            <section id="bilan-screen" class="ecran bilan masque">
+                <div class="ecran__entete">
+                    <div>
+                        <span class="ehg-surtitre">Module CPH_HO_02 – CS : De l'accueil à la livraison</span>
+                        <h2>Bilan de révision</h2>
+                    </div>
+                    <span class="ehg-badge ehg-badge--or">Bilan</span>
+                </div>
+                <div class="bilan-formulaire">
+                    <input id="student-name" type="text" class="ehg-input" placeholder="Nom et prénom de l'apprenti(e) (facultatif)">
+                    <button onclick="exportPDF()" class="ehg-btn">
+                        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        <span>Exporter en PDF</span>
+                    </button>
+                </div>
+                <div id="bilan-content"></div>
+                <div class="bilan__pied">
+                    <button onclick="resetAll()" class="ehg-btn ehg-btn--erreur">Réinitialiser les réponses</button>
+                    <button onclick="loadTheme(currentThemeIndex)" class="ehg-btn ehg-btn--secondaire">Retour au quiz</button>
+                </div>
+            </section>
+
+        </div>
+        <nav class="nav-basse" aria-label="Navigation entre thèmes">
+            <button onclick="goToPrevTheme()" id="nav-prev"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>Précédent</button>
+            <button onclick="toggleDrawer(true)"><span class="nav-basse__theme" id="nav-theme">1 / 9</span></button>
+            <button onclick="goToNextTheme()" id="nav-next">Suivant<svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>
+        </nav>
+    </main>
+</div>
+
+<script>
+        const quizThemes = [
+            {
+                id: "theme-1",
+                title: "1. Intro & Missions",
+                questions: [
+                    {
+                        question: "Qu'est-ce que le Service Après-Vente (SAV) selon la définition du cours ?",
+                        options: ["La vente d'extensions de garantie uniquement", "L'ensemble des activités visant à maintenir en état les biens et garantir la satisfaction client", "Le département chargé de fabriquer de nouveaux produits", "Une simple hotline téléphonique"],
+                        correctAnswer: 1,
+                        explanation: "Le SAV a pour objectif principal d'assurer la pérennité du produit, de satisfaire le client et de maintenir la bonne image de la marque.",
+                        quote: "Le Service Après-Vente a pour objectif de maintenir en état de fonctionnement des biens durables en fournissant un service de qualité́, rapide et efficace à un prix raisonnable."
+                    },
+                    {
+                        question: "Avant la révolution industrielle, sur quoi reposait le fonctionnement du SAV ?",
+                        options: ["Sur la proximité et la réputation de l'artisan (relation directe)", "Sur de complexes contrats de garantie internationaux", "Sur des centres de réparation centralisés", "Il n'y avait aucun suivi après la vente"],
+                        correctAnswer: 0,
+                        explanation: "L'artisan de proximité assurait naturellement le suivi de ses propres ventes, instaurant une relation de confiance directe.",
+                        quote: "Avant la révolution industrielle : relation directe artisan–client. Le SAV était intégré naturellement. Exemple : l’horloger du village réparait directement la montre vendue."
+                    },
+                    {
+                        question: "Quel rôle joue le SAV dans l'amélioration continue de l'entreprise ?",
+                        options: ["Il aide à améliorer les futurs produits grâce à la remontée d'informations", "Il détermine les prix de vente des montres", "Il sanctionne les erreurs de l'équipe de production", "Il gère les budgets publicitaires"],
+                        correctAnswer: 0,
+                        explanation: "Les statistiques des pannes récurrentes sont cruciales pour concevoir de meilleurs produits à l'avenir.",
+                        quote: "Contribuer à l’évolution des futurs produits en faisant remonter les informations sur l’adéquation des produits aux besoins et envies des clients."
+                    },
+                    {
+                        question: "Parmi ces tâches, laquelle relève d'une mission LOGISTIQUE du Service Client ?",
+                        options: ["Contrôler la qualité des interventions avant livraison", "Accueillir et écouter les clients", "Gérer les stocks et assurer la disponibilité des pièces", "Établir des devis clairs"],
+                        correctAnswer: 2,
+                        explanation: "La gestion des stocks et la disponibilité des pièces font partie intégrante des missions logistiques du SAV.",
+                        quote: "Missions logistiques : Gérer les stocks et assurer la disponibilité des pièces. Stocker et vendre les pièces détachées... Définir des délais de livraison."
+                    },
+                    {
+                        question: "Quelle est l'une des missions de SUPPORT aux activités du CS ?",
+                        options: ["Réaliser la réparation sous garantie", "Définir les procédures de maintenance et les besoins en outillage", "Éditer la documentation marketing", "Vendre des pièces au client final"],
+                        correctAnswer: 1,
+                        explanation: "Le support CS définit le cadre technique : procédures, postes de travail et outils nécessaires.",
+                        quote: "Missions de support aux activités CS : Définir les procédures de maintenance et de réparation... Définir les besoins en outillage spécifique pour les réparations."
+                    },
+                    {
+                        question: "Comment le développement des moyens de communication a-t-il impacté le SAV ?",
+                        options: ["Il a supprimé le besoin de réparer les montres", "Il a permis un service élargi et plus rapide (hotline, prise de RDV en ligne)", "Il a ralenti considérablement le traitement des dossiers", "Il a rendu les garanties inutiles"],
+                        correctAnswer: 1,
+                        explanation: "Le téléphone, les e-mails et internet ont permis d'offrir des services plus accessibles et rapides.",
+                        quote: "Développement de nouveau moyens de communication (téléphone, e-mail, réseaux sociaux) → service élargi et plus rapide (ex : hotline, chat en ligne, prise de rendez-vous en ligne...)."
+                    }
+                ]
+            },
+            {
+                id: "theme-2",
+                title: "2. Stratégie & Structure",
+                questions: [
+                    {
+                        question: "Comment une politique SAV bien structurée transforme-t-elle le Service Client ?",
+                        options: ["Elle le transforme d'un centre de coût en un moteur de valeur (levier stratégique)", "Elle permet de sous-traiter 100% des opérations", "Elle élimine la concurrence du marché", "Elle réduit le salaire des horlogers"],
+                        correctAnswer: 0,
+                        explanation: "Sans vision, le SAV est vu comme une dépense. Avec une politique claire, il fidélise et devient un avantage concurrentiel.",
+                        quote: "Sans vision stratégique, un Service Client reste un coût plus qu’un atout. Avec une politique bien structurée, il devient un moteur de valeur."
+                    },
+                    {
+                        question: "Que désigne l'effectif dit « non productif » au sein d'un atelier SAV ?",
+                        options: ["Le personnel en congé", "Le personnel qui n'exécute pas directement des réparations (administratif, magasinier, encadrement)", "Les stagiaires et apprentis", "Les horlogers qui travaillent lentement"],
+                        correctAnswer: 1,
+                        explanation: "Ce terme technique qualifie l'ensemble des fonctions de support indispensables, mais qui ne réparent pas elles-mêmes à l'établi.",
+                        quote: "L’effectif « non productif » est celui qui n’est pas affecté à des tâches de réparation. Il correspond aux nombre de personnes qui n’exécutent pas directement des réparations : encadrement, administratif, magasinier..."
+                    },
+                    {
+                        question: "Dans une grande organisation internationale, de quel département dépend le plus souvent le SAV ?",
+                        options: ["Des Ressources Humaines", "De la comptabilité", "Du département commercial (marketing) ou de la production", "Du service de nettoyage"],
+                        correctAnswer: 2,
+                        explanation: "Bien qu'indépendant dans ses locaux, il est stratégiquement rattaché aux pôles qui vendent ou fabriquent le produit.",
+                        quote: "Dans les grandes organisations qui agissent sur le plan international, le SAV dépend le plus souvent du département commercial (marketing) ou du département de production."
+                    },
+                    {
+                        question: "Dans un SAV de petite taille, quelle est la réalité concernant le personnel ?",
+                        options: ["Une ultra-spécialisation de chacun", "La polyvalence (le responsable s'occupe des pièces et répare lui-même)", "Aucun contact avec la clientèle", "L'absence de facturation"],
+                        correctAnswer: 1,
+                        explanation: "Les petites structures exigent que le personnel (dont le responsable) assure plusieurs fonctions simultanément.",
+                        quote: "Dans un SAV de petite taille, le responsable s’occupe des pièces détachées, des commandes et de la gestion du travail mais continue aussi le plus souvent à assurer une partie des réparations."
+                    },
+                    {
+                        question: "Comment se calcule le « Ratio de non productif » d'un SAV ?",
+                        options: ["Montres réparées / Effectif total", "Effectif non productif / Effectif total du SAV", "Chiffre d'affaires / Nombre d'employés", "Nombre de devis / Nombre de réparations"],
+                        correctAnswer: 1,
+                        explanation: "C'est un indicateur clé pour évaluer le poids administratif par rapport à la taille globale de l'atelier.",
+                        quote: "Ratio de non productif = Effectif non productif / Effectif total du SAV"
+                    },
+                    {
+                        question: "Qu'indique généralement un ratio non productif très élevé (entre 50% et 100%) ?",
+                        options: ["Une excellente rentabilité", "Une entreprise qui va fermer", "Une faible rentabilité mais une forte orientation sur la satisfaction client", "Une absence de contrôle final"],
+                        correctAnswer: 2,
+                        explanation: "Avoir beaucoup de personnel encadrant/administratif coûte cher, mais permet d'offrir un suivi très qualitatif au client.",
+                        quote: "Tableau de rentabilité : Ratio « non productif » : Entre 50% et 100% | Objectifs principaux : Forte Satisfaction client | Faible rentabilité."
+                    }
+                ]
+            },
+            {
+                id: "theme-3",
+                title: "3. Réception & Accueil",
+                questions: [
+                    {
+                        question: "Lors de la réception d'une montre de luxe, quel est l'objectif premier du personnel ?",
+                        options: ["Facturer le plus vite possible", "Établir une relation de confiance, écouter et identifier précisément la montre", "Démonter la montre devant le client", "Remplacer le bracelet immédiatement"],
+                        correctAnswer: 1,
+                        explanation: "L'accueil doit refléter l'image de la marque : courtoisie, écoute attentive et collecte rigoureuse des informations.",
+                        quote: "Le personnel du SAV invite le client à fournir ses informations personnelles et les détails de la montre à réparer... Un membre du personnel SAV écoute attentivement les préoccupations du client..."
+                    },
+                    {
+                        question: "Quelle est l'utilité principale de « l'inspection initiale (diagnostic visuel) » ?",
+                        options: ["Connaître la marge bénéficiaire", "Détecter d'éventuels dommages apparents (chocs, rayures) et faire des tests simples", "Réparer la montre immédiatement", "Nettoyer l'intérieur du mouvement"],
+                        correctAnswer: 1,
+                        explanation: "Ce diagnostic rapide avant démontage permet de protéger l'horloger et d'informer le client sur l'état exact de la pièce à son dépôt.",
+                        quote: "Inspection initiale (diagnostic visuel) Objectifs : Évaluer l’état extérieur, faire des tests simples, rechercher les défauts visibles (chocs, coup, marques, montre accidentée)."
+                    },
+                    {
+                        question: "Quelle « Bonne pratique » est fortement recommandée lors de la réception d'une pièce ?",
+                        options: ["Prendre des photos de l'état général de la montre", "Jeter l'écrin du client", "Ne jamais demander la carte de garantie", "Faire payer le diagnostic visuel"],
+                        correctAnswer: 0,
+                        explanation: "La documentation photographique évite les litiges sur d'éventuelles rayures ou chocs préexistants.",
+                        quote: "Bonne pratique : Prendre des photos de l’état général à l’ouverture."
+                    },
+                    {
+                        question: "Pourquoi le personnel analyse-t-il les documents fournis par le client (factures, certificats) ?",
+                        options: ["Pour vérifier l'authenticité de la montre et déterminer si elle est sous garantie", "Pour évaluer les revenus du client", "Pour les archiver définitivement", "Pour calculer les taxes douanières"],
+                        correctAnswer: 0,
+                        explanation: "C'est l'étape cruciale pour savoir si la réparation sera facturée ou prise en charge par la marque.",
+                        quote: "Si le client fournit des documents tels que des certificats d'authenticité, des factures d'achat ou des garanties, le personnel du SAV les examine soigneusement pour vérifier l'authenticité de la montre et déterminer si cette dernière est encore sous garantie."
+                    },
+                    {
+                        question: "Que fait le personnel du SAV une fois l'inspection initiale terminée avec le client ?",
+                        options: ["Il rend la montre au client", "Il discute des options de réparation, des coûts associés et des délais prévus", "Il jette la montre si elle est rayée", "Il envoie directement la facture"],
+                        correctAnswer: 1,
+                        explanation: "Le client doit être informé des prochaines étapes et des coûts potentiels avant de laisser sa montre.",
+                        quote: "Après l'inspection initiale, le personnel du SAV discute des options de réparation avec le client, en expliquant les différentes solutions possibles, les coûts associés, ainsi que les délais prévus..."
+                    },
+                    {
+                        question: "Outre le professionnalisme technique, que garantit le SAV concernant les informations du client ?",
+                        options: ["Une publication sur les réseaux sociaux", "Une revente des données à des tiers", "Le respect de la confidentialité et de la sécurité des données", "Une inscription à une newsletter obligatoire"],
+                        correctAnswer: 2,
+                        explanation: "Dans le domaine du luxe, la discrétion et la sécurité des données (montre + identité) sont primordiales.",
+                        quote: "Le client est assuré que sa montre sera traitée, dans un environnement sécurisé et confidentiel... Toutes les informations personnelles et les détails de la montre sont traités de manière confidentielle."
+                    }
+                ]
+            },
+            {
+                id: "theme-4",
+                title: "4. La Garantie & Goodwill",
+                questions: [
+                    {
+                        question: "Selon l'article 210 du Code des Obligations (CO) suisse, quelle est la durée légale de garantie contre le vendeur ?",
+                        options: ["6 mois", "1 an", "2 ans", "5 ans"],
+                        correctAnswer: 2,
+                        explanation: "La législation suisse fixe un minimum légal de 2 ans pour les défauts de la chose vendue.",
+                        quote: "Ce droit à la garantie n’est valable que contre le vendeur et pour une durée légale de deux ans (art. 210 al. 1 CO)."
+                    },
+                    {
+                        question: "Dans le vocabulaire du SAV, qu'est-ce qu'une « garantie de réparation » ?",
+                        options: ["Une couverture sur un défaut de matériel à l'achat du neuf", "Une couverture pour une durée déterminée à dater de la livraison de la chose RÉPARÉE au consommateur", "Une assurance vol", "Un contrat d'entretien à vie"],
+                        correctAnswer: 1,
+                        explanation: "Lorsqu'une montre sort de SAV, le travail effectué est lui-même garanti (souvent 12 ou 24 mois).",
+                        quote: "La garantie de réparation : pour une durée déterminée à dater de la livraison de la chose réparée au consommateur (utilisateur) final."
+                    },
+                    {
+                        question: "Les frais d'affranchissement (envoi, assurance) pour un travail sous garantie de VENTE sont-ils généralement inclus dans la marge du réparateur ?",
+                        options: ["Oui, toujours", "Non, ils font généralement partie d'une convention séparée", "Ils sont à la charge du client obligatoirement", "Ils sont payés par l'horloger personnellement"],
+                        correctAnswer: 1,
+                        explanation: "Les accords de distribution séparent souvent le coût du travail horloger des frais de transport sécurisé.",
+                        quote: "Les frais d’affranchissement (envoi, assurance, livraison) et d’assurance pour un travail effectué sous garantie ne sont généralement pas inclus dans la marge de couverture ils font partie d’une convention séparée."
+                    },
+                    {
+                        question: "Qu'est-ce que le « goodwill » en SAV ?",
+                        options: ["La marge brute de l'entreprise", "Un service de courtoisie (réparation gratuite/réduite) offert VOLONTAIREMENT au-delà de la garantie normale", "Une taxe douanière", "Le salaire de base des horlogers"],
+                        correctAnswer: 1,
+                        explanation: "C'est un geste commercial puissant pour apaiser un client ou le fidéliser, décidé au cas par cas.",
+                        quote: "Le goodwill est un service de courtoisie offert au consommateur, sous forme de pièce de rechange ou de réparation, gratuite ou à un prix réduit, au-delà d’un service normal de garantie."
+                    },
+                    {
+                        question: "Qui prend en charge les frais découlant d'une prestation de « goodwill » ?",
+                        options: ["Le client final", "L'assurance", "Celui qui prend la décision (fabricant, distributeur, détaillant...)", "L'État"],
+                        correctAnswer: 2,
+                        explanation: "Si une boutique décide d'offrir un service, c'est elle qui en assume le coût financier pour fidéliser son client.",
+                        quote: "Le fabriquant, le distributeur, le revendeur... peut prendre une décision de goodwill. Les frais découlant de la prestation supplémentaire accordée sont toujours à la charge de celui qui prend la décision."
+                    },
+                    {
+                        question: "Une entreprise peut-elle réduire la durée de garantie légale à moins de 2 ans pour un produit NEUF vendu à un particulier ?",
+                        options: ["Oui, si c'est écrit en petit", "Non, elle peut être prolongée mais pas réduite (sauf occasion)", "Oui, sur simple décision verbale", "Oui, la garantie légale est facultative"],
+                        correctAnswer: 1,
+                        explanation: "Le droit protège le consommateur final privé, interdisant de réduire cette durée en deçà de 2 ans pour du neuf.",
+                        quote: "Lors d’un contrat liant un professionnel à une personne pour ses besoins privés, la durée de la garantie peut être prolongée mais ne peut pas être réduite – sauf à un an s’il s’agit d’une vente de choses d’occasion."
+                    }
+                ]
+            },
+            {
+                id: "theme-5",
+                title: "5. Diagnostic & Devis",
+                questions: [
+                    {
+                        question: "À quoi sert le « démontage partiel » lors du diagnostic technique ?",
+                        options: ["À nettoyer la boîte", "À identifier les causes internes des pannes et lister les pièces à changer", "À vérifier l'étanchéité finale", "À remplacer le bracelet"],
+                        correctAnswer: 1,
+                        explanation: "Seule l'ouverture et l'analyse interne permettent de chiffrer avec précision la réparation.",
+                        quote: "Démontage partiel & diagnostic technique. Objectifs : Identifier les causes internes des pannes et les pièces à changer."
+                    },
+                    {
+                        question: "Qu'est-ce qu'une « fiche de devis interne » ?",
+                        options: ["La facture finale donnée au client", "Un document technique où l'horloger liste les opérations, le temps et les pièces nécessaires", "Un certificat d'authenticité", "Une publicité"],
+                        correctAnswer: 1,
+                        explanation: "C'est le brouillon technique indispensable qui servira de base à l'administration pour rédiger le devis commercial final.",
+                        quote: "Toutes les pièces feront l’objet d’une analyse du travail à effectuer. Cette analyse sera portée sur un document dit « fiche de devis interne »."
+                    },
+                    {
+                        question: "Pourquoi de plus en plus de marques proposent-elles des « forfaits de réparation » ?",
+                        options: ["Car les horlogers ne savent plus deviser", "Pour que le client connaisse le prix immédiatement, ce qui l'aide à prendre la décision de réparer", "Parce que c'est une obligation légale", "Pour cacher les pannes réelles"],
+                        correctAnswer: 1,
+                        explanation: "Le prix forfaitaire lève l'incertitude du client et accélère considérablement le processus d'acceptation.",
+                        quote: "Certaines marques ont... commencé à faire des forfaits de réparation. Dans ce cas, les clients savent tout de suite le prix et les résultats démontrent que les clients prennent plus facilement la décision de faire l’entretien..."
+                    },
+                    {
+                        question: "La catégorie de la réparation (garantie, devis, restauration) est-elle figée ou modifiable ?",
+                        options: ["Figée dès l'arrivée de la montre", "Modifiable à tout moment du processus par souci de flexibilité", "Modifiable uniquement par le client", "Déterminée aléatoirement"],
+                        correctAnswer: 1,
+                        explanation: "Un démontage peut révéler un choc caché (annulation garantie), d'où la nécessité de flexibilité.",
+                        quote: "Par souci de flexibilité, la catégorie doit être modifiable à tout moment du processus de réparation."
+                    },
+                    {
+                        question: "Sur un devis final envoyé au client, que trouve-t-on généralement ?",
+                        options: ["Uniquement le prix final sans détails", "La description des travaux, les prix, les délais, la durée de validité et une zone de décision", "Le salaire de l'horloger", "La recette de fabrication des pièces"],
+                        correctAnswer: 1,
+                        explanation: "Le devis est un contrat commercial qui doit être transparent, précis et comporter toutes les mentions légales et pratiques.",
+                        quote: "Ce devis devra comporter les éléments suivants : La description des biens ou services... Les prix... Les délais... La durée de validité... Une zone réservée à la décision du client."
+                    },
+                    {
+                        question: "Que conseille le cours d'ajouter EN PLUS sur un devis pour améliorer l'expérience client ?",
+                        options: ["Des informations complémentaires et des conseils d'entretien et d'utilisation", "Une pénalité de retard", "La liste des concurrents", "Des photos de l'usine"],
+                        correctAnswer: 0,
+                        explanation: "Profiter du devis pour éduquer le client (magnétisme, chocs, étanchéité) valorise le professionnalisme de la marque.",
+                        quote: "En plus du devis proprement dit il est toujours intéressant de joindre quelques informations utiles... pour expliquer de manière plus détaillée des termes... ou pour donner/rappeler des conseils d’entretien."
+                    }
+                ]
+            },
+            {
+                id: "theme-6",
+                title: "6. Opérations & Outils",
+                questions: [
+                    {
+                        question: "En plus de l'outillage standard, que doit détenir un atelier SAV officiel ?",
+                        options: ["Des machines à coudre", "L'outillage spécifique prescrit par les différentes marques", "Des pièces de voitures", "Uniquement des tournevis"],
+                        correctAnswer: 1,
+                        explanation: "Les marques exigent l'utilisation d'outils spécifiques pour ne pas endommager leurs calibres exclusifs et pour maintenir l'agrément de réparation.",
+                        quote: "Le SAV doit être équipé d’outillages... il doit également détenir... les outils spécifiques et prescrits par les différentes marques et définies comme étant nécessaires à l’obtention ou au maintien du droit de réparer."
+                    },
+                    {
+                        question: "Qu'est-ce que le « flux » dans l'organisation du service de réparation ?",
+                        options: ["Le courant électrique de l'atelier", "Le chemin suivi par le produit et les documents liés dans la structure du SAV", "La vitesse de travail de l'horloger", "L'écoulement de l'huile dans le mouvement"],
+                        correctAnswer: 1,
+                        explanation: "Le flux logistique représente toutes les étapes franchies par la montre, de l'entrée à la sortie de l'atelier.",
+                        quote: "Le flux détermine le chemin suivi par le produit et les documents liés dans la structure du SAV. (Ex: Réception -> Enregistrement -> Devis -> Réparation -> Contrôle...)"
+                    },
+                    {
+                        question: "Qu'est-ce qu'une « gamme opératoire » ?",
+                        options: ["Une collection de montres d'entrée de gamme", "L'ensemble des opérations séquentielles nécessaires à l'accomplissement d'une tâche de réparation", "L'outil pour ouvrir les boîtes", "Le salaire des techniciens"],
+                        correctAnswer: 1,
+                        explanation: "C'est la « recette » ou le mode opératoire standardisé qui dicte l'ordre des tâches (ex: démontage, nettoyage, remontage, réglage).",
+                        quote: "Les gammes opératoires : Elles contiennent toutes les opérations nécessaires à l’accomplissement d’une tâche. Les gammes opératoires peuvent être uniques, se compléter ou se chevaucher."
+                    },
+                    {
+                        question: "Sur une « Carte d'opération », que trouve-t-on généralement ?",
+                        options: ["La météo du jour", "Le numéro de l'opération, le département, le temps standard et la machine requise", "Le nom du client final", "Le prix de la montre"],
+                        correctAnswer: 1,
+                        explanation: "La carte d'opération donne les directives techniques précises à l'horloger ou au polisseur pour une étape donnée.",
+                        quote: "Chaque opération d’une gamme opératoire contient : Le numéro de l’opération... Le département... Le genre d’opération... La machine... Le temps standard..."
+                    },
+                    {
+                        question: "À quoi sert l'enregistrement du début et de fin de travail par l'opérateur ?",
+                        options: ["Uniquement à le surveiller", "À calculer le temps moyen dédié et à réviser le temps standard alloué", "À bloquer la machine", "À générer la facture client directement"],
+                        correctAnswer: 1,
+                        explanation: "Le chronométrage (ou timbrage) des opérations permet d'ajuster les standards de production et de mesurer la performance globale.",
+                        quote: "L’opérateur enregistre le moment de début et fin de travail de l’opération. Cela permet le calcul du temps moyen dédié à cette opération ainsi que la révision éventuelle du temps standard..."
+                    },
+                    {
+                        question: "Concernant les manuels et la documentation technique, quelle est la règle ?",
+                        options: ["Ils doivent être gardés secrets par le patron", "Chaque collaborateur doit y avoir accès et ils doivent être tenus complets et à jour", "Ils ne sont fournis qu'au format papier", "Il est interdit de les consulter pendant le travail"],
+                        correctAnswer: 1,
+                        explanation: "L'accès à la documentation (éclatés techniques, consignes d'huilage) garantit une réparation conforme aux standards de la marque.",
+                        quote: "Chaque collaborateur doit avoir accès aux manuels et à la documentation dont il a besoin pour effectuer son travail. La documentation doit être tenue complète et à jour..."
+                    }
+                ]
+            },
+            {
+                id: "theme-7",
+                title: "7. Gestion des Stocks",
+                questions: [
+                    {
+                        question: "Quel est l'enjeu principal et le danger d'avoir « trop de stock » de pièces détachées ?",
+                        options: ["Faire fuir les clients", "Immobiliser de l'argent et prendre le risque d'obsolescence des pièces", "Surcharger les horlogers de travail", "Aucun, plus il y a de stock, mieux c'est"],
+                        correctAnswer: 1,
+                        explanation: "Le stock représente un capital financier dormant. Si un calibre est abandonné, les pièces en stock perdent toute valeur (obsolescence).",
+                        quote: "Trop de stock, c’est immobiliser de l’argent, augmenter les coûts de stockage et de manutention, et prendre le risque d’obsolescence."
+                    },
+                    {
+                        question: "Que se passe-t-il lorsque le SAV possède « trop peu de stock » ?",
+                        options: ["Les marges augmentent considérablement", "Il s'expose aux ruptures, causant des retards, l'insatisfaction client et une surcharge administrative", "Les montres sont réparées plus vite", "L'atelier devient plus propre"],
+                        correctAnswer: 1,
+                        explanation: "Une rupture de stock (manque de pièce) stoppe la réparation, forçant le CS à gérer l'impatience du client.",
+                        quote: "Trop peu de stock, c’est s’exposer aux ruptures, et donc aux retards, avec à la clé insatisfaction des clients, et une surcharge du CS (réclamations, replanifications...)."
+                    },
+                    {
+                        question: "Qu'appelle-t-on le « taux de rotation de stock » ?",
+                        options: ["Le fait de ranger les pièces différemment chaque mois", "Le nombre de fois que le stock se renouvelle (est consommé) sur une période d'un an", "Le délai d'expédition des colis", "Le remplacement des magasiniers"],
+                        correctAnswer: 1,
+                        explanation: "En SAV, un taux de rotation sain se situe souvent entre 1 et 1,5 fois par an. C'est le signe d'un stock bien calibré.",
+                        quote: "La rotation de stock (ou taux de rotation) mesure combien de fois le stock “se renouvelle” sur une période (souvent 1 an)."
+                    },
+                    {
+                        question: "À quel moment spécifique déclenche-t-on une commande de réapprovisionnement ?",
+                        options: ["Quand le stock est à 0", "Lorsqu'on atteint le seuil de réapprovisionnement (Stock mini)", "Une fois par trimestre", "Quand on atteint le stock maxi"],
+                        correctAnswer: 1,
+                        explanation: "Le seuil de réapprovisionnement (ou point de commande) est calculé pour recevoir les pièces AVANT de consommer le stock de sécurité.",
+                        quote: "Pour déterminer le seuil de stock mini, qui ne correspond pas seulement au stock minimum mais surtout au moment de déclenchement d’une commande de réapprovisionnement..."
+                    },
+                    {
+                        question: "À quoi sert principalement le STOCK MAXI d'une référence ?",
+                        options: ["À fixer le prix de vente de la pièce", "À déterminer la quantité plafond à ne pas dépasser pour viser le juste niveau de stock", "À déclencher automatiquement une commande au fournisseur", "À calculer le salaire du magasinier"],
+                        correctAnswer: 1,
+                        explanation: "Le stock maxi définit la quantité maximale d'une référence à détenir. Il évite le sur-stockage (immobilisation d'argent, obsolescence) tout en garantissant la disponibilité.",
+                        quote: "Stock maxi : Une fois la décision prise de stocker une référence il convient d’en déterminer la quantité annuelle sachant que le taux de rotation annuelle du stock pour un SAV est habituellement compris entre 1 et 1,5 fois."
+                    },
+                    {
+                        question: "Sur quelle base le STOCK MAXI d'une pièce est-il calculé en SAV ?",
+                        options: ["Sur l'espace disponible dans le tiroir", "Sur le chiffre d'affaires prévu divisé par le taux de rotation visé (entre 1 et 1,5 fois/an)", "Sur le nombre d'employés de l'atelier", "Au hasard, selon l'intuition du responsable"],
+                        correctAnswer: 1,
+                        explanation: "On part de la prévision de vente, on en déduit le CA, puis on divise par le taux de rotation cible (1 à 1,5). On obtient la valeur du stock puis la quantité en pièces.",
+                        quote: "Estimation du chiffre d’affaires : 60.- / Valeur du stock : 60/1,5 = 40 / Stock maxi : 40/2 = 20 pièces. Le taux de rotation annuelle du stock pour un SAV est habituellement compris entre 1 et 1,5 fois."
+                    },
+                    {
+                        question: "À quoi sert principalement le STOCK MINI d'une référence ?",
+                        options: ["À fixer la quantité minimum stockée à 0 pièce", "À indiquer le moment exact de déclenchement d'une commande de réapprovisionnement", "À déterminer combien de pièces peuvent être jetées", "À calculer la TVA sur les pièces"],
+                        correctAnswer: 1,
+                        explanation: "Le stock mini n'est pas qu'un minimum : c'est surtout le SEUIL D'ALERTE qui dit « il faut commander maintenant » pour ne pas tomber en rupture pendant le délai de livraison.",
+                        quote: "Pour déterminer le seuil de stock mini, qui ne correspond pas seulement au stock minimum mais surtout au moment de déclenchement d’une commande de réapprovisionnement, il convient de connaître le nombre moyen de pièces servies sur la durée de rotation et la durée de réapprovisionnement..."
+                    },
+                    {
+                        question: "Quels éléments faut-il connaître pour déterminer correctement le STOCK MINI ?",
+                        options: ["Uniquement le prix de vente de la pièce", "Le nombre moyen de pièces servies sur la durée de rotation ET la durée de réapprovisionnement", "La couleur de l'emballage et le poids du colis", "Le nom du fournisseur uniquement"],
+                        correctAnswer: 1,
+                        explanation: "Il faut estimer la consommation pendant le délai de livraison : si on consomme X pièces/semaine et que le fournisseur livre en 3 semaines, le stock mini doit couvrir au minimum cette consommation.",
+                        quote: "...il convient de connaître le nombre moyen de pièces servies sur la durée de rotation et la durée de réapprovisionnement pour remettre l’article à son niveau stock maximum."
+                    },
+                    {
+                        question: "Dans l'horlogerie de prestige, quelle durée de garantie de disponibilité des pièces observe-t-on généralement ?",
+                        options: ["2 ans", "5 ans", "15 ans", "À vie"],
+                        correctAnswer: 3,
+                        explanation: "Le luxe implique une promesse de pérennité forte, obligeant parfois la marque à recréer des pièces disparues.",
+                        quote: "La garantie de disponibilité des pièces de rechange est une promesse faîte au client qui a un coût. Gamme Prestige = Durée A vie."
+                    },
+                    {
+                        question: "À quelle fréquence un « inventaire » doit-il idéalement être tenu si le système tournant n'est pas utilisé ?",
+                        options: ["Tous les jours", "Tous les mois", "Tous les 6 mois", "Tous les 10 ans"],
+                        correctAnswer: 2,
+                        explanation: "L'inventaire garantit l'exactitude des quantités informatiques par rapport aux quantités physiques dans les tiroirs.",
+                        quote: "Un inventaire du stock doit être tenu tous les six mois si le département des fournitures ne pratique pas l’inventaire tournant."
+                    }
+                ]
+            },
+            {
+                id: "theme-8",
+                title: "8. Planning & Livraison",
+                questions: [
+                    {
+                        question: "Pourquoi le « planning » est-il indispensable à l'organisation d'un atelier SAV ?",
+                        options: ["Pour afficher les menus de la cantine", "Pour optimiser les gammes opératoires, gérer les charges et garantir les prévisions de délais", "Pour réduire les salaires", "Pour commander les pièces détachées"],
+                        correctAnswer: 1,
+                        explanation: "Le planning est l'outil central de pilotage de l'atelier pour gérer le flux de montres et les imprévus.",
+                        quote: "Pour optimiser les différentes gammes opératoires un planning est établi... Il doit contenir : Toutes les informations de position des OF... Le suivi des délais... informations nécessaires aux prévisions de délais..."
+                    },
+                    {
+                        question: "Que faut-il faire en cas de retard inévitable sur une réparation ?",
+                        options: ["Attendre que le client appelle pour se plaindre", "Informer rapidement le client avec des explications et un nouveau délai", "Lui rendre la montre non réparée sans rien dire", "Fermer le dossier"],
+                        correctAnswer: 1,
+                        explanation: "L'anticipation et la transparence désamorcent la frustration. L'absence de communication l'aggrave.",
+                        quote: "En cas de retard inévitable, informer rapidement le client avec des explications et un nouveau délai est crucial. Ne jamais attendre que le client appelle pour faire des excuses !"
+                    },
+                    {
+                        question: "Lors du « Contrôle Final Esthétique », que vérifie-t-on ?",
+                        options: ["La précision de la montre", "L'absence de rayures, la propreté et l'alignement des aiguilles", "L'étanchéité de la boîte", "La réserve de marche"],
+                        correctAnswer: 1,
+                        explanation: "Le contrôle esthétique se concentre exclusivement sur l'aspect visuel de la montre.",
+                        quote: "Contrôle Esthétique : Vérification de l'absence de rayures... Assurer que le boîtier et le bracelet sont propres... S'assurer que les aiguilles sont bien alignées."
+                    },
+                    {
+                        question: "Lors du Contrôle Final, que doit impérativement faire le SAV si le test d'étanchéité échoue ?",
+                        options: ["Mettre un joint en silicone", "Ignorer le résultat", "Il est important de le rappeler au client (l'en informer)", "Confisquer la montre"],
+                        correctAnswer: 2,
+                        explanation: "Si l'étanchéité ne peut être garantie (ex: montre ancienne très corrodée), le client doit le savoir pour éviter de noyer sa montre.",
+                        quote: "Étanchéité : Test d'étanchéité pour s'assurer que la montre est bien résistante à l'eau... Si ce n’est pas le cas, il est important de le rappeler aux clients."
+                    },
+                    {
+                        question: "Quels éléments essentiels doivent figurer sur la Facture de livraison ?",
+                        options: ["Les recettes de polissage", "Nom, adresse, description des services, prix, taxes (TVA) et une numérotation séquentielle", "La date de naissance du client", "Le nom de la machine utilisée"],
+                        correctAnswer: 1,
+                        explanation: "La facture est un document comptable et légal qui obéit à des règles strictes.",
+                        quote: "Données essentielles : Inclure toutes les informations nécessaires telles que le nom et l'adresse du client, la description... prix unitaire, total, taxes applicables (TVA)... Numérotation séquentielle."
+                    },
+                    {
+                        question: "En Suisse, pendant combien de temps les factures doivent-elles être archivées au minimum ?",
+                        options: ["2 ans", "5 ans", "10 ans", "À vie"],
+                        correctAnswer: 2,
+                        explanation: "C'est une obligation légale pour répondre à d'éventuels contrôles de l'Administration Fédérale des Contributions.",
+                        quote: "Archivage des factures : Conserver les factures pendant une durée minimale de 10 ans, conformément à la législation suisse."
+                    }
+                ]
+            },
+            {
+                id: "theme-9",
+                title: "9. Les Réclamations",
+                questions: [
+                    {
+                        question: "Quel est l'objectif premier lors du traitement d'une réclamation ?",
+                        options: ["Donner tort au client rapidement", "Résoudre la véritable raison qui a conduit à la réclamation et tirer des conclusions pour s'améliorer", "Lui offrir systématiquement une montre neuve", "Le rediriger vers un centre d'appel externe"],
+                        correctAnswer: 1,
+                        explanation: "Une plainte est une occasion en or d'identifier une faille dans ses processus et de la corriger définitivement.",
+                        quote: "Les buts de la gestion des réclamations : Résoudre les véritables raisons qui ont conduit à la réclamation... Tirer des conclusions positives des réclamations avec une approche de prise en compte des plaintes..."
+                    },
+                    {
+                        question: "Selon les statistiques du cours, quel pourcentage de consommateurs insatisfaits formulent réellement une plainte ?",
+                        options: ["Moins de 5%", "Environ 50%", "75%", "100%"],
+                        correctAnswer: 0,
+                        explanation: "La grande majorité des clients mécontents choisissent de partir en silence sans vous donner la chance de réparer l'erreur.",
+                        quote: "Moins de 5% de consommateurs insatisfaits se plaignent... 75% à 95% des clients mécontents et qui n’ont pas fait part de leurs plaintes n’achèteront plus jamais de produit de la marque."
+                    },
+                    {
+                        question: "Face à un client mécontent, quelle est la première chose à dire ou faire pour désamorcer le conflit ?",
+                        options: ["S'excuser au nom de l'horloger", "L'interrompre pour lui prouver qu'il a tort", "Commencer par valider son opinion (ex: « Je comprends votre point de vue ») et l'écouter jusqu'au bout", "Appeler la sécurité"],
+                        correctAnswer: 2,
+                        explanation: "L'empathie et l'écoute active calment instantanément la colère et montrent que vous prenez son problème au sérieux.",
+                        quote: "Toujours commencer par valider l'opinion de son interlocuteur avec une phrase comme \"Je comprends votre point de vue\". Écouter sa réclamation jusqu'au bout, ne pas l'interrompre ou se chercher des excuses."
+                    },
+                    {
+                        question: "Vrai ou Faux concernant la fidélisation selon le cours :",
+                        options: ["Il coûte 5 fois moins cher de garder un client que d'en gagner un nouveau", "Il coûte plus cher de fidéliser que de faire du marketing", "Un client satisfait en parle à 10 personnes", "Les clients mécontents reviennent toujours au bout de 2 ans"],
+                        correctAnswer: 0,
+                        explanation: "Ce ratio financier explique pourquoi offrir un geste commercial (goodwill) est souvent plus rentable que de perdre un client acquis.",
+                        quote: "Garder et fidéliser un client coûte 5 fois moins cher que d’en gagner un nouveau."
+                    },
+                    {
+                        question: "Lorsqu'un client se détourne de l'entreprise, quelle action proactive permet parfois de le récupérer ?",
+                        options: ["Lui envoyer une lettre d'avocat", "Le recontacter pour savoir pourquoi il est parti et ce qu'on aurait pu faire mieux", "Lui interdire l'accès à la boutique", "Critiquer les concurrents chez qui il est allé"],
+                        correctAnswer: 1,
+                        explanation: "Ce simple geste d'humilité prouve votre implication et suffit souvent à restaurer la confiance.",
+                        quote: "Lorsqu'un client se détourne de l'entreprise... Le recontacter pour savoir pourquoi il est parti et ce que l’on aurait pu faire mieux pour le retenir. Ce simple geste suffit parfois."
+                    },
+                    {
+                        question: "Que conseille le cours face à des « clients toxiques » (attentes irréalistes, chroniquement insatisfaits) ?",
+                        options: ["Accepter de travailler à perte pour eux", "Les nommer ambassadeurs de la marque", "Mieux vaut renoncer à faire des affaires avec eux pour protéger l'entreprise et se concentrer sur les clients fidèles", "Céder à toutes leurs demandes pour éviter un scandale"],
+                        correctAnswer: 2,
+                        explanation: "Un client dont les attentes sont impossibles draine le temps et l'énergie du SAV de manière toxique. Il faut savoir s'en séparer.",
+                        quote: "Certains consommateurs sont chroniquement insatisfaits ou ont des attentes irréalistes. Vouloir les exaucer mettrait en danger la stabilité financière de l'entreprise. Mieux vaut renoncer à faire des affaires avec ces personnes..."
+                    }
+                ]
+            }
+        ];
+
+
+        // =====================================================================
+        //  ÉTAT & DOM
+        // =====================================================================
+        let currentThemeIndex = 0, currentQuestionIndex = 0, score = 0, isAnswered = false;
+        const $ = id => document.getElementById(id);
+        const dom = {
+            tabs: $('tabs-container'), quiz: $('quiz-screen'), scoreScreen: $('score-screen'), bilan: $('bilan-screen'),
+            progressText: $('progress-text'), progressPct: $('progress-percentage'), progressBar: $('progress-bar'),
+            question: $('question-text'), options: $('options-container'),
+            explanation: $('explanation-container'), explBox: $('explanation-box'), explIcon: $('explanation-icon'),
+            explTitle: $('explanation-title'), explText: $('explanation-text'), quoteBox: $('quote-box'), quote: $('explanation-quote'),
+            nextBtn: $('next-btn'), finalScore: $('final-score-text'), scoreCircle: $('score-circle'), scoreTitle: $('score-title'),
+            scoreMsg: $('score-message'), nextThemeBtn: $('next-theme-btn'), themeTitle: $('current-theme-title'), main: $('main-content')
+        };
+        const show = el => el.classList.remove('masque');
+        const hide = el => el.classList.add('masque');
+
+        // =====================================================================
+        //  RÉFÉRENTIEL — objectifs évaluateurs du module CPH_HO_02
+        // =====================================================================
+        const objLib = {
+            "5.6.1": "Décrit l'organisation d'un SAV et sa gestion (C2)",
+            "5.6.2": "Décrit les contenus des différents documents pertinents au SAV (C2)",
+            "5.6.6": "Explique la gestion efficace d'un stock et de son flux (C2)"
+        };
+        const themeMeta = {
+            "theme-1": { objectif: "5.6.1", revision: "Relire l'introduction du module (rôle du CS d'une marque et d'un indépendant, missions logistiques, administratives et de support). Reprendre la mise en situation de la séquence 1 et la description du service client en entreprise de la séquence 2." },
+            "theme-2": { objectif: "5.6.1", revision: "Revoir l'organigramme du SAV (séquences 2 et 3) : rattachement du SAV dans l'entreprise, différence entre SAV de marque et petite structure, définition de l'effectif non productif et calcul du ratio (effectif non productif / effectif total). Refaire l'exercice de calcul du ratio non productif." },
+            "theme-3": { objectif: "5.6.1", revision: "Reprendre la séquence 4 (de l'accueil à la proposition de diagnostic) : premier contact, collecte des informations, analyse des documents du client, inspection initiale, photos à la réception, confidentialité des données." },
+            "theme-4": { objectif: "5.6.1 / 5.6.2", revision: "Relire la séquence 5 (Garantie) et refaire son exercice corrigé : durée légale de 2 ans (art. 210 CO), cas des choses d'occasion, garantie de réparation, frais d'envoi et d'assurance, définition et prise en charge du goodwill." },
+            "theme-5": { objectif: "5.6.2", revision: "Revoir la séquence 6 (Diagnostic) et la séquence 9 (Devis standard et spécifique) : démontage partiel, fiche de devis interne, catégories de réparation, mentions obligatoires d'un devis, forfaits de réparation et informations complémentaires pour le client." },
+            "theme-6": { objectif: "5.6.1 / 5.6.2", revision: "Reprendre les séquences 10 et 11 (Opérations SAV, opérations et gammes) : flux du produit et des documents, gamme opératoire, carte d'opération, temps standard, outillage prescrit par les marques, accès aux fiches techniques et manuels." },
+            "theme-7": { objectif: "5.6.6", revision: "Relire la séquence 12 (Stock) : rôle et genres de stock, graphique de gestion (stock maxi, mini, de sécurité, point de commande, délai d'approvisionnement), taux de rotation, FIFO / LIFO, inventaire physique, contrôles ponctuels et inventaire tournant." },
+            "theme-8": { objectif: "5.6.2", revision: "Revoir le planning d'atelier et la gestion des retards, les contrôles finaux (esthétique, fonctionnel, étanchéité) et les documents de sortie : fiches contrôle, bulletin de livraison, facture et durée d'archivage des documents comptables." },
+            "theme-9": { objectif: "5.6.1", revision: "Reprendre la partie gestion des réclamations de la séquence 4 : buts du traitement d'une réclamation, statistiques d'insatisfaction, posture face à un client mécontent, coût de la fidélisation, clients toxiques." }
+        };
+        const cleanTitle = t => t.replace(/^\d+\.\s*/, '');
+
+        // =====================================================================
+        //  SUIVI DES RÉPONSES
+        // =====================================================================
+        let answers = {}, attempts = {};
+        const totalQuestions = quizThemes.reduce((n, t) => n + t.questions.length, 0);
+
+        function recordAnswer(themeId, qIndex, selected, isCorrect) {
+            if (!answers[themeId] || qIndex === 0) { answers[themeId] = []; if (qIndex === 0) attempts[themeId] = (attempts[themeId] || 0) + 1; }
+            answers[themeId][qIndex] = { selected, correct: isCorrect };
+            updateBilanCounter();
+        }
+        function updateBilanCounter() {
+            const n = Object.values(answers).reduce((a, arr) => a + arr.filter(Boolean).length, 0);
+            $('bilan-counter').innerText = `${n}/${totalQuestions}`;
+            $('bilan-counter-mobile').innerText = n;
+            renderTabs();
+        }
+        function resetAll() {
+            if (!confirm("Effacer toutes les réponses enregistrées et recommencer le bilan à zéro ?")) return;
+            answers = {}; attempts = {}; updateBilanCounter(); loadTheme(0);
+        }
+
+        // =====================================================================
+        //  QUIZ
+        // =====================================================================
+        // ---------- Mode d'affichage : auto / mobile / ordinateur ----------
+        let modePref = 'auto';
+        function applyMode() {
+            const mobile = modePref === 'mobile' || (modePref === 'auto' && window.matchMedia('(max-width: 47.99rem)').matches);
+            document.body.classList.toggle('mode-mobile', mobile);
+            document.body.classList.toggle('mode-desktop', !mobile);
+            ['auto', 'mobile', 'desktop'].forEach(m => $('mode-' + m).setAttribute('aria-pressed', modePref === m ? 'true' : 'false'));
+            if (!mobile) toggleDrawer(false);
+        }
+        function setMode(m) { modePref = m; applyMode(); if (m !== 'auto') toggleDrawer(false); }
+        window.addEventListener('resize', applyMode);
+        function toggleDrawer(open) {
+            $('lateral').classList.toggle('ouvert', open);
+            $('voile').classList.toggle('ouvert', open);
+        }
+        function updateNavBasse() {
+            $('nav-theme').innerText = `${currentThemeIndex + 1} / ${quizThemes.length}`;
+            $('nav-prev').disabled = currentThemeIndex === 0;
+            $('nav-next').disabled = currentThemeIndex === quizThemes.length - 1;
+        }
+        function goToPrevTheme() { if (currentThemeIndex > 0) loadTheme(currentThemeIndex - 1); }
+
+        function init() { applyMode(); renderTabs(); loadTheme(0); }
+
+        function renderTabs() {
+            dom.tabs.innerHTML = '';
+            quizThemes.forEach((theme, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'onglet'; btn.setAttribute('role', 'tab');
+                btn.setAttribute('aria-selected', index === currentThemeIndex ? 'true' : 'false');
+                const arr = (answers[theme.id] || []).filter(Boolean);
+                const ok = arr.filter(a => a.correct).length;
+                btn.innerHTML = `<span class="onglet__num">${index + 1}</span><span>${cleanTitle(theme.title)}</span>` +
+                    (arr.length ? `<span class="onglet__etat ${ok === theme.questions.length ? 'onglet__etat--ok' : ''}">${ok}/${arr.length}</span>` : '');
+                btn.onclick = () => { loadTheme(index); toggleDrawer(false); };
+                dom.tabs.appendChild(btn);
+            });
+        }
+
+        function loadTheme(index) {
+            currentThemeIndex = index; currentQuestionIndex = 0; score = 0;
+            dom.main.scrollTop = 0;
+            renderTabs();
+            const tab = dom.tabs.children[index];
+            if (tab) tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            hide(dom.scoreScreen); hide(dom.bilan); show(dom.quiz);
+            dom.themeTitle.innerText = cleanTitle(quizThemes[index].title);
+            updateNavBasse();
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            isAnswered = false;
+            const theme = quizThemes[currentThemeIndex];
+            const q = theme.questions[currentQuestionIndex];
+            dom.progressText.innerText = `Question ${currentQuestionIndex + 1} sur ${theme.questions.length}`;
+            setTimeout(() => {
+                const pct = Math.round((currentQuestionIndex + 1) / theme.questions.length * 100);
+                dom.progressBar.style.width = pct + '%'; dom.progressPct.innerText = pct + '%';
+            }, 50);
+            dom.question.innerText = q.question;
+            dom.options.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option';
+                btn.innerHTML = `<span class="option__lettre">${String.fromCharCode(65 + i)}</span><span>${opt}</span>`;
+                btn.onclick = () => handleAnswerOptionClick(i);
+                dom.options.appendChild(btn);
+            });
+            hide(dom.explanation);
+        }
+
+        function handleAnswerOptionClick(selected) {
+            if (isAnswered) return;
+            isAnswered = true;
+            const theme = quizThemes[currentThemeIndex];
+            const q = theme.questions[currentQuestionIndex];
+            const isCorrect = selected === q.correctAnswer;
+            if (isCorrect) score++;
+            recordAnswer(theme.id, currentQuestionIndex, selected, isCorrect);
+
+            [...dom.options.children].forEach((b, i) => {
+                b.disabled = true;
+                if (i === q.correctAnswer) b.classList.add('option--ok');
+                else if (i === selected) b.classList.add('option--erreur');
+                else b.classList.add('option--neutre');
+            });
+
+            show(dom.explanation);
+            dom.explText.innerText = q.explanation;
+            if (q.quote) { show(dom.quoteBox); dom.quote.innerText = q.quote; } else hide(dom.quoteBox);
+            dom.explBox.className = 'ehg-encadre ' + (isCorrect ? 'ehg-encadre--ok' : 'ehg-encadre--erreur');
+            dom.explIcon.innerText = isCorrect ? '✓' : '✕';
+            dom.explTitle.innerText = isCorrect ? 'Bonne réponse' : 'Réponse incorrecte';
+            dom.nextBtn.querySelector('span').innerText = currentQuestionIndex === theme.questions.length - 1 ? 'Voir le score du thème' : 'Question suivante';
+            setTimeout(() => dom.explanation.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+        }
+
+        function handleNextQuestion() {
+            const theme = quizThemes[currentThemeIndex];
+            if (currentQuestionIndex < theme.questions.length - 1) { currentQuestionIndex++; renderQuestion(); dom.main.scrollTop = 0; }
+            else showFinalScore();
+        }
+
+        function showFinalScore() {
+            hide(dom.quiz); show(dom.scoreScreen); dom.main.scrollTop = 0;
+            const theme = quizThemes[currentThemeIndex];
+            dom.finalScore.innerText = `${score}/${theme.questions.length}`;
+            const ratio = score / theme.questions.length;
+            dom.scoreCircle.className = 'score__cercle ' + (ratio === 1 ? 'score__cercle--ok' : ratio >= 0.6 ? 'score__cercle--or' : 'score__cercle--erreur');
+            dom.scoreMsg.innerHTML = ratio === 1 ? "<strong>Excellente maîtrise.</strong><br>Toutes les notions de ce thème sont acquises."
+                : ratio >= 0.6 ? "<strong>Bon résultat.</strong><br>Les connaissances sont solides ; relisez les questions manquées pour consolider."
+                : "<strong>À retravailler.</strong><br>Une relecture de ce chapitre du support de cours est nécessaire avant de poursuivre.";
+            if (currentThemeIndex < quizThemes.length - 1) { show(dom.nextThemeBtn); dom.scoreTitle.innerText = "Thème terminé"; }
+            else { hide(dom.nextThemeBtn); dom.scoreTitle.innerText = "Parcours terminé"; dom.scoreMsg.innerHTML += "<br><br>Vous avez parcouru les 9 thèmes du module. Consultez votre bilan pour l'exporter en PDF."; }
+        }
+        function restartTheme() { loadTheme(currentThemeIndex); }
+        function goToNextTheme() { if (currentThemeIndex < quizThemes.length - 1) loadTheme(currentThemeIndex + 1); }
+
+        // =====================================================================
+        //  STATISTIQUES
+        // =====================================================================
+        function computeStats() {
+            const themes = quizThemes.map(t => {
+                const arr = (answers[t.id] || []).filter(Boolean);
+                const done = arr.length, ok = arr.filter(a => a.correct).length;
+                const pct = done ? Math.round(ok / done * 100) : null;
+                const niveau = pct === null ? "Non traité" : pct >= 80 ? "Maîtrisé" : pct >= 50 ? "À consolider" : "À revoir";
+                const errors = [];
+                t.questions.forEach((q, i) => { const a = answers[t.id] && answers[t.id][i]; if (a && !a.correct) errors.push({ num: i + 1, q, selected: a.selected }); });
+                return { theme: t, meta: themeMeta[t.id], done, ok, total: t.questions.length, pct, niveau, errors, attempts: attempts[t.id] || 0 };
+            });
+            const done = themes.reduce((a, t) => a + t.done, 0), ok = themes.reduce((a, t) => a + t.ok, 0);
+            const objs = {}; Object.keys(objLib).forEach(o => objs[o] = { done: 0, ok: 0 });
+            themes.forEach(t => t.meta.objectif.split("/").map(x => x.trim()).forEach(k => { objs[k].done += t.done; objs[k].ok += t.ok; }));
+            return { themes, done, ok, total: totalQuestions, pct: done ? Math.round(ok / done * 100) : null, objs };
+        }
+        const badgeNiveau = n => ({ "Maîtrisé": "ehg-badge ehg-badge--ok", "À consolider": "ehg-badge ehg-badge--or-pale", "À revoir": "ehg-badge ehg-badge--erreur", "Non traité": "ehg-badge" }[n]);
+        const barreNiveau = p => p === null ? '' : p >= 80 ? 'ok' : p >= 50 ? '' : 'erreur';
+        function appreciationGlobale(pct, done) {
+            if (done === 0) return "Aucune question traitée pour l'instant. Parcourez les thèmes pour alimenter le bilan.";
+            if (pct >= 80) return "Très bonne maîtrise globale du module. Les notions clés sont acquises ; ciblez uniquement les points signalés ci-dessous.";
+            if (pct >= 60) return "Acquis satisfaisants mais hétérogènes. Une révision ciblée des thèmes « À consolider » et « À revoir » est recommandée avant l'évaluation.";
+            return "Acquis fragiles. Une relecture structurée du support de cours, thème par thème, est nécessaire, en commençant par les objectifs évaluateurs les moins maîtrisés.";
+        }
+
+        // =====================================================================
+        //  ÉCRAN BILAN
+        // =====================================================================
+        function showBilan() { toggleDrawer(false); hide(dom.quiz); hide(dom.scoreScreen); show(dom.bilan); dom.main.scrollTop = 0; renderBilan(); }
+
+        function renderBilan() {
+            const st = computeStats();
+            let h = `<div class="kpis">
+                <div class="kpi"><span class="ehg-surtitre">Traitées</span><div class="kpi__val">${st.done}<small> / ${st.total}</small></div></div>
+                <div class="kpi kpi--ok"><span class="ehg-surtitre">Justes</span><div class="kpi__val">${st.ok}</div></div>
+                <div class="kpi kpi--erreur"><span class="ehg-surtitre">Erreurs</span><div class="kpi__val">${st.done - st.ok}</div></div>
+                <div class="kpi kpi--or"><span class="ehg-surtitre">Réussite</span><div class="kpi__val">${st.pct === null ? '–' : st.pct + ' %'}</div></div>
+            </div>
+            <div class="ehg-encadre"><span class="ehg-encadre__icone">i</span><p>${appreciationGlobale(st.pct, st.done)}</p></div>`;
+
+            h += `<h4>Résultats par objectif évaluateur</h4><table class="ehg-tableau"><thead><tr><th>Objectif</th><th>Intitulé</th><th class="num">Traitées</th><th class="num">Justes</th><th class="num">Taux</th></tr></thead><tbody>`;
+            Object.entries(st.objs).forEach(([k, v]) => {
+                h += `<tr><td><span class="ehg-chiffre">${k}</span></td><td>${objLib[k]}</td><td class="num">${v.done}</td><td class="num">${v.ok}</td><td class="num"><strong>${v.done ? Math.round(v.ok / v.done * 100) + ' %' : '–'}</strong></td></tr>`;
+            });
+            h += `</tbody></table>`;
+
+            h += `<h4>Résultats par thème</h4>`;
+            st.themes.forEach(t => {
+                h += `<div class="theme-ligne">
+                    <div class="theme-ligne__titre"><strong>${t.theme.title}</strong><span class="ehg-note">Objectif ${t.meta.objectif}${t.attempts > 1 ? ' · ' + t.attempts + ' tentatives' : ''}</span></div>
+                    <div class="ehg-progress"><span class="${barreNiveau(t.pct)}" style="width:${t.pct || 0}%"></span></div>
+                    <span class="theme-ligne__score">${t.done ? t.ok + '/' + t.done : '–'}</span>
+                    <span class="${badgeNiveau(t.niveau)}">${t.niveau}</span></div>`;
+            });
+
+            const errs = st.themes.filter(t => t.errors.length);
+            h += `<h4>Questions à retravailler <span class="ehg-chiffre">${st.done - st.ok}</span></h4>`;
+            if (!errs.length) h += `<p class="ehg-note">${st.done ? 'Aucune erreur enregistrée.' : 'Aucune question traitée.'}</p>`;
+            else errs.forEach(t => t.errors.forEach(e => {
+                h += `<div class="erreur-carte"><span class="ehg-surtitre">${t.theme.title} – Question ${e.num}</span>
+                    <p class="q">${e.q.question}</p>
+                    <p class="rep-erreur"><strong>Votre réponse :</strong> ${e.q.options[e.selected]}</p>
+                    <p class="rep-ok"><strong>Bonne réponse :</strong> ${e.q.options[e.q.correctAnswer]}</p>
+                    <p class="expl">${e.q.explanation}</p></div>`;
+            }));
+
+            const toReview = st.themes.filter(t => t.niveau === "À revoir" || t.niveau === "À consolider").sort((a, b) => a.pct - b.pct);
+            h += `<h4>Suggestions de révision</h4>`;
+            if (!toReview.length) h += `<p class="ehg-note">${st.done ? 'Tous les thèmes traités sont maîtrisés. Pour finaliser, traitez les thèmes restants.' : 'Les suggestions apparaîtront une fois des thèmes traités.'}</p>`;
+            else toReview.forEach(t => {
+                h += `<div class="ehg-encadre ehg-encadre--or"><span class="ehg-encadre__icone">→</span><div>
+                    <p style="margin-bottom:var(--ehg-sp-1);font-family:var(--ehg-font-titre);font-weight:500">${cleanTitle(t.theme.title)} <span class="ehg-note">— ${t.pct} % · ${t.niveau} · objectif ${t.meta.objectif}</span></p>
+                    <p style="margin:0;font-size:var(--ehg-fs-sm)">${t.meta.revision}</p></div></div>`;
+            });
+            $('bilan-content').innerHTML = h;
+        }
+
+        // =====================================================================
+        //  EXPORT PDF — charte EHG (noir #141414, or #AA8802, gris)
+        // =====================================================================
+        function pdfTxt(str) {
+            return String(str || '').replace(/[\u2192\u21D2]/g, '->').replace(/œ/g, 'oe').replace(/Œ/g, 'OE')
+                .replace(/[\u00B4\u0301]/g, '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').replace(/\s+/g, ' ').trim();
+        }
+
+        function exportPDF() {
+            if (!window.jspdf || !window.jspdf.jsPDF) { alert("Le module PDF n'a pas pu être chargé (connexion internet requise)."); return; }
+            const st = computeStats();
+            if (st.done === 0) { alert("Répondez à au moins une question avant d'exporter le bilan."); return; }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+            const NOIR = [20, 20, 20], OR = [170, 136, 2], OR_PALE = [244, 237, 214], GRAPHITE = [58, 58, 58], ACIER = [137, 137, 137], PERLE = [234, 234, 234], BRUME = [246, 246, 246];
+            const OK = [46, 107, 75], ERR = [155, 44, 44], OR_FONCE = [125, 100, 0];
+            const W = 210, M = 16; let y;
+            const name = $('student-name').value.trim();
+            const today = new Date().toLocaleDateString('fr-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+            const header = () => {
+                doc.setFillColor(...NOIR); doc.rect(0, 0, W, 26, 'F');
+                doc.setFillColor(...OR); doc.rect(0, 26, W, 0.8, 'F');
+                doc.setTextColor(212, 178, 76); doc.setFont('times', 'normal'); doc.setFontSize(20); doc.text("1824", M, 16);
+                doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'normal'); doc.setFontSize(13); doc.text("Bilan de révision – Service Après-Vente", M + 20, 12.5);
+                doc.setFontSize(8.5); doc.setTextColor(...ACIER); doc.text("École d'Horlogerie de Genève · Module CPH_HO_02 – CS : De l'accueil à la livraison · Semestre 5", M + 20, 19);
+                doc.text(today, W - M, 19, { align: 'right' });
+                y = 36;
+            };
+            const footer = () => {
+                const n = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= n; i++) {
+                    doc.setPage(i); doc.setDrawColor(...PERLE); doc.setLineWidth(0.3); doc.line(M, 284, W - M, 284);
+                    doc.setFontSize(7.5); doc.setTextColor(...ACIER); doc.setFont('helvetica', 'normal');
+                    doc.text("École d'Horlogerie de Genève · Quiz de révision · Objectifs évaluateurs 5.6.1 / 5.6.2 / 5.6.6 · Document généré automatiquement, à titre indicatif", M, 289);
+                    doc.text(`${i} / ${n}`, W - M, 289, { align: 'right' });
+                }
+            };
+            const checkPage = h => { if (y + h > 276) { doc.addPage(); header(); } };
+            const title = (num, t) => {
+                checkPage(16); y += 2;
+                doc.setTextColor(...OR); doc.setFont('times', 'normal'); doc.setFontSize(20); doc.text(String(num), M, y + 1.5);
+                doc.setTextColor(...NOIR); doc.setFont('helvetica', 'normal'); doc.setFontSize(13); doc.text(pdfTxt(t), M + 9, y + 1);
+                doc.setDrawColor(...PERLE); doc.setLineWidth(0.3); doc.line(M, y + 4.5, W - M, y + 4.5);
+                y += 11;
+            };
+            const para = (t, size = 9.5, color = GRAPHITE, style = 'normal', indent = 0) => {
+                doc.setFont('helvetica', style); doc.setFontSize(size); doc.setTextColor(...color);
+                const lines = doc.splitTextToSize(pdfTxt(t), W - 2 * M - indent);
+                checkPage(lines.length * size * 0.45 + 2);
+                doc.text(lines, M + indent, y); y += lines.length * size * 0.45 + 2;
+            };
+            const surtitre = t => { doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...ACIER); checkPage(6); doc.text(pdfTxt(t).toUpperCase().split('').join(String.fromCharCode(8202)), M, y); y += 5; };
+            const tableOpts = extra => Object.assign({
+                startY: y, margin: { left: M, right: M }, theme: 'plain',
+                styles: { font: 'helvetica', fontSize: 8.5, cellPadding: 2.2, textColor: NOIR, lineColor: PERLE, lineWidth: { bottom: 0.25 } },
+                headStyles: { fillColor: [255, 255, 255], textColor: GRAPHITE, fontStyle: 'bold', fontSize: 7.5, lineColor: NOIR, lineWidth: { bottom: 0.6 } },
+                didDrawPage: d => { if (d.pageNumber > 1 && d.cursor.y < 36) header(); }
+            }, extra);
+
+            header();
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(...NOIR);
+            doc.text(`Apprenti(e) : ${name || '______________________________'}`, M, y); y += 9;
+
+            // 1. Quantitatif
+            title(1, "Bilan quantitatif");
+            const kpis = [["Questions traitées", `${st.done} / ${st.total}`], ["Bonnes réponses", String(st.ok)], ["Erreurs", String(st.done - st.ok)], ["Taux de réussite", `${st.pct} %`]];
+            const kw = (W - 2 * M - 9) / 4;
+            kpis.forEach((k, i) => {
+                const x = M + i * (kw + 3);
+                doc.setFillColor(...BRUME); doc.roundedRect(x, y, kw, 20, 1.5, 1.5, 'F');
+                doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); doc.setTextColor(...ACIER); doc.text(k[0].toUpperCase(), x + kw / 2, y + 6, { align: 'center' });
+                doc.setFont('times', 'normal'); doc.setFontSize(16); doc.setTextColor(...(i === 1 ? OK : i === 2 ? ERR : i === 3 ? OR : NOIR)); doc.text(k[1], x + kw / 2, y + 15, { align: 'center' });
+            });
+            y += 26;
+            para(appreciationGlobale(st.pct, st.done), 9.5, GRAPHITE, 'italic');
+            y += 3;
+            surtitre("Résultats par objectif évaluateur du plan de formation");
+            doc.autoTable(tableOpts({
+                head: [["Objectif", "Intitulé", "Traitées", "Justes", "Taux"]],
+                body: Object.entries(st.objs).map(([k, v]) => [k, objLib[k], v.done, v.ok, v.done ? Math.round(v.ok / v.done * 100) + ' %' : '–']),
+                columnStyles: { 0: { fontStyle: 'bold', textColor: OR, cellWidth: 18 }, 2: { halign: 'center', cellWidth: 18 }, 3: { halign: 'center', cellWidth: 18 }, 4: { halign: 'center', cellWidth: 18, fontStyle: 'bold' } }
+            }));
+            y = doc.lastAutoTable.finalY + 7;
+            surtitre("Résultats par thème");
+            doc.autoTable(tableOpts({
+                head: [["Thème", "Objectif", "Score", "Taux", "Niveau"]],
+                body: st.themes.map(t => [t.theme.title, t.meta.objectif, t.done ? `${t.ok} / ${t.done}` : '–', t.pct === null ? '–' : t.pct + ' %', t.niveau]),
+                columnStyles: { 1: { halign: 'center', cellWidth: 26 }, 2: { halign: 'center', cellWidth: 18 }, 3: { halign: 'center', cellWidth: 16 }, 4: { cellWidth: 28, fontStyle: 'bold' } },
+                didParseCell: d => { if (d.section === 'body' && d.column.index === 4) { const v = d.cell.raw; d.cell.styles.textColor = v === "Maîtrisé" ? OK : v === "À consolider" ? OR_FONCE : v === "À revoir" ? ERR : ACIER; } }
+            }));
+            y = doc.lastAutoTable.finalY + 10;
+
+            // 2. Erreurs
+            title(2, `Questions ayant fait l'objet d'une erreur (${st.done - st.ok})`);
+            const rows = [];
+            st.themes.forEach(t => t.errors.forEach(e => rows.push([`${t.theme.title}\nQ${e.num}`, e.q.question, e.q.options[e.selected], e.q.options[e.q.correctAnswer], e.q.explanation])));
+            if (!rows.length) para("Aucune erreur enregistrée sur les questions traitées.");
+            else {
+                doc.autoTable(tableOpts({
+                    head: [["Thème", "Question", "Réponse donnée", "Bonne réponse", "Rappel du cours"]],
+                    body: rows.map(r => r.map(pdfTxt)),
+                    styles: { font: 'helvetica', fontSize: 7.5, cellPadding: 2, valign: 'top', textColor: NOIR, lineColor: PERLE, lineWidth: { bottom: 0.25 } },
+                    columnStyles: { 0: { cellWidth: 26, fontStyle: 'bold' }, 1: { cellWidth: 44 }, 2: { cellWidth: 33, textColor: ERR }, 3: { cellWidth: 33, textColor: OK }, 4: { cellWidth: 42, fontStyle: 'italic', textColor: GRAPHITE } }
+                }));
+                y = doc.lastAutoTable.finalY + 10;
+            }
+
+            // 3. Qualitatif
+            title(3, "Bilan qualitatif");
+            const grp = n => st.themes.filter(t => t.niveau === n);
+            const lst = arr => arr.map(t => cleanTitle(t.theme.title)).join(', ');
+            const maitrises = grp("Maîtrisé"), consolider = grp("À consolider"), revoir = grp("À revoir"), nonTraites = grp("Non traité");
+            if (maitrises.length) para(`Points forts (>= 80 %) : ${lst(maitrises)}.`, 9.5, OK);
+            if (consolider.length) para(`Acquis partiels (50-79 %) : ${lst(consolider)}.`, 9.5, OR_FONCE);
+            if (revoir.length) para(`Points faibles (< 50 %) : ${lst(revoir)}.`, 9.5, ERR);
+            if (nonTraites.length) para(`Thèmes non traités : ${lst(nonTraites)}.`, 9.5, ACIER);
+            const objArr = Object.entries(st.objs).filter(([k, v]) => v.done).map(([k, v]) => ({ k, p: v.ok / v.done })).sort((a, b) => a.p - b.p);
+            if (objArr.length > 1) para(`L'objectif évaluateur le moins maîtrisé est le ${objArr[0].k} (${Math.round(objArr[0].p * 100)} %) ; le mieux maîtrisé est le ${objArr[objArr.length - 1].k} (${Math.round(objArr[objArr.length - 1].p * 100)} %).`, 9.5, NOIR);
+            y += 5;
+
+            // 4. Suggestions
+            title(4, "Suggestions de révision");
+            const toReview = [...revoir, ...consolider].sort((a, b) => a.pct - b.pct);
+            if (!toReview.length) para(st.done ? "Tous les thèmes traités sont maîtrisés. Pour finaliser la préparation, traiter les thèmes restants et relire les questions ayant fait l'objet d'une erreur." : "Aucun thème traité.");
+            else {
+                toReview.forEach((t, i) => {
+                    checkPage(18);
+                    doc.setFillColor(...OR_PALE);
+                    const lines = doc.splitTextToSize(pdfTxt(t.meta.revision), W - 2 * M - 14);
+                    const hBox = lines.length * 4.1 + 13;
+                    checkPage(hBox + 3);
+                    doc.roundedRect(M, y - 4, W - 2 * M, hBox, 1.5, 1.5, 'F');
+                    doc.setFont('times', 'normal'); doc.setFontSize(15); doc.setTextColor(...OR); doc.text(String(i + 1), M + 4, y + 2.5);
+                    doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); doc.setTextColor(...NOIR); doc.text(pdfTxt(`${cleanTitle(t.theme.title)}`), M + 11, y + 1);
+                    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...ACIER); doc.text(pdfTxt(`${t.pct} % · ${t.niveau} · objectif ${t.meta.objectif}`), W - M - 4, y + 1, { align: 'right' });
+                    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...GRAPHITE); doc.text(lines, M + 11, y + 6.5);
+                    y += hBox + 2;
+                });
+                y += 2;
+                para("Méthode conseillée : relire le chapitre concerné du support de cours, refaire les exercices de la séquence, puis rejouer le thème dans le quiz jusqu'à obtenir au moins 80 %.", 9, ACIER, 'italic');
+            }
+
+            footer();
+            const safe = name ? '_' + name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w\-]+/g, '_') : '';
+            doc.save(`Bilan_SAV_CPH_HO_02${safe}_${today.replace(/\./g, '-')}.pdf`);
+        }
+
+        init();
+</script>
+</body>
+</html>
