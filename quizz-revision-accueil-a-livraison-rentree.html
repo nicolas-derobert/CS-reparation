@@ -217,6 +217,22 @@
     .erreur-carte .expl{color:var(--ehg-graphite);font-style:italic;margin-top:var(--ehg-sp-2)}
     .bilan__pied{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--ehg-sp-3);padding-top:var(--ehg-sp-6);margin-top:var(--ehg-sp-8);border-top:var(--ehg-filet)}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+
+    /* Modale QR / lien de partage */
+    .modale{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:var(--ehg-sp-4);background:rgba(20,20,20,.6)}
+    .modale.ouverte{display:flex}
+    .modale__boite{background:var(--ehg-blanc);border-radius:var(--ehg-radius-lg);box-shadow:0 8px 28px rgba(20,20,20,.2);max-width:24rem;width:100%;padding:var(--ehg-sp-6);text-align:center;position:relative;animation:fadeIn .25s ease}
+    .modale__fermer{position:absolute;top:.6rem;right:.6rem;background:none;border:0;color:var(--ehg-acier);padding:.4rem;line-height:0}
+    .modale__fermer svg{width:1.3rem;height:1.3rem}
+    .modale__boite h3{font-size:var(--ehg-fs-md);margin:var(--ehg-sp-2) 0 var(--ehg-sp-1)}
+    .modale__qr{width:13rem;max-width:70vw;margin:var(--ehg-sp-4) auto;padding:var(--ehg-sp-3);border:var(--ehg-filet);border-radius:var(--ehg-radius-lg);background:var(--ehg-blanc)}
+    .modale__qr svg{display:block;width:100%;height:auto}
+    .modale__lien{display:block;word-break:break-all;font-size:var(--ehg-fs-sm);color:var(--ehg-noir);text-decoration:underline;text-decoration-color:var(--ehg-or);text-underline-offset:3px;margin-bottom:var(--ehg-sp-4)}
+    .modale__lien:hover{color:var(--ehg-or-fonce)}
+    .modale__actions{display:flex;flex-direction:column;gap:var(--ehg-sp-2)}
+    .modale__actions .ehg-btn{width:100%}
+    .btn-partage{width:100%;margin-top:var(--ehg-sp-2)}
+    .mode-mobile .barre-mobile__actions .ico.partage{display:flex}
     </style>
 </head>
 <body>
@@ -227,6 +243,7 @@
         <button class="ico" onclick="toggleDrawer(true)" aria-label="Ouvrir les thèmes"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <div class="barre-mobile__logo"><span class="lateral__millesime">1824</span><span>Révision SAV</span></div>
         <div class="barre-mobile__actions">
+            <button class="ico partage" onclick="ouvrirQR(true)" aria-label="Lien et QR code"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h3v3h-3zM20 14v2M17 20h3"/></svg></button>
             <button class="ico" onclick="showBilan()" aria-label="Bilan et PDF"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span class="pastille" id="bilan-counter-mobile">0</span></button>
         </div>
     </header>
@@ -249,7 +266,11 @@
             <button onclick="showBilan()" class="ehg-btn ehg-btn--or">
                 <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 <span>Bilan &amp; PDF</span>
-                <span id="bilan-counter" class="compteur">0/58</span>
+                <span id="bilan-counter" class="compteur">0/60</span>
+            </button>
+            <button onclick="ouvrirQR(true)" class="ehg-btn ehg-btn--secondaire btn-partage" style="color:var(--ehg-blanc);border-color:rgba(255,255,255,.35)">
+                <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h3v3h-3zM20 14v2M17 20h3M14 20h0"/></svg>
+                <span>Lien &amp; QR code</span>
             </button>
             <div class="mode-switch" role="group" aria-label="Affichage">
                 <button id="mode-auto" onclick="setMode('auto')" aria-pressed="true">Auto</button>
@@ -355,470 +376,799 @@
     </main>
 </div>
 
+<!-- Modale : lien et QR code du quiz en ligne -->
+<div class="modale" id="modale-qr" role="dialog" aria-modal="true" aria-labelledby="modale-qr-titre" onclick="if(event.target===this)ouvrirQR(false)">
+    <div class="modale__boite">
+        <button class="modale__fermer" onclick="ouvrirQR(false)" aria-label="Fermer"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <span class="ehg-surtitre">Accès au quiz en ligne</span>
+        <h3 id="modale-qr-titre">Scannez ou partagez</h3>
+        <p class="ehg-note" style="margin:0">Module CPH_HO_02 · Révision SAV</p>
+        <div class="modale__qr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45" shape-rendering="crispEdges" role="img" aria-label="QR code du quiz"><rect width="45" height="45" fill="#fff"/><path d="M2,2h1v1h-1zM3,2h1v1h-1zM4,2h1v1h-1zM5,2h1v1h-1zM6,2h1v1h-1zM7,2h1v1h-1zM8,2h1v1h-1zM13,2h1v1h-1zM14,2h1v1h-1zM15,2h1v1h-1zM17,2h1v1h-1zM19,2h1v1h-1zM21,2h1v1h-1zM22,2h1v1h-1zM23,2h1v1h-1zM25,2h1v1h-1zM27,2h1v1h-1zM28,2h1v1h-1zM30,2h1v1h-1zM32,2h1v1h-1zM33,2h1v1h-1zM34,2h1v1h-1zM36,2h1v1h-1zM37,2h1v1h-1zM38,2h1v1h-1zM39,2h1v1h-1zM40,2h1v1h-1zM41,2h1v1h-1zM42,2h1v1h-1zM2,3h1v1h-1zM8,3h1v1h-1zM11,3h1v1h-1zM12,3h1v1h-1zM13,3h1v1h-1zM14,3h1v1h-1zM15,3h1v1h-1zM16,3h1v1h-1zM19,3h1v1h-1zM23,3h1v1h-1zM27,3h1v1h-1zM28,3h1v1h-1zM29,3h1v1h-1zM30,3h1v1h-1zM31,3h1v1h-1zM32,3h1v1h-1zM34,3h1v1h-1zM36,3h1v1h-1zM42,3h1v1h-1zM2,4h1v1h-1zM4,4h1v1h-1zM5,4h1v1h-1zM6,4h1v1h-1zM8,4h1v1h-1zM10,4h1v1h-1zM11,4h1v1h-1zM14,4h1v1h-1zM15,4h1v1h-1zM16,4h1v1h-1zM17,4h1v1h-1zM18,4h1v1h-1zM19,4h1v1h-1zM20,4h1v1h-1zM21,4h1v1h-1zM22,4h1v1h-1zM23,4h1v1h-1zM24,4h1v1h-1zM27,4h1v1h-1zM32,4h1v1h-1zM33,4h1v1h-1zM34,4h1v1h-1zM36,4h1v1h-1zM38,4h1v1h-1zM39,4h1v1h-1zM40,4h1v1h-1zM42,4h1v1h-1zM2,5h1v1h-1zM4,5h1v1h-1zM5,5h1v1h-1zM6,5h1v1h-1zM8,5h1v1h-1zM10,5h1v1h-1zM12,5h1v1h-1zM14,5h1v1h-1zM15,5h1v1h-1zM22,5h1v1h-1zM23,5h1v1h-1zM25,5h1v1h-1zM26,5h1v1h-1zM28,5h1v1h-1zM29,5h1v1h-1zM30,5h1v1h-1zM31,5h1v1h-1zM33,5h1v1h-1zM36,5h1v1h-1zM38,5h1v1h-1zM39,5h1v1h-1zM40,5h1v1h-1zM42,5h1v1h-1zM2,6h1v1h-1zM4,6h1v1h-1zM5,6h1v1h-1zM6,6h1v1h-1zM8,6h1v1h-1zM10,6h1v1h-1zM11,6h1v1h-1zM12,6h1v1h-1zM13,6h1v1h-1zM14,6h1v1h-1zM15,6h1v1h-1zM16,6h1v1h-1zM20,6h1v1h-1zM21,6h1v1h-1zM22,6h1v1h-1zM23,6h1v1h-1zM24,6h1v1h-1zM25,6h1v1h-1zM30,6h1v1h-1zM31,6h1v1h-1zM32,6h1v1h-1zM34,6h1v1h-1zM36,6h1v1h-1zM38,6h1v1h-1zM39,6h1v1h-1zM40,6h1v1h-1zM42,6h1v1h-1zM2,7h1v1h-1zM8,7h1v1h-1zM10,7h1v1h-1zM15,7h1v1h-1zM18,7h1v1h-1zM22,7h1v1h-1zM26,7h1v1h-1zM29,7h1v1h-1zM30,7h1v1h-1zM31,7h1v1h-1zM34,7h1v1h-1zM36,7h1v1h-1zM42,7h1v1h-1zM2,8h1v1h-1zM3,8h1v1h-1zM4,8h1v1h-1zM5,8h1v1h-1zM6,8h1v1h-1zM7,8h1v1h-1zM8,8h1v1h-1zM10,8h1v1h-1zM12,8h1v1h-1zM14,8h1v1h-1zM16,8h1v1h-1zM18,8h1v1h-1zM20,8h1v1h-1zM22,8h1v1h-1zM24,8h1v1h-1zM26,8h1v1h-1zM28,8h1v1h-1zM30,8h1v1h-1zM32,8h1v1h-1zM34,8h1v1h-1zM36,8h1v1h-1zM37,8h1v1h-1zM38,8h1v1h-1zM39,8h1v1h-1zM40,8h1v1h-1zM41,8h1v1h-1zM42,8h1v1h-1zM10,9h1v1h-1zM15,9h1v1h-1zM16,9h1v1h-1zM17,9h1v1h-1zM18,9h1v1h-1zM20,9h1v1h-1zM23,9h1v1h-1zM28,9h1v1h-1zM29,9h1v1h-1zM30,9h1v1h-1zM32,9h1v1h-1zM33,9h1v1h-1zM34,9h1v1h-1zM2,10h1v1h-1zM4,10h1v1h-1zM5,10h1v1h-1zM6,10h1v1h-1zM7,10h1v1h-1zM8,10h1v1h-1zM11,10h1v1h-1zM12,10h1v1h-1zM13,10h1v1h-1zM14,10h1v1h-1zM16,10h1v1h-1zM19,10h1v1h-1zM20,10h1v1h-1zM22,10h1v1h-1zM24,10h1v1h-1zM27,10h1v1h-1zM28,10h1v1h-1zM29,10h1v1h-1zM31,10h1v1h-1zM33,10h1v1h-1zM36,10h1v1h-1zM37,10h1v1h-1zM38,10h1v1h-1zM39,10h1v1h-1zM40,10h1v1h-1zM3,11h1v1h-1zM4,11h1v1h-1zM7,11h1v1h-1zM10,11h1v1h-1zM13,11h1v1h-1zM14,11h1v1h-1zM17,11h1v1h-1zM18,11h1v1h-1zM20,11h1v1h-1zM21,11h1v1h-1zM22,11h1v1h-1zM25,11h1v1h-1zM28,11h1v1h-1zM30,11h1v1h-1zM32,11h1v1h-1zM33,11h1v1h-1zM34,11h1v1h-1zM35,11h1v1h-1zM36,11h1v1h-1zM37,11h1v1h-1zM38,11h1v1h-1zM40,11h1v1h-1zM41,11h1v1h-1zM42,11h1v1h-1zM2,12h1v1h-1zM3,12h1v1h-1zM5,12h1v1h-1zM6,12h1v1h-1zM8,12h1v1h-1zM9,12h1v1h-1zM11,12h1v1h-1zM23,12h1v1h-1zM29,12h1v1h-1zM31,12h1v1h-1zM32,12h1v1h-1zM34,12h1v1h-1zM35,12h1v1h-1zM3,13h1v1h-1zM4,13h1v1h-1zM5,13h1v1h-1zM13,13h1v1h-1zM15,13h1v1h-1zM17,13h1v1h-1zM18,13h1v1h-1zM21,13h1v1h-1zM23,13h1v1h-1zM24,13h1v1h-1zM29,13h1v1h-1zM30,13h1v1h-1zM33,13h1v1h-1zM34,13h1v1h-1zM35,13h1v1h-1zM36,13h1v1h-1zM37,13h1v1h-1zM38,13h1v1h-1zM39,13h1v1h-1zM42,13h1v1h-1zM2,14h1v1h-1zM3,14h1v1h-1zM5,14h1v1h-1zM6,14h1v1h-1zM8,14h1v1h-1zM9,14h1v1h-1zM12,14h1v1h-1zM15,14h1v1h-1zM17,14h1v1h-1zM18,14h1v1h-1zM19,14h1v1h-1zM22,14h1v1h-1zM24,14h1v1h-1zM26,14h1v1h-1zM27,14h1v1h-1zM28,14h1v1h-1zM30,14h1v1h-1zM33,14h1v1h-1zM34,14h1v1h-1zM39,14h1v1h-1zM40,14h1v1h-1zM41,14h1v1h-1zM3,15h1v1h-1zM5,15h1v1h-1zM6,15h1v1h-1zM12,15h1v1h-1zM14,15h1v1h-1zM15,15h1v1h-1zM20,15h1v1h-1zM23,15h1v1h-1zM29,15h1v1h-1zM31,15h1v1h-1zM33,15h1v1h-1zM34,15h1v1h-1zM35,15h1v1h-1zM36,15h1v1h-1zM38,15h1v1h-1zM39,15h1v1h-1zM41,15h1v1h-1zM42,15h1v1h-1zM2,16h1v1h-1zM6,16h1v1h-1zM8,16h1v1h-1zM9,16h1v1h-1zM13,16h1v1h-1zM14,16h1v1h-1zM15,16h1v1h-1zM16,16h1v1h-1zM18,16h1v1h-1zM19,16h1v1h-1zM20,16h1v1h-1zM22,16h1v1h-1zM23,16h1v1h-1zM25,16h1v1h-1zM26,16h1v1h-1zM28,16h1v1h-1zM29,16h1v1h-1zM30,16h1v1h-1zM31,16h1v1h-1zM35,16h1v1h-1zM41,16h1v1h-1zM3,17h1v1h-1zM6,17h1v1h-1zM7,17h1v1h-1zM10,17h1v1h-1zM13,17h1v1h-1zM14,17h1v1h-1zM15,17h1v1h-1zM16,17h1v1h-1zM17,17h1v1h-1zM20,17h1v1h-1zM23,17h1v1h-1zM24,17h1v1h-1zM25,17h1v1h-1zM28,17h1v1h-1zM29,17h1v1h-1zM32,17h1v1h-1zM34,17h1v1h-1zM36,17h1v1h-1zM38,17h1v1h-1zM39,17h1v1h-1zM41,17h1v1h-1zM42,17h1v1h-1zM4,18h1v1h-1zM8,18h1v1h-1zM9,18h1v1h-1zM10,18h1v1h-1zM11,18h1v1h-1zM13,18h1v1h-1zM14,18h1v1h-1zM16,18h1v1h-1zM17,18h1v1h-1zM19,18h1v1h-1zM22,18h1v1h-1zM25,18h1v1h-1zM26,18h1v1h-1zM27,18h1v1h-1zM28,18h1v1h-1zM29,18h1v1h-1zM31,18h1v1h-1zM32,18h1v1h-1zM35,18h1v1h-1zM37,18h1v1h-1zM40,18h1v1h-1zM41,18h1v1h-1zM42,18h1v1h-1zM2,19h1v1h-1zM3,19h1v1h-1zM4,19h1v1h-1zM5,19h1v1h-1zM9,19h1v1h-1zM13,19h1v1h-1zM14,19h1v1h-1zM16,19h1v1h-1zM17,19h1v1h-1zM18,19h1v1h-1zM20,19h1v1h-1zM21,19h1v1h-1zM22,19h1v1h-1zM25,19h1v1h-1zM26,19h1v1h-1zM30,19h1v1h-1zM32,19h1v1h-1zM33,19h1v1h-1zM34,19h1v1h-1zM36,19h1v1h-1zM37,19h1v1h-1zM38,19h1v1h-1zM39,19h1v1h-1zM40,19h1v1h-1zM42,19h1v1h-1zM2,20h1v1h-1zM4,20h1v1h-1zM5,20h1v1h-1zM6,20h1v1h-1zM8,20h1v1h-1zM9,20h1v1h-1zM11,20h1v1h-1zM12,20h1v1h-1zM13,20h1v1h-1zM15,20h1v1h-1zM16,20h1v1h-1zM18,20h1v1h-1zM20,20h1v1h-1zM22,20h1v1h-1zM24,20h1v1h-1zM26,20h1v1h-1zM29,20h1v1h-1zM30,20h1v1h-1zM34,20h1v1h-1zM36,20h1v1h-1zM38,20h1v1h-1zM39,20h1v1h-1zM2,21h1v1h-1zM6,21h1v1h-1zM11,21h1v1h-1zM14,21h1v1h-1zM17,21h1v1h-1zM28,21h1v1h-1zM35,21h1v1h-1zM36,21h1v1h-1zM38,21h1v1h-1zM39,21h1v1h-1zM4,22h1v1h-1zM5,22h1v1h-1zM7,22h1v1h-1zM8,22h1v1h-1zM9,22h1v1h-1zM11,22h1v1h-1zM13,22h1v1h-1zM14,22h1v1h-1zM15,22h1v1h-1zM17,22h1v1h-1zM20,22h1v1h-1zM21,22h1v1h-1zM22,22h1v1h-1zM23,22h1v1h-1zM24,22h1v1h-1zM25,22h1v1h-1zM29,22h1v1h-1zM31,22h1v1h-1zM33,22h1v1h-1zM37,22h1v1h-1zM39,22h1v1h-1zM40,22h1v1h-1zM41,22h1v1h-1zM42,22h1v1h-1zM2,23h1v1h-1zM5,23h1v1h-1zM9,23h1v1h-1zM10,23h1v1h-1zM13,23h1v1h-1zM15,23h1v1h-1zM18,23h1v1h-1zM19,23h1v1h-1zM21,23h1v1h-1zM22,23h1v1h-1zM25,23h1v1h-1zM28,23h1v1h-1zM30,23h1v1h-1zM31,23h1v1h-1zM32,23h1v1h-1zM33,23h1v1h-1zM35,23h1v1h-1zM36,23h1v1h-1zM37,23h1v1h-1zM38,23h1v1h-1zM39,23h1v1h-1zM40,23h1v1h-1zM41,23h1v1h-1zM42,23h1v1h-1zM6,24h1v1h-1zM7,24h1v1h-1zM8,24h1v1h-1zM11,24h1v1h-1zM12,24h1v1h-1zM15,24h1v1h-1zM17,24h1v1h-1zM19,24h1v1h-1zM22,24h1v1h-1zM24,24h1v1h-1zM27,24h1v1h-1zM29,24h1v1h-1zM32,24h1v1h-1zM34,24h1v1h-1zM35,24h1v1h-1zM36,24h1v1h-1zM37,24h1v1h-1zM38,24h1v1h-1zM39,24h1v1h-1zM40,24h1v1h-1zM2,25h1v1h-1zM4,25h1v1h-1zM5,25h1v1h-1zM6,25h1v1h-1zM11,25h1v1h-1zM12,25h1v1h-1zM15,25h1v1h-1zM17,25h1v1h-1zM18,25h1v1h-1zM20,25h1v1h-1zM21,25h1v1h-1zM22,25h1v1h-1zM23,25h1v1h-1zM24,25h1v1h-1zM26,25h1v1h-1zM28,25h1v1h-1zM33,25h1v1h-1zM34,25h1v1h-1zM37,25h1v1h-1zM39,25h1v1h-1zM42,25h1v1h-1zM2,26h1v1h-1zM3,26h1v1h-1zM4,26h1v1h-1zM6,26h1v1h-1zM7,26h1v1h-1zM8,26h1v1h-1zM9,26h1v1h-1zM11,26h1v1h-1zM13,26h1v1h-1zM15,26h1v1h-1zM16,26h1v1h-1zM19,26h1v1h-1zM21,26h1v1h-1zM22,26h1v1h-1zM24,26h1v1h-1zM26,26h1v1h-1zM27,26h1v1h-1zM29,26h1v1h-1zM31,26h1v1h-1zM33,26h1v1h-1zM37,26h1v1h-1zM40,26h1v1h-1zM41,26h1v1h-1zM42,26h1v1h-1zM2,27h1v1h-1zM3,27h1v1h-1zM4,27h1v1h-1zM5,27h1v1h-1zM6,27h1v1h-1zM9,27h1v1h-1zM12,27h1v1h-1zM19,27h1v1h-1zM20,27h1v1h-1zM21,27h1v1h-1zM22,27h1v1h-1zM25,27h1v1h-1zM30,27h1v1h-1zM32,27h1v1h-1zM33,27h1v1h-1zM36,27h1v1h-1zM37,27h1v1h-1zM38,27h1v1h-1zM39,27h1v1h-1zM42,27h1v1h-1zM8,28h1v1h-1zM9,28h1v1h-1zM11,28h1v1h-1zM12,28h1v1h-1zM15,28h1v1h-1zM20,28h1v1h-1zM22,28h1v1h-1zM24,28h1v1h-1zM26,28h1v1h-1zM29,28h1v1h-1zM30,28h1v1h-1zM31,28h1v1h-1zM32,28h1v1h-1zM34,28h1v1h-1zM37,28h1v1h-1zM38,28h1v1h-1zM3,29h1v1h-1zM5,29h1v1h-1zM17,29h1v1h-1zM22,29h1v1h-1zM23,29h1v1h-1zM24,29h1v1h-1zM28,29h1v1h-1zM30,29h1v1h-1zM33,29h1v1h-1zM34,29h1v1h-1zM37,29h1v1h-1zM38,29h1v1h-1zM39,29h1v1h-1zM3,30h1v1h-1zM6,30h1v1h-1zM7,30h1v1h-1zM8,30h1v1h-1zM9,30h1v1h-1zM10,30h1v1h-1zM13,30h1v1h-1zM15,30h1v1h-1zM19,30h1v1h-1zM24,30h1v1h-1zM27,30h1v1h-1zM28,30h1v1h-1zM31,30h1v1h-1zM32,30h1v1h-1zM33,30h1v1h-1zM34,30h1v1h-1zM39,30h1v1h-1zM40,30h1v1h-1zM41,30h1v1h-1zM42,30h1v1h-1zM2,31h1v1h-1zM3,31h1v1h-1zM5,31h1v1h-1zM7,31h1v1h-1zM9,31h1v1h-1zM11,31h1v1h-1zM14,31h1v1h-1zM17,31h1v1h-1zM18,31h1v1h-1zM22,31h1v1h-1zM26,31h1v1h-1zM28,31h1v1h-1zM29,31h1v1h-1zM30,31h1v1h-1zM31,31h1v1h-1zM32,31h1v1h-1zM33,31h1v1h-1zM34,31h1v1h-1zM35,31h1v1h-1zM36,31h1v1h-1zM37,31h1v1h-1zM38,31h1v1h-1zM40,31h1v1h-1zM42,31h1v1h-1zM2,32h1v1h-1zM4,32h1v1h-1zM5,32h1v1h-1zM7,32h1v1h-1zM8,32h1v1h-1zM10,32h1v1h-1zM12,32h1v1h-1zM14,32h1v1h-1zM18,32h1v1h-1zM20,32h1v1h-1zM21,32h1v1h-1zM23,32h1v1h-1zM24,32h1v1h-1zM28,32h1v1h-1zM35,32h1v1h-1zM36,32h1v1h-1zM37,32h1v1h-1zM38,32h1v1h-1zM2,33h1v1h-1zM6,33h1v1h-1zM7,33h1v1h-1zM10,33h1v1h-1zM14,33h1v1h-1zM15,33h1v1h-1zM16,33h1v1h-1zM18,33h1v1h-1zM21,33h1v1h-1zM22,33h1v1h-1zM23,33h1v1h-1zM24,33h1v1h-1zM26,33h1v1h-1zM28,33h1v1h-1zM30,33h1v1h-1zM33,33h1v1h-1zM34,33h1v1h-1zM35,33h1v1h-1zM36,33h1v1h-1zM37,33h1v1h-1zM38,33h1v1h-1zM39,33h1v1h-1zM41,33h1v1h-1zM42,33h1v1h-1zM2,34h1v1h-1zM6,34h1v1h-1zM7,34h1v1h-1zM8,34h1v1h-1zM9,34h1v1h-1zM11,34h1v1h-1zM12,34h1v1h-1zM13,34h1v1h-1zM14,34h1v1h-1zM16,34h1v1h-1zM17,34h1v1h-1zM19,34h1v1h-1zM21,34h1v1h-1zM24,34h1v1h-1zM26,34h1v1h-1zM27,34h1v1h-1zM28,34h1v1h-1zM31,34h1v1h-1zM33,34h1v1h-1zM34,34h1v1h-1zM35,34h1v1h-1zM36,34h1v1h-1zM37,34h1v1h-1zM38,34h1v1h-1zM39,34h1v1h-1zM40,34h1v1h-1zM41,34h1v1h-1zM42,34h1v1h-1zM10,35h1v1h-1zM13,35h1v1h-1zM14,35h1v1h-1zM15,35h1v1h-1zM17,35h1v1h-1zM18,35h1v1h-1zM19,35h1v1h-1zM20,35h1v1h-1zM21,35h1v1h-1zM22,35h1v1h-1zM23,35h1v1h-1zM25,35h1v1h-1zM27,35h1v1h-1zM30,35h1v1h-1zM32,35h1v1h-1zM34,35h1v1h-1zM38,35h1v1h-1zM41,35h1v1h-1zM42,35h1v1h-1zM2,36h1v1h-1zM3,36h1v1h-1zM4,36h1v1h-1zM5,36h1v1h-1zM6,36h1v1h-1zM7,36h1v1h-1zM8,36h1v1h-1zM11,36h1v1h-1zM12,36h1v1h-1zM14,36h1v1h-1zM15,36h1v1h-1zM16,36h1v1h-1zM18,36h1v1h-1zM19,36h1v1h-1zM23,36h1v1h-1zM27,36h1v1h-1zM28,36h1v1h-1zM29,36h1v1h-1zM30,36h1v1h-1zM33,36h1v1h-1zM34,36h1v1h-1zM36,36h1v1h-1zM38,36h1v1h-1zM40,36h1v1h-1zM2,37h1v1h-1zM8,37h1v1h-1zM10,37h1v1h-1zM11,37h1v1h-1zM14,37h1v1h-1zM18,37h1v1h-1zM19,37h1v1h-1zM20,37h1v1h-1zM22,37h1v1h-1zM23,37h1v1h-1zM24,37h1v1h-1zM26,37h1v1h-1zM27,37h1v1h-1zM29,37h1v1h-1zM33,37h1v1h-1zM34,37h1v1h-1zM38,37h1v1h-1zM39,37h1v1h-1zM42,37h1v1h-1zM2,38h1v1h-1zM4,38h1v1h-1zM5,38h1v1h-1zM6,38h1v1h-1zM8,38h1v1h-1zM10,38h1v1h-1zM11,38h1v1h-1zM12,38h1v1h-1zM15,38h1v1h-1zM16,38h1v1h-1zM17,38h1v1h-1zM21,38h1v1h-1zM23,38h1v1h-1zM25,38h1v1h-1zM26,38h1v1h-1zM28,38h1v1h-1zM29,38h1v1h-1zM30,38h1v1h-1zM32,38h1v1h-1zM34,38h1v1h-1zM35,38h1v1h-1zM36,38h1v1h-1zM37,38h1v1h-1zM38,38h1v1h-1zM40,38h1v1h-1zM2,39h1v1h-1zM4,39h1v1h-1zM5,39h1v1h-1zM6,39h1v1h-1zM8,39h1v1h-1zM10,39h1v1h-1zM12,39h1v1h-1zM20,39h1v1h-1zM21,39h1v1h-1zM23,39h1v1h-1zM24,39h1v1h-1zM25,39h1v1h-1zM27,39h1v1h-1zM30,39h1v1h-1zM32,39h1v1h-1zM33,39h1v1h-1zM34,39h1v1h-1zM35,39h1v1h-1zM37,39h1v1h-1zM39,39h1v1h-1zM40,39h1v1h-1zM2,40h1v1h-1zM4,40h1v1h-1zM5,40h1v1h-1zM6,40h1v1h-1zM8,40h1v1h-1zM10,40h1v1h-1zM11,40h1v1h-1zM13,40h1v1h-1zM15,40h1v1h-1zM16,40h1v1h-1zM17,40h1v1h-1zM20,40h1v1h-1zM26,40h1v1h-1zM28,40h1v1h-1zM29,40h1v1h-1zM30,40h1v1h-1zM31,40h1v1h-1zM32,40h1v1h-1zM35,40h1v1h-1zM36,40h1v1h-1zM37,40h1v1h-1zM38,40h1v1h-1zM40,40h1v1h-1zM2,41h1v1h-1zM8,41h1v1h-1zM12,41h1v1h-1zM13,41h1v1h-1zM16,41h1v1h-1zM18,41h1v1h-1zM19,41h1v1h-1zM20,41h1v1h-1zM21,41h1v1h-1zM22,41h1v1h-1zM23,41h1v1h-1zM25,41h1v1h-1zM26,41h1v1h-1zM28,41h1v1h-1zM29,41h1v1h-1zM30,41h1v1h-1zM34,41h1v1h-1zM35,41h1v1h-1zM36,41h1v1h-1zM38,41h1v1h-1zM41,41h1v1h-1zM2,42h1v1h-1zM3,42h1v1h-1zM4,42h1v1h-1zM5,42h1v1h-1zM6,42h1v1h-1zM7,42h1v1h-1zM8,42h1v1h-1zM10,42h1v1h-1zM13,42h1v1h-1zM14,42h1v1h-1zM15,42h1v1h-1zM16,42h1v1h-1zM17,42h1v1h-1zM19,42h1v1h-1zM21,42h1v1h-1zM24,42h1v1h-1zM26,42h1v1h-1zM27,42h1v1h-1zM28,42h1v1h-1zM31,42h1v1h-1zM33,42h1v1h-1zM37,42h1v1h-1zM38,42h1v1h-1zM40,42h1v1h-1z" fill="#141414"/></svg></div>
+        <a class="modale__lien" id="lien-quiz" href="https://nicolas-derobert.github.io/CS-reparation/quizz-revision-accueil-a-livraison-rentree" target="_blank" rel="noopener">https://nicolas-derobert.github.io/CS-reparation/quizz-revision-accueil-a-livraison-rentree</a>
+        <div class="modale__actions">
+            <button class="ehg-btn" onclick="copierLien()" id="btn-copier">Copier le lien</button>
+            <a class="ehg-btn ehg-btn--secondaire" href="https://nicolas-derobert.github.io/CS-reparation/quizz-revision-accueil-a-livraison-rentree" target="_blank" rel="noopener">Ouvrir dans un nouvel onglet</a>
+        </div>
+    </div>
+</div>
+
 <script>
         const quizThemes = [
             {
-                id: "theme-1",
-                title: "1. Intro & Missions",
-                questions: [
+                "id": "theme-1",
+                "title": "1. Intro & Missions",
+                "questions": [
                     {
-                        question: "Qu'est-ce que le Service Après-Vente (SAV) selon la définition du cours ?",
-                        options: ["La vente d'extensions de garantie uniquement", "L'ensemble des activités visant à maintenir en état les biens et garantir la satisfaction client", "Le département chargé de fabriquer de nouveaux produits", "Une simple hotline téléphonique"],
-                        correctAnswer: 1,
-                        explanation: "Le SAV a pour objectif principal d'assurer la pérennité du produit, de satisfaire le client et de maintenir la bonne image de la marque.",
-                        quote: "Le Service Après-Vente a pour objectif de maintenir en état de fonctionnement des biens durables en fournissant un service de qualité́, rapide et efficace à un prix raisonnable."
+                        "question": "Qu'est-ce que le Service Après-Vente (SAV) selon la définition du cours ?",
+                        "options": [
+                            "La prise en charge gratuite des défauts de fabrication pendant la période de garantie",
+                            "L'ensemble des activités visant à maintenir en état les biens et garantir la satisfaction client",
+                            "L'ensemble des opérations de réparation réalisées en atelier après la vente",
+                            "Le service chargé de la relation client (accueil, réclamations, conseils)"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Le SAV a pour objectif principal d'assurer la pérennité du produit, de satisfaire le client et de maintenir la bonne image de la marque.",
+                        "quote": "Le Service Après-Vente a pour objectif de maintenir en état de fonctionnement des biens durables en fournissant un service de qualité́, rapide et efficace à un prix raisonnable."
                     },
                     {
-                        question: "Avant la révolution industrielle, sur quoi reposait le fonctionnement du SAV ?",
-                        options: ["Sur la proximité et la réputation de l'artisan (relation directe)", "Sur de complexes contrats de garantie internationaux", "Sur des centres de réparation centralisés", "Il n'y avait aucun suivi après la vente"],
-                        correctAnswer: 0,
-                        explanation: "L'artisan de proximité assurait naturellement le suivi de ses propres ventes, instaurant une relation de confiance directe.",
-                        quote: "Avant la révolution industrielle : relation directe artisan–client. Le SAV était intégré naturellement. Exemple : l’horloger du village réparait directement la montre vendue."
+                        "question": "Avant la révolution industrielle, sur quoi reposait le fonctionnement du SAV ?",
+                        "options": [
+                            "Sur la proximité et la réputation de l'artisan (relation directe)",
+                            "Sur les corporations, qui garantissaient le travail de leurs membres",
+                            "Sur le détaillant, seul interlocuteur du client pour l'entretien",
+                            "Sur un réseau de réparateurs agréés par les manufactures"
+                        ],
+                        "correctAnswer": 0,
+                        "explanation": "L'artisan de proximité assurait naturellement le suivi de ses propres ventes, instaurant une relation de confiance directe.",
+                        "quote": "Avant la révolution industrielle : relation directe artisan–client. Le SAV était intégré naturellement. Exemple : l’horloger du village réparait directement la montre vendue."
                     },
                     {
-                        question: "Quel rôle joue le SAV dans l'amélioration continue de l'entreprise ?",
-                        options: ["Il aide à améliorer les futurs produits grâce à la remontée d'informations", "Il détermine les prix de vente des montres", "Il sanctionne les erreurs de l'équipe de production", "Il gère les budgets publicitaires"],
-                        correctAnswer: 0,
-                        explanation: "Les statistiques des pannes récurrentes sont cruciales pour concevoir de meilleurs produits à l'avenir.",
-                        quote: "Contribuer à l’évolution des futurs produits en faisant remonter les informations sur l’adéquation des produits aux besoins et envies des clients."
+                        "question": "Quel rôle joue le SAV dans l'amélioration continue de l'entreprise ?",
+                        "options": [
+                            "Il aide à améliorer les futurs produits grâce à la remontée d'informations",
+                            "Il valide la qualité des produits avant leur mise sur le marché",
+                            "Il mesure la satisfaction client pour fixer les prix de vente",
+                            "Il forme le personnel de production aux défauts constatés"
+                        ],
+                        "correctAnswer": 0,
+                        "explanation": "Les statistiques des pannes récurrentes sont cruciales pour concevoir de meilleurs produits à l'avenir.",
+                        "quote": "Contribuer à l’évolution des futurs produits en faisant remonter les informations sur l’adéquation des produits aux besoins et envies des clients."
                     },
                     {
-                        question: "Parmi ces tâches, laquelle relève d'une mission LOGISTIQUE du Service Client ?",
-                        options: ["Contrôler la qualité des interventions avant livraison", "Accueillir et écouter les clients", "Gérer les stocks et assurer la disponibilité des pièces", "Établir des devis clairs"],
-                        correctAnswer: 2,
-                        explanation: "La gestion des stocks et la disponibilité des pièces font partie intégrante des missions logistiques du SAV.",
-                        quote: "Missions logistiques : Gérer les stocks et assurer la disponibilité des pièces. Stocker et vendre les pièces détachées... Définir des délais de livraison."
+                        "question": "Parmi ces tâches, laquelle relève d'une mission LOGISTIQUE du Service Client ?",
+                        "options": [
+                            "Contrôler la qualité des interventions avant livraison",
+                            "Suivre l'avancement des réparations et les délais annoncés",
+                            "Gérer les stocks et assurer la disponibilité des pièces",
+                            "Planifier la charge de travail des horlogers"
+                        ],
+                        "correctAnswer": 2,
+                        "explanation": "La gestion des stocks et la disponibilité des pièces font partie intégrante des missions logistiques du SAV.",
+                        "quote": "Missions logistiques : Gérer les stocks et assurer la disponibilité des pièces. Stocker et vendre les pièces détachées... Définir des délais de livraison."
                     },
                     {
-                        question: "Quelle est l'une des missions de SUPPORT aux activités du CS ?",
-                        options: ["Réaliser la réparation sous garantie", "Définir les procédures de maintenance et les besoins en outillage", "Éditer la documentation marketing", "Vendre des pièces au client final"],
-                        correctAnswer: 1,
-                        explanation: "Le support CS définit le cadre technique : procédures, postes de travail et outils nécessaires.",
-                        quote: "Missions de support aux activités CS : Définir les procédures de maintenance et de réparation... Définir les besoins en outillage spécifique pour les réparations."
+                        "question": "Quelle est l'une des missions de SUPPORT aux activités du CS ?",
+                        "options": [
+                            "Réaliser la réparation sous garantie",
+                            "Définir les procédures de maintenance et les besoins en outillage",
+                            "Établir les devis et les factures des réparations",
+                            "Former les détaillants à l'accueil des clients"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Le support CS définit le cadre technique : procédures, postes de travail et outils nécessaires.",
+                        "quote": "Missions de support aux activités CS : Définir les procédures de maintenance et de réparation... Définir les besoins en outillage spécifique pour les réparations."
                     },
                     {
-                        question: "Comment le développement des moyens de communication a-t-il impacté le SAV ?",
-                        options: ["Il a supprimé le besoin de réparer les montres", "Il a permis un service élargi et plus rapide (hotline, prise de RDV en ligne)", "Il a ralenti considérablement le traitement des dossiers", "Il a rendu les garanties inutiles"],
-                        correctAnswer: 1,
-                        explanation: "Le téléphone, les e-mails et internet ont permis d'offrir des services plus accessibles et rapides.",
-                        quote: "Développement de nouveau moyens de communication (téléphone, e-mail, réseaux sociaux) → service élargi et plus rapide (ex : hotline, chat en ligne, prise de rendez-vous en ligne...)."
+                        "question": "Comment le développement des moyens de communication a-t-il impacté le SAV ?",
+                        "options": [
+                            "Il a permis de remplacer les réparations par des échanges standard",
+                            "Il a permis un service élargi et plus rapide (hotline, prise de RDV en ligne)",
+                            "Il a concentré toutes les réparations dans des centres régionaux",
+                            "Il a réduit le rôle du détaillant à la seule vente"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Le téléphone, les e-mails et internet ont permis d'offrir des services plus accessibles et rapides.",
+                        "quote": "Développement de nouveau moyens de communication (téléphone, e-mail, réseaux sociaux) → service élargi et plus rapide (ex : hotline, chat en ligne, prise de rendez-vous en ligne...)."
                     }
                 ]
             },
             {
-                id: "theme-2",
-                title: "2. Stratégie & Structure",
-                questions: [
+                "id": "theme-2",
+                "title": "2. Stratégie & Structure",
+                "questions": [
                     {
-                        question: "Comment une politique SAV bien structurée transforme-t-elle le Service Client ?",
-                        options: ["Elle le transforme d'un centre de coût en un moteur de valeur (levier stratégique)", "Elle permet de sous-traiter 100% des opérations", "Elle élimine la concurrence du marché", "Elle réduit le salaire des horlogers"],
-                        correctAnswer: 0,
-                        explanation: "Sans vision, le SAV est vu comme une dépense. Avec une politique claire, il fidélise et devient un avantage concurrentiel.",
-                        quote: "Sans vision stratégique, un Service Client reste un coût plus qu’un atout. Avec une politique bien structurée, il devient un moteur de valeur."
+                        "question": "Comment une politique SAV bien structurée transforme-t-elle le Service Client ?",
+                        "options": [
+                            "Elle le transforme d'un centre de coût en un moteur de valeur (levier stratégique)",
+                            "Elle permet de réduire l'effectif administratif du SAV",
+                            "Elle garantit un délai de réparation identique pour tous les clients",
+                            "Elle transfère la gestion des garanties aux détaillants"
+                        ],
+                        "correctAnswer": 0,
+                        "explanation": "Sans vision, le SAV est vu comme une dépense. Avec une politique claire, il fidélise et devient un avantage concurrentiel.",
+                        "quote": "Sans vision stratégique, un Service Client reste un coût plus qu’un atout. Avec une politique bien structurée, il devient un moteur de valeur."
                     },
                     {
-                        question: "Que désigne l'effectif dit « non productif » au sein d'un atelier SAV ?",
-                        options: ["Le personnel en congé", "Le personnel qui n'exécute pas directement des réparations (administratif, magasinier, encadrement)", "Les stagiaires et apprentis", "Les horlogers qui travaillent lentement"],
-                        correctAnswer: 1,
-                        explanation: "Ce terme technique qualifie l'ensemble des fonctions de support indispensables, mais qui ne réparent pas elles-mêmes à l'établi.",
-                        quote: "L’effectif « non productif » est celui qui n’est pas affecté à des tâches de réparation. Il correspond aux nombre de personnes qui n’exécutent pas directement des réparations : encadrement, administratif, magasinier..."
+                        "question": "Que désigne l'effectif dit « non productif » au sein d'un atelier SAV ?",
+                        "options": [
+                            "Le personnel en formation ou en période d'essai",
+                            "Le personnel qui n'exécute pas directement des réparations (administratif, magasinier, encadrement)",
+                            "Les horlogers affectés au contrôle final plutôt qu'à la réparation",
+                            "Le personnel dont le temps n'est pas facturé au client (garantie, goodwill)"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Ce terme technique qualifie l'ensemble des fonctions de support indispensables, mais qui ne réparent pas elles-mêmes à l'établi.",
+                        "quote": "L’effectif « non productif » est celui qui n’est pas affecté à des tâches de réparation. Il correspond aux nombre de personnes qui n’exécutent pas directement des réparations : encadrement, administratif, magasinier..."
                     },
                     {
-                        question: "Dans une grande organisation internationale, de quel département dépend le plus souvent le SAV ?",
-                        options: ["Des Ressources Humaines", "De la comptabilité", "Du département commercial (marketing) ou de la production", "Du service de nettoyage"],
-                        correctAnswer: 2,
-                        explanation: "Bien qu'indépendant dans ses locaux, il est stratégiquement rattaché aux pôles qui vendent ou fabriquent le produit.",
-                        quote: "Dans les grandes organisations qui agissent sur le plan international, le SAV dépend le plus souvent du département commercial (marketing) ou du département de production."
+                        "question": "Dans une grande organisation internationale, de quel département dépend le plus souvent le SAV ?",
+                        "options": [
+                            "De la direction générale",
+                            "Du département qualité",
+                            "Du département commercial (marketing) ou de la production",
+                            "Du département finances"
+                        ],
+                        "correctAnswer": 2,
+                        "explanation": "Bien qu'indépendant dans ses locaux, il est stratégiquement rattaché aux pôles qui vendent ou fabriquent le produit.",
+                        "quote": "Dans les grandes organisations qui agissent sur le plan international, le SAV dépend le plus souvent du département commercial (marketing) ou du département de production."
                     },
                     {
-                        question: "Dans un SAV de petite taille, quelle est la réalité concernant le personnel ?",
-                        options: ["Une ultra-spécialisation de chacun", "La polyvalence (le responsable s'occupe des pièces et répare lui-même)", "Aucun contact avec la clientèle", "L'absence de facturation"],
-                        correctAnswer: 1,
-                        explanation: "Les petites structures exigent que le personnel (dont le responsable) assure plusieurs fonctions simultanément.",
-                        quote: "Dans un SAV de petite taille, le responsable s’occupe des pièces détachées, des commandes et de la gestion du travail mais continue aussi le plus souvent à assurer une partie des réparations."
+                        "question": "Dans un SAV de petite taille, quelle est la réalité concernant le personnel ?",
+                        "options": [
+                            "Chaque collaborateur est spécialisé sur un type d'intervention",
+                            "La polyvalence (le responsable s'occupe des pièces et répare lui-même)",
+                            "Le responsable se consacre à l'administration et au contact client",
+                            "Les réparations complexes sont systématiquement sous-traitées"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Les petites structures exigent que le personnel (dont le responsable) assure plusieurs fonctions simultanément.",
+                        "quote": "Dans un SAV de petite taille, le responsable s’occupe des pièces détachées, des commandes et de la gestion du travail mais continue aussi le plus souvent à assurer une partie des réparations."
                     },
                     {
-                        question: "Comment se calcule le « Ratio de non productif » d'un SAV ?",
-                        options: ["Montres réparées / Effectif total", "Effectif non productif / Effectif total du SAV", "Chiffre d'affaires / Nombre d'employés", "Nombre de devis / Nombre de réparations"],
-                        correctAnswer: 1,
-                        explanation: "C'est un indicateur clé pour évaluer le poids administratif par rapport à la taille globale de l'atelier.",
-                        quote: "Ratio de non productif = Effectif non productif / Effectif total du SAV"
+                        "question": "Comment se calcule le « Ratio de non productif » d'un SAV ?",
+                        "options": [
+                            "Effectif non productif / Effectif productif",
+                            "Effectif non productif / Effectif total du SAV",
+                            "Heures non facturées / Heures totales travaillées",
+                            "Effectif administratif / Nombre d'horlogers"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Le ratio rapporte les personnes qui n'exécutent pas directement de réparations (encadrement, administration, magasin) à l'effectif total du SAV. Dans l'exemple du cours (atelier de 15 personnes), il vaut 3 / 15 = 20 % ; si le responsable passe encore la moitié de son temps à l'établi, on le compte pour 0,5 : 2,5 / 15 ≈ 17 %.",
+                        "quote": "Ratio de non productif = Effectif non productif / Effectif total du SAV. Exemple : un atelier indépendant de 15 personnes compte 1 responsable, 1 personne à l'accueil et à l'administration, 1 magasinier et 12 horlogers. Effectif non productif = 3 ; ratio = 3 / 15 = 20 %."
                     },
                     {
-                        question: "Qu'indique généralement un ratio non productif très élevé (entre 50% et 100%) ?",
-                        options: ["Une excellente rentabilité", "Une entreprise qui va fermer", "Une faible rentabilité mais une forte orientation sur la satisfaction client", "Une absence de contrôle final"],
-                        correctAnswer: 2,
-                        explanation: "Avoir beaucoup de personnel encadrant/administratif coûte cher, mais permet d'offrir un suivi très qualitatif au client.",
-                        quote: "Tableau de rentabilité : Ratio « non productif » : Entre 50% et 100% | Objectifs principaux : Forte Satisfaction client | Faible rentabilité."
+                        "question": "Selon les repères du cours, qu'indique un ratio « non productif » élevé (plus de 50 %) ?",
+                        "options": [
+                            "Une rentabilité élevée grâce à un meilleur encadrement",
+                            "Un SAV qui sous-traite la majorité de ses réparations",
+                            "Une faible rentabilité mais une forte orientation sur la satisfaction client",
+                            "Un effectif d'horlogers insuffisant pour la charge de travail"
+                        ],
+                        "correctAnswer": 2,
+                        "explanation": "Plus la part de non-productifs est élevée, plus les coûts fixes pèsent sur chaque réparation : la rentabilité baisse. En contrepartie, un SAV bien doté en accueil, administration et logistique sert mieux ses clients. Ces fourchettes sont des repères d'enseignement, pas des normes, et le ratio ne peut jamais atteindre 100 % : sans horloger, il n'y a pas de SAV.",
+                        "quote": "Ratio « non productif » : Élevé, plus de 50 % → faible rentabilité, forte satisfaction client. Moyen, entre 40 % et 50 % → rentabilité moyenne. Faible, moins de 40 % → rentabilité élevée, basse satisfaction client."
                     }
                 ]
             },
             {
-                id: "theme-3",
-                title: "3. Réception & Accueil",
-                questions: [
+                "id": "theme-3",
+                "title": "3. Réception & Accueil",
+                "questions": [
                     {
-                        question: "Lors de la réception d'une montre de luxe, quel est l'objectif premier du personnel ?",
-                        options: ["Facturer le plus vite possible", "Établir une relation de confiance, écouter et identifier précisément la montre", "Démonter la montre devant le client", "Remplacer le bracelet immédiatement"],
-                        correctAnswer: 1,
-                        explanation: "L'accueil doit refléter l'image de la marque : courtoisie, écoute attentive et collecte rigoureuse des informations.",
-                        quote: "Le personnel du SAV invite le client à fournir ses informations personnelles et les détails de la montre à réparer... Un membre du personnel SAV écoute attentivement les préoccupations du client..."
+                        "question": "Lors de la réception d'une montre de luxe, quel est l'objectif premier du personnel ?",
+                        "options": [
+                            "Établir rapidement un devis pour fixer le client sur le prix",
+                            "Établir une relation de confiance, écouter et identifier précisément la montre",
+                            "Vérifier l'authenticité de la montre avant toute prise en charge",
+                            "Réaliser un diagnostic technique complet devant le client"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "L'accueil doit refléter l'image de la marque : courtoisie, écoute attentive et collecte rigoureuse des informations.",
+                        "quote": "Le personnel du SAV invite le client à fournir ses informations personnelles et les détails de la montre à réparer... Un membre du personnel SAV écoute attentivement les préoccupations du client..."
                     },
                     {
-                        question: "Quelle est l'utilité principale de « l'inspection initiale (diagnostic visuel) » ?",
-                        options: ["Connaître la marge bénéficiaire", "Détecter d'éventuels dommages apparents (chocs, rayures) et faire des tests simples", "Réparer la montre immédiatement", "Nettoyer l'intérieur du mouvement"],
-                        correctAnswer: 1,
-                        explanation: "Ce diagnostic rapide avant démontage permet de protéger l'horloger et d'informer le client sur l'état exact de la pièce à son dépôt.",
-                        quote: "Inspection initiale (diagnostic visuel) Objectifs : Évaluer l’état extérieur, faire des tests simples, rechercher les défauts visibles (chocs, coup, marques, montre accidentée)."
+                        "question": "Quelle est l'utilité principale de « l'inspection initiale (diagnostic visuel) » ?",
+                        "options": [
+                            "Établir le devis définitif de la réparation",
+                            "Détecter d'éventuels dommages apparents (chocs, rayures) et faire des tests simples",
+                            "Identifier les causes internes de la panne",
+                            "Décider si la montre relève de la garantie"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Ce diagnostic rapide avant démontage permet de protéger l'horloger et d'informer le client sur l'état exact de la pièce à son dépôt.",
+                        "quote": "Inspection initiale (diagnostic visuel) Objectifs : Évaluer l’état extérieur, faire des tests simples, rechercher les défauts visibles (chocs, coup, marques, montre accidentée)."
                     },
                     {
-                        question: "Quelle « Bonne pratique » est fortement recommandée lors de la réception d'une pièce ?",
-                        options: ["Prendre des photos de l'état général de la montre", "Jeter l'écrin du client", "Ne jamais demander la carte de garantie", "Faire payer le diagnostic visuel"],
-                        correctAnswer: 0,
-                        explanation: "La documentation photographique évite les litiges sur d'éventuelles rayures ou chocs préexistants.",
-                        quote: "Bonne pratique : Prendre des photos de l’état général à l’ouverture."
+                        "question": "Quelle « Bonne pratique » est fortement recommandée lors de la réception d'une pièce ?",
+                        "options": [
+                            "Prendre des photos de l'état général de la montre",
+                            "Ouvrir le fond de boîte pour vérifier le calibre devant le client",
+                            "Demander au client de signer une décharge pour les rayures existantes",
+                            "Tester l'étanchéité avant d'enregistrer la montre"
+                        ],
+                        "correctAnswer": 0,
+                        "explanation": "La documentation photographique évite les litiges sur d'éventuelles rayures ou chocs préexistants.",
+                        "quote": "Bonne pratique : Prendre des photos de l’état général à l’ouverture."
                     },
                     {
-                        question: "Pourquoi le personnel analyse-t-il les documents fournis par le client (factures, certificats) ?",
-                        options: ["Pour vérifier l'authenticité de la montre et déterminer si elle est sous garantie", "Pour évaluer les revenus du client", "Pour les archiver définitivement", "Pour calculer les taxes douanières"],
-                        correctAnswer: 0,
-                        explanation: "C'est l'étape cruciale pour savoir si la réparation sera facturée ou prise en charge par la marque.",
-                        quote: "Si le client fournit des documents tels que des certificats d'authenticité, des factures d'achat ou des garanties, le personnel du SAV les examine soigneusement pour vérifier l'authenticité de la montre et déterminer si cette dernière est encore sous garantie."
+                        "question": "Pourquoi le personnel analyse-t-il les documents fournis par le client (factures, certificats) ?",
+                        "options": [
+                            "Pour vérifier l'authenticité de la montre et déterminer si elle est sous garantie",
+                            "Pour estimer la valeur de la montre et fixer le montant de l'assurance transport",
+                            "Pour retrouver le détaillant et lui refacturer l'intervention",
+                            "Pour compléter la fiche de vie avec la date d'achat et le prix payé"
+                        ],
+                        "correctAnswer": 0,
+                        "explanation": "C'est l'étape cruciale pour savoir si la réparation sera facturée ou prise en charge par la marque.",
+                        "quote": "Si le client fournit des documents tels que des certificats d'authenticité, des factures d'achat ou des garanties, le personnel du SAV les examine soigneusement pour vérifier l'authenticité de la montre et déterminer si cette dernière est encore sous garantie."
                     },
                     {
-                        question: "Que fait le personnel du SAV une fois l'inspection initiale terminée avec le client ?",
-                        options: ["Il rend la montre au client", "Il discute des options de réparation, des coûts associés et des délais prévus", "Il jette la montre si elle est rayée", "Il envoie directement la facture"],
-                        correctAnswer: 1,
-                        explanation: "Le client doit être informé des prochaines étapes et des coûts potentiels avant de laisser sa montre.",
-                        quote: "Après l'inspection initiale, le personnel du SAV discute des options de réparation avec le client, en expliquant les différentes solutions possibles, les coûts associés, ainsi que les délais prévus..."
+                        "question": "Que fait le personnel du SAV une fois l'inspection initiale terminée avec le client ?",
+                        "options": [
+                            "Il enregistre la montre et transmet le dossier à l'atelier sans engagement",
+                            "Il discute des options de réparation, des coûts associés et des délais prévus",
+                            "Il remet au client un devis ferme et définitif",
+                            "Il propose systématiquement une révision complète"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Le client doit être informé des prochaines étapes et des coûts potentiels avant de laisser sa montre.",
+                        "quote": "Après l'inspection initiale, le personnel du SAV discute des options de réparation avec le client, en expliquant les différentes solutions possibles, les coûts associés, ainsi que les délais prévus..."
                     },
                     {
-                        question: "Outre le professionnalisme technique, que garantit le SAV concernant les informations du client ?",
-                        options: ["Une publication sur les réseaux sociaux", "Une revente des données à des tiers", "Le respect de la confidentialité et de la sécurité des données", "Une inscription à une newsletter obligatoire"],
-                        correctAnswer: 2,
-                        explanation: "Dans le domaine du luxe, la discrétion et la sécurité des données (montre + identité) sont primordiales.",
-                        quote: "Le client est assuré que sa montre sera traitée, dans un environnement sécurisé et confidentiel... Toutes les informations personnelles et les détails de la montre sont traités de manière confidentielle."
+                        "question": "Outre le professionnalisme technique, que garantit le SAV concernant les informations du client ?",
+                        "options": [
+                            "L'utilisation des données uniquement pour les rappels d'entretien",
+                            "Le partage des données avec la marque pour la traçabilité",
+                            "Le respect de la confidentialité et de la sécurité des données",
+                            "La suppression des données dès la livraison de la montre"
+                        ],
+                        "correctAnswer": 2,
+                        "explanation": "Dans le domaine du luxe, la discrétion et la sécurité des données (montre + identité) sont primordiales.",
+                        "quote": "Le client est assuré que sa montre sera traitée, dans un environnement sécurisé et confidentiel... Toutes les informations personnelles et les détails de la montre sont traités de manière confidentielle."
                     }
                 ]
             },
             {
-                id: "theme-4",
-                title: "4. La Garantie & Goodwill",
-                questions: [
+                "id": "theme-4",
+                "title": "4. La Garantie & Goodwill",
+                "questions": [
                     {
-                        question: "Selon l'article 210 du Code des Obligations (CO) suisse, quelle est la durée légale de garantie contre le vendeur ?",
-                        options: ["6 mois", "1 an", "2 ans", "5 ans"],
-                        correctAnswer: 2,
-                        explanation: "La législation suisse fixe un minimum légal de 2 ans pour les défauts de la chose vendue.",
-                        quote: "Ce droit à la garantie n’est valable que contre le vendeur et pour une durée légale de deux ans (art. 210 al. 1 CO)."
+                        "question": "Selon le Code des obligations suisse (art. 197 ss et 210 CO), de quel délai dispose l'acheteur pour agir contre le vendeur en cas de défaut ?",
+                        "options": [
+                            "1 an",
+                            "18 mois",
+                            "2 ans",
+                            "5 ans"
+                        ],
+                        "correctAnswer": 2,
+                        "explanation": "Depuis le 1er janvier 2013, l'acheteur dispose de deux ans à partir de la livraison pour se retourner contre le vendeur, et uniquement contre lui (pas contre le fabricant).",
+                        "quote": "Si la montre vendue a un défaut qui réduit sa valeur ou son usage, l'acheteur peut se retourner contre le vendeur, et uniquement contre lui. Il dispose pour cela de deux ans à partir de la livraison (art. 197 al. 1 et 210 al. 1 CO)."
                     },
                     {
-                        question: "Dans le vocabulaire du SAV, qu'est-ce qu'une « garantie de réparation » ?",
-                        options: ["Une couverture sur un défaut de matériel à l'achat du neuf", "Une couverture pour une durée déterminée à dater de la livraison de la chose RÉPARÉE au consommateur", "Une assurance vol", "Un contrat d'entretien à vie"],
-                        correctAnswer: 1,
-                        explanation: "Lorsqu'une montre sort de SAV, le travail effectué est lui-même garanti (souvent 12 ou 24 mois).",
-                        quote: "La garantie de réparation : pour une durée déterminée à dater de la livraison de la chose réparée au consommateur (utilisateur) final."
+                        "question": "Dans le vocabulaire du SAV, qu'est-ce qu'une « garantie de réparation » ?",
+                        "options": [
+                            "Une couverture sur un défaut de matériel à l'achat du neuf",
+                            "Une couverture pour une durée déterminée à dater de la livraison de la chose RÉPARÉE au consommateur",
+                            "Une couverture limitée aux pièces remplacées, hors main-d'œuvre",
+                            "Une prolongation de la garantie de vente après toute intervention"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Quand un client confie sa montre pour une réparation, il commande un travail : c'est un contrat d'entreprise (art. 363 ss CO), pas une vente. Le délai pour agir en cas de défaut du travail est de deux ans dès la livraison de la montre réparée (art. 371 CO). La « garantie de réparation » des marques (souvent 12 ou 24 mois) précise ou étend ce délai légal.",
+                        "quote": "La garantie de réparation pour une durée déterminée à dater de la livraison de la chose réparée au consommateur final. Le délai pour agir est le même que pour la vente : deux ans à compter de la livraison de la montre réparée (art. 371 CO)."
                     },
                     {
-                        question: "Les frais d'affranchissement (envoi, assurance) pour un travail sous garantie de VENTE sont-ils généralement inclus dans la marge du réparateur ?",
-                        options: ["Oui, toujours", "Non, ils font généralement partie d'une convention séparée", "Ils sont à la charge du client obligatoirement", "Ils sont payés par l'horloger personnellement"],
-                        correctAnswer: 1,
-                        explanation: "Les accords de distribution séparent souvent le coût du travail horloger des frais de transport sécurisé.",
-                        quote: "Les frais d’affranchissement (envoi, assurance, livraison) et d’assurance pour un travail effectué sous garantie ne sont généralement pas inclus dans la marge de couverture ils font partie d’une convention séparée."
+                        "question": "Les frais d'affranchissement (envoi, assurance) pour un travail sous garantie de VENTE sont-ils généralement inclus dans la marge du réparateur ?",
+                        "options": [
+                            "Oui, ils sont inclus dans la marge du distributeur",
+                            "Non, ils font généralement partie d'une convention séparée",
+                            "Ils sont à la charge du client, sauf geste commercial",
+                            "Ils sont refacturés au fabricant avec le coût de la réparation"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Les accords de distribution séparent souvent le coût du travail horloger des frais de transport sécurisé.",
+                        "quote": "Les frais d’affranchissement (envoi, assurance, livraison) et d’assurance pour un travail effectué sous garantie ne sont généralement pas inclus dans la marge de couverture ils font partie d’une convention séparée."
                     },
                     {
-                        question: "Qu'est-ce que le « goodwill » en SAV ?",
-                        options: ["La marge brute de l'entreprise", "Un service de courtoisie (réparation gratuite/réduite) offert VOLONTAIREMENT au-delà de la garantie normale", "Une taxe douanière", "Le salaire de base des horlogers"],
-                        correctAnswer: 1,
-                        explanation: "C'est un geste commercial puissant pour apaiser un client ou le fidéliser, décidé au cas par cas.",
-                        quote: "Le goodwill est un service de courtoisie offert au consommateur, sous forme de pièce de rechange ou de réparation, gratuite ou à un prix réduit, au-delà d’un service normal de garantie."
+                        "question": "Qu'est-ce que le « goodwill » en SAV ?",
+                        "options": [
+                            "Une extension de garantie payante proposée à la vente",
+                            "Un service de courtoisie (réparation gratuite/réduite) offert VOLONTAIREMENT au-delà de la garantie normale",
+                            "Une prise en charge obligatoire des défauts reconnus par la marque",
+                            "Une remise accordée sur le devis pour fidéliser le client"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "C'est un geste commercial puissant pour apaiser un client ou le fidéliser, décidé au cas par cas.",
+                        "quote": "Le goodwill est un service de courtoisie offert au consommateur, sous forme de pièce de rechange ou de réparation, gratuite ou à un prix réduit, au-delà d’un service normal de garantie."
                     },
                     {
-                        question: "Qui prend en charge les frais découlant d'une prestation de « goodwill » ?",
-                        options: ["Le client final", "L'assurance", "Celui qui prend la décision (fabricant, distributeur, détaillant...)", "L'État"],
-                        correctAnswer: 2,
-                        explanation: "Si une boutique décide d'offrir un service, c'est elle qui en assume le coût financier pour fidéliser son client.",
-                        quote: "Le fabriquant, le distributeur, le revendeur... peut prendre une décision de goodwill. Les frais découlant de la prestation supplémentaire accordée sont toujours à la charge de celui qui prend la décision."
+                        "question": "Qui prend en charge les frais découlant d'une prestation de « goodwill » ?",
+                        "options": [
+                            "Le client final, sous forme de participation",
+                            "La marque, systématiquement",
+                            "Celui qui prend la décision (fabricant, distributeur, détaillant...)",
+                            "Le détaillant qui a vendu la montre"
+                        ],
+                        "correctAnswer": 2,
+                        "explanation": "Si une boutique décide d'offrir un service, c'est elle qui en assume le coût financier pour fidéliser son client.",
+                        "quote": "Le fabriquant, le distributeur, le revendeur... peut prendre une décision de goodwill. Les frais découlant de la prestation supplémentaire accordée sont toujours à la charge de celui qui prend la décision."
                     },
                     {
-                        question: "Une entreprise peut-elle réduire la durée de garantie légale à moins de 2 ans pour un produit NEUF vendu à un particulier ?",
-                        options: ["Oui, si c'est écrit en petit", "Non, elle peut être prolongée mais pas réduite (sauf occasion)", "Oui, sur simple décision verbale", "Oui, la garantie légale est facultative"],
-                        correctAnswer: 1,
-                        explanation: "Le droit protège le consommateur final privé, interdisant de réduire cette durée en deçà de 2 ans pour du neuf.",
-                        quote: "Lors d’un contrat liant un professionnel à une personne pour ses besoins privés, la durée de la garantie peut être prolongée mais ne peut pas être réduite – sauf à un an s’il s’agit d’une vente de choses d’occasion."
+                        "question": "Une entreprise peut-elle réduire la durée de garantie légale à moins de 2 ans pour un produit NEUF vendu à un particulier ?",
+                        "options": [
+                            "Oui, si la limitation figure clairement dans les conditions générales",
+                            "Non, elle peut être prolongée mais pas réduite (sauf occasion)",
+                            "Oui, jusqu'à 1 an si le client l'accepte par écrit",
+                            "Oui, pour les pièces d'usure (joints, bracelet, pile)"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Entre un professionnel et un particulier, le délai de deux ans peut être allongé (garantie commerciale) mais pas raccourci ; seule exception, une montre d'occasion (un an au minimum, art. 210 al. 4 CO). Attention : la garantie n'est pas d'ordre public, un vendeur peut en limiter ou exclure certains défauts par une clause claire dans ses conditions générales – jamais pour un défaut caché volontairement.",
+                        "quote": "Quand un professionnel vend à un particulier, le délai de deux ans peut être allongé (garantie commerciale), mais pas raccourci. Seule exception : pour une montre d'occasion, il peut être ramené à un an au minimum (art. 210 al. 4 CO)."
                     }
                 ]
             },
             {
-                id: "theme-5",
-                title: "5. Diagnostic & Devis",
-                questions: [
+                "id": "theme-5",
+                "title": "5. Diagnostic & Devis",
+                "questions": [
                     {
-                        question: "À quoi sert le « démontage partiel » lors du diagnostic technique ?",
-                        options: ["À nettoyer la boîte", "À identifier les causes internes des pannes et lister les pièces à changer", "À vérifier l'étanchéité finale", "À remplacer le bracelet"],
-                        correctAnswer: 1,
-                        explanation: "Seule l'ouverture et l'analyse interne permettent de chiffrer avec précision la réparation.",
-                        quote: "Démontage partiel & diagnostic technique. Objectifs : Identifier les causes internes des pannes et les pièces à changer."
+                        "question": "À quoi sert le « démontage partiel » lors du diagnostic technique ?",
+                        "options": [
+                            "À contrôler l'état des joints et de l'étanchéité",
+                            "À identifier les causes internes des pannes et lister les pièces à changer",
+                            "À nettoyer le mouvement avant le diagnostic",
+                            "À vérifier l'authenticité du calibre"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Seule l'ouverture et l'analyse interne permettent de chiffrer avec précision la réparation.",
+                        "quote": "Démontage partiel & diagnostic technique. Objectifs : Identifier les causes internes des pannes et les pièces à changer."
                     },
                     {
-                        question: "Qu'est-ce qu'une « fiche de devis interne » ?",
-                        options: ["La facture finale donnée au client", "Un document technique où l'horloger liste les opérations, le temps et les pièces nécessaires", "Un certificat d'authenticité", "Une publicité"],
-                        correctAnswer: 1,
-                        explanation: "C'est le brouillon technique indispensable qui servira de base à l'administration pour rédiger le devis commercial final.",
-                        quote: "Toutes les pièces feront l’objet d’une analyse du travail à effectuer. Cette analyse sera portée sur un document dit « fiche de devis interne »."
+                        "question": "Qu'est-ce qu'une « fiche de devis interne » ?",
+                        "options": [
+                            "Le devis transmis au client pour acceptation",
+                            "Un document technique où l'horloger liste les opérations, le temps et les pièces nécessaires",
+                            "La fiche de réparation ouverte à l'accueil",
+                            "Le bon de commande des pièces au fournisseur"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "C'est le brouillon technique indispensable qui servira de base à l'administration pour rédiger le devis commercial final.",
+                        "quote": "Toutes les pièces feront l’objet d’une analyse du travail à effectuer. Cette analyse sera portée sur un document dit « fiche de devis interne »."
                     },
                     {
-                        question: "Pourquoi de plus en plus de marques proposent-elles des « forfaits de réparation » ?",
-                        options: ["Car les horlogers ne savent plus deviser", "Pour que le client connaisse le prix immédiatement, ce qui l'aide à prendre la décision de réparer", "Parce que c'est une obligation légale", "Pour cacher les pannes réelles"],
-                        correctAnswer: 1,
-                        explanation: "Le prix forfaitaire lève l'incertitude du client et accélère considérablement le processus d'acceptation.",
-                        quote: "Certaines marques ont... commencé à faire des forfaits de réparation. Dans ce cas, les clients savent tout de suite le prix et les résultats démontrent que les clients prennent plus facilement la décision de faire l’entretien..."
+                        "question": "Pourquoi de plus en plus de marques proposent-elles des « forfaits de réparation » ?",
+                        "options": [
+                            "Parce que le diagnostic détaillé est trop long à réaliser",
+                            "Pour que le client connaisse le prix immédiatement, ce qui l'aide à prendre la décision de réparer",
+                            "Parce que la marque impose un tarif unique à son réseau",
+                            "Pour éviter de démonter la montre avant l'accord du client"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Le prix forfaitaire lève l'incertitude du client et accélère considérablement le processus d'acceptation.",
+                        "quote": "Certaines marques ont... commencé à faire des forfaits de réparation. Dans ce cas, les clients savent tout de suite le prix et les résultats démontrent que les clients prennent plus facilement la décision de faire l’entretien..."
                     },
                     {
-                        question: "La catégorie de la réparation (garantie, devis, restauration) est-elle figée ou modifiable ?",
-                        options: ["Figée dès l'arrivée de la montre", "Modifiable à tout moment du processus par souci de flexibilité", "Modifiable uniquement par le client", "Déterminée aléatoirement"],
-                        correctAnswer: 1,
-                        explanation: "Un démontage peut révéler un choc caché (annulation garantie), d'où la nécessité de flexibilité.",
-                        quote: "Par souci de flexibilité, la catégorie doit être modifiable à tout moment du processus de réparation."
+                        "question": "La catégorie de la réparation (garantie, devis, restauration) est-elle figée ou modifiable ?",
+                        "options": [
+                            "Figée à l'ouverture du dossier, pour la traçabilité",
+                            "Modifiable à tout moment du processus par souci de flexibilité",
+                            "Modifiable uniquement jusqu'à l'envoi du devis",
+                            "Déterminée par le diagnostic et figée ensuite"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Un démontage peut révéler un choc caché (annulation garantie), d'où la nécessité de flexibilité.",
+                        "quote": "Par souci de flexibilité, la catégorie doit être modifiable à tout moment du processus de réparation."
                     },
                     {
-                        question: "Sur un devis final envoyé au client, que trouve-t-on généralement ?",
-                        options: ["Uniquement le prix final sans détails", "La description des travaux, les prix, les délais, la durée de validité et une zone de décision", "Le salaire de l'horloger", "La recette de fabrication des pièces"],
-                        correctAnswer: 1,
-                        explanation: "Le devis est un contrat commercial qui doit être transparent, précis et comporter toutes les mentions légales et pratiques.",
-                        quote: "Ce devis devra comporter les éléments suivants : La description des biens ou services... Les prix... Les délais... La durée de validité... Une zone réservée à la décision du client."
+                        "question": "Sur un devis final envoyé au client, que trouve-t-on généralement ?",
+                        "options": [
+                            "Le détail des opérations sans les prix unitaires, pour ne pas inquiéter le client",
+                            "La description des travaux, les prix, les délais, la durée de validité et une zone de décision",
+                            "Le prix forfaitaire et la liste des pièces remplacées",
+                            "La description des travaux et le prix, les délais étant communiqués à l'acceptation"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Le devis est un contrat commercial qui doit être transparent, précis et comporter toutes les mentions légales et pratiques.",
+                        "quote": "Ce devis devra comporter les éléments suivants : La description des biens ou services... Les prix... Les délais... La durée de validité... Une zone réservée à la décision du client."
                     },
                     {
-                        question: "Que conseille le cours d'ajouter EN PLUS sur un devis pour améliorer l'expérience client ?",
-                        options: ["Des informations complémentaires et des conseils d'entretien et d'utilisation", "Une pénalité de retard", "La liste des concurrents", "Des photos de l'usine"],
-                        correctAnswer: 0,
-                        explanation: "Profiter du devis pour éduquer le client (magnétisme, chocs, étanchéité) valorise le professionnalisme de la marque.",
-                        quote: "En plus du devis proprement dit il est toujours intéressant de joindre quelques informations utiles... pour expliquer de manière plus détaillée des termes... ou pour donner/rappeler des conseils d’entretien."
+                        "question": "Que conseille le cours d'ajouter EN PLUS sur un devis pour améliorer l'expérience client ?",
+                        "options": [
+                            "Des informations complémentaires et des conseils d'entretien et d'utilisation",
+                            "Le détail du temps passé par opération",
+                            "Une comparaison avec le prix d'une montre neuve",
+                            "Les coordonnées du service client de la marque"
+                        ],
+                        "correctAnswer": 0,
+                        "explanation": "Profiter du devis pour éduquer le client (magnétisme, chocs, étanchéité) valorise le professionnalisme de la marque.",
+                        "quote": "En plus du devis proprement dit il est toujours intéressant de joindre quelques informations utiles... pour expliquer de manière plus détaillée des termes... ou pour donner/rappeler des conseils d’entretien."
                     }
                 ]
             },
             {
-                id: "theme-6",
-                title: "6. Opérations & Outils",
-                questions: [
+                "id": "theme-6",
+                "title": "6. Opérations & Outils",
+                "questions": [
                     {
-                        question: "En plus de l'outillage standard, que doit détenir un atelier SAV officiel ?",
-                        options: ["Des machines à coudre", "L'outillage spécifique prescrit par les différentes marques", "Des pièces de voitures", "Uniquement des tournevis"],
-                        correctAnswer: 1,
-                        explanation: "Les marques exigent l'utilisation d'outils spécifiques pour ne pas endommager leurs calibres exclusifs et pour maintenir l'agrément de réparation.",
-                        quote: "Le SAV doit être équipé d’outillages... il doit également détenir... les outils spécifiques et prescrits par les différentes marques et définies comme étant nécessaires à l’obtention ou au maintien du droit de réparer."
+                        "question": "En plus de l'outillage standard, que doit détenir un atelier SAV officiel ?",
+                        "options": [
+                            "L'outillage de fabrication des composants",
+                            "L'outillage spécifique prescrit par les différentes marques",
+                            "Un stock complet de calibres de rechange",
+                            "Les machines de contrôle certifiées COSC"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Les marques exigent l'utilisation d'outils spécifiques pour ne pas endommager leurs calibres exclusifs et pour maintenir l'agrément de réparation.",
+                        "quote": "Le SAV doit être équipé d’outillages... il doit également détenir... les outils spécifiques et prescrits par les différentes marques et définies comme étant nécessaires à l’obtention ou au maintien du droit de réparer."
                     },
                     {
-                        question: "Qu'est-ce que le « flux » dans l'organisation du service de réparation ?",
-                        options: ["Le courant électrique de l'atelier", "Le chemin suivi par le produit et les documents liés dans la structure du SAV", "La vitesse de travail de l'horloger", "L'écoulement de l'huile dans le mouvement"],
-                        correctAnswer: 1,
-                        explanation: "Le flux logistique représente toutes les étapes franchies par la montre, de l'entrée à la sortie de l'atelier.",
-                        quote: "Le flux détermine le chemin suivi par le produit et les documents liés dans la structure du SAV. (Ex: Réception -> Enregistrement -> Devis -> Réparation -> Contrôle...)"
+                        "question": "Qu'est-ce que le « flux » dans l'organisation du service de réparation ?",
+                        "options": [
+                            "La cadence de réparations traitées par jour",
+                            "Le chemin suivi par le produit et les documents liés dans la structure du SAV",
+                            "L'ordre de priorité des dossiers dans le planning",
+                            "Le circuit des pièces détachées du fournisseur au magasin"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Le flux logistique représente toutes les étapes franchies par la montre, de l'entrée à la sortie de l'atelier.",
+                        "quote": "Le flux détermine le chemin suivi par le produit et les documents liés dans la structure du SAV. (Ex: Réception -> Enregistrement -> Devis -> Réparation -> Contrôle...)"
                     },
                     {
-                        question: "Qu'est-ce qu'une « gamme opératoire » ?",
-                        options: ["Une collection de montres d'entrée de gamme", "L'ensemble des opérations séquentielles nécessaires à l'accomplissement d'une tâche de réparation", "L'outil pour ouvrir les boîtes", "Le salaire des techniciens"],
-                        correctAnswer: 1,
-                        explanation: "C'est la « recette » ou le mode opératoire standardisé qui dicte l'ordre des tâches (ex: démontage, nettoyage, remontage, réglage).",
-                        quote: "Les gammes opératoires : Elles contiennent toutes les opérations nécessaires à l’accomplissement d’une tâche. Les gammes opératoires peuvent être uniques, se compléter ou se chevaucher."
+                        "question": "Qu'est-ce qu'une « gamme opératoire » ?",
+                        "options": [
+                            "La liste des pièces nécessaires à une réparation",
+                            "L'ensemble des opérations séquentielles nécessaires à l'accomplissement d'une tâche de réparation",
+                            "Le niveau de complexité d'une intervention (standard, spécifique)",
+                            "Le catalogue des forfaits de réparation d'une marque"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "C'est la « recette » ou le mode opératoire standardisé qui dicte l'ordre des tâches (ex: démontage, nettoyage, remontage, réglage).",
+                        "quote": "Les gammes opératoires : Elles contiennent toutes les opérations nécessaires à l’accomplissement d’une tâche. Les gammes opératoires peuvent être uniques, se compléter ou se chevaucher."
                     },
                     {
-                        question: "Sur une « Carte d'opération », que trouve-t-on généralement ?",
-                        options: ["La météo du jour", "Le numéro de l'opération, le département, le temps standard et la machine requise", "Le nom du client final", "Le prix de la montre"],
-                        correctAnswer: 1,
-                        explanation: "La carte d'opération donne les directives techniques précises à l'horloger ou au polisseur pour une étape donnée.",
-                        quote: "Chaque opération d’une gamme opératoire contient : Le numéro de l’opération... Le département... Le genre d’opération... La machine... Le temps standard..."
+                        "question": "Sur une « Carte d'opération », que trouve-t-on généralement ?",
+                        "options": [
+                            "Le nom du client et le numéro de dossier",
+                            "Le numéro de l'opération, le département, le temps standard et la machine requise",
+                            "Le prix facturé de l'opération",
+                            "La liste des contrôles à effectuer"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "La carte d'opération donne les directives techniques précises à l'horloger ou au polisseur pour une étape donnée.",
+                        "quote": "Chaque opération d’une gamme opératoire contient : Le numéro de l’opération... Le département... Le genre d’opération... La machine... Le temps standard..."
                     },
                     {
-                        question: "À quoi sert l'enregistrement du début et de fin de travail par l'opérateur ?",
-                        options: ["Uniquement à le surveiller", "À calculer le temps moyen dédié et à réviser le temps standard alloué", "À bloquer la machine", "À générer la facture client directement"],
-                        correctAnswer: 1,
-                        explanation: "Le chronométrage (ou timbrage) des opérations permet d'ajuster les standards de production et de mesurer la performance globale.",
-                        quote: "L’opérateur enregistre le moment de début et fin de travail de l’opération. Cela permet le calcul du temps moyen dédié à cette opération ainsi que la révision éventuelle du temps standard..."
+                        "question": "À quoi sert l'enregistrement du début et de fin de travail par l'opérateur ?",
+                        "options": [
+                            "À facturer le temps réel au client",
+                            "À calculer le temps moyen dédié et à réviser le temps standard alloué",
+                            "À évaluer la performance individuelle de chaque horloger",
+                            "À déclencher l'étape suivante dans le planning"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Le chronométrage (ou timbrage) des opérations permet d'ajuster les standards de production et de mesurer la performance globale.",
+                        "quote": "L’opérateur enregistre le moment de début et fin de travail de l’opération. Cela permet le calcul du temps moyen dédié à cette opération ainsi que la révision éventuelle du temps standard..."
                     },
                     {
-                        question: "Concernant les manuels et la documentation technique, quelle est la règle ?",
-                        options: ["Ils doivent être gardés secrets par le patron", "Chaque collaborateur doit y avoir accès et ils doivent être tenus complets et à jour", "Ils ne sont fournis qu'au format papier", "Il est interdit de les consulter pendant le travail"],
-                        correctAnswer: 1,
-                        explanation: "L'accès à la documentation (éclatés techniques, consignes d'huilage) garantit une réparation conforme aux standards de la marque.",
-                        quote: "Chaque collaborateur doit avoir accès aux manuels et à la documentation dont il a besoin pour effectuer son travail. La documentation doit être tenue complète et à jour..."
+                        "question": "Concernant les manuels et la documentation technique, quelle est la règle ?",
+                        "options": [
+                            "Ils sont réservés aux horlogers habilités par la marque",
+                            "Chaque collaborateur doit y avoir accès et ils doivent être tenus complets et à jour",
+                            "Ils sont consultés uniquement en cas de panne inhabituelle",
+                            "Ils sont archivés par le responsable et prêtés sur demande"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "L'accès à la documentation (éclatés techniques, consignes d'huilage) garantit une réparation conforme aux standards de la marque.",
+                        "quote": "Chaque collaborateur doit avoir accès aux manuels et à la documentation dont il a besoin pour effectuer son travail. La documentation doit être tenue complète et à jour..."
                     }
                 ]
             },
             {
-                id: "theme-7",
-                title: "7. Gestion des Stocks",
-                questions: [
+                "id": "theme-7",
+                "title": "7. Gestion des Stocks",
+                "questions": [
                     {
-                        question: "Quel est l'enjeu principal et le danger d'avoir « trop de stock » de pièces détachées ?",
-                        options: ["Faire fuir les clients", "Immobiliser de l'argent et prendre le risque d'obsolescence des pièces", "Surcharger les horlogers de travail", "Aucun, plus il y a de stock, mieux c'est"],
-                        correctAnswer: 1,
-                        explanation: "Le stock représente un capital financier dormant. Si un calibre est abandonné, les pièces en stock perdent toute valeur (obsolescence).",
-                        quote: "Trop de stock, c’est immobiliser de l’argent, augmenter les coûts de stockage et de manutention, et prendre le risque d’obsolescence."
+                        "question": "Quel est l'enjeu principal et le danger d'avoir « trop de stock » de pièces détachées ?",
+                        "options": [
+                            "Augmenter le temps de recherche des pièces",
+                            "Immobiliser de l'argent et prendre le risque d'obsolescence des pièces",
+                            "Allonger les délais de réapprovisionnement",
+                            "Fausser le taux de rotation"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Le stock représente un capital financier dormant. Si un calibre est abandonné, les pièces en stock perdent toute valeur (obsolescence).",
+                        "quote": "Trop de stock, c’est immobiliser de l’argent, augmenter les coûts de stockage et de manutention, et prendre le risque d’obsolescence."
                     },
                     {
-                        question: "Que se passe-t-il lorsque le SAV possède « trop peu de stock » ?",
-                        options: ["Les marges augmentent considérablement", "Il s'expose aux ruptures, causant des retards, l'insatisfaction client et une surcharge administrative", "Les montres sont réparées plus vite", "L'atelier devient plus propre"],
-                        correctAnswer: 1,
-                        explanation: "Une rupture de stock (manque de pièce) stoppe la réparation, forçant le CS à gérer l'impatience du client.",
-                        quote: "Trop peu de stock, c’est s’exposer aux ruptures, et donc aux retards, avec à la clé insatisfaction des clients, et une surcharge du CS (réclamations, replanifications...)."
+                        "question": "Que se passe-t-il lorsque le SAV possède « trop peu de stock » ?",
+                        "options": [
+                            "Les coûts de stockage diminuent sans conséquence sur le service",
+                            "Il s'expose aux ruptures, causant des retards, l'insatisfaction client et une surcharge administrative",
+                            "Le taux de rotation baisse",
+                            "Les commandes urgentes permettent de compenser sans impact client"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Une rupture de stock (manque de pièce) stoppe la réparation, forçant le CS à gérer l'impatience du client.",
+                        "quote": "Trop peu de stock, c’est s’exposer aux ruptures, et donc aux retards, avec à la clé insatisfaction des clients, et une surcharge du CS (réclamations, replanifications...)."
                     },
                     {
-                        question: "Qu'appelle-t-on le « taux de rotation de stock » ?",
-                        options: ["Le fait de ranger les pièces différemment chaque mois", "Le nombre de fois que le stock se renouvelle (est consommé) sur une période d'un an", "Le délai d'expédition des colis", "Le remplacement des magasiniers"],
-                        correctAnswer: 1,
-                        explanation: "En SAV, un taux de rotation sain se situe souvent entre 1 et 1,5 fois par an. C'est le signe d'un stock bien calibré.",
-                        quote: "La rotation de stock (ou taux de rotation) mesure combien de fois le stock “se renouvelle” sur une période (souvent 1 an)."
+                        "question": "Qu'appelle-t-on le « taux de rotation de stock » ?",
+                        "options": [
+                            "La durée moyenne de séjour d'une pièce en stock",
+                            "Le nombre de fois que le stock se renouvelle (est consommé) sur une période d'un an",
+                            "Le rapport entre pièces commandées et pièces consommées",
+                            "Le nombre de commandes passées par année"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "En SAV, un taux de rotation sain se situe souvent entre 1 et 1,5 fois par an. C'est le signe d'un stock bien calibré.",
+                        "quote": "La rotation de stock (ou taux de rotation) mesure combien de fois le stock “se renouvelle” sur une période (souvent 1 an)."
                     },
                     {
-                        question: "À quel moment spécifique déclenche-t-on une commande de réapprovisionnement ?",
-                        options: ["Quand le stock est à 0", "Lorsqu'on atteint le seuil de réapprovisionnement (Stock mini)", "Une fois par trimestre", "Quand on atteint le stock maxi"],
-                        correctAnswer: 1,
-                        explanation: "Le seuil de réapprovisionnement (ou point de commande) est calculé pour recevoir les pièces AVANT de consommer le stock de sécurité.",
-                        quote: "Pour déterminer le seuil de stock mini, qui ne correspond pas seulement au stock minimum mais surtout au moment de déclenchement d’une commande de réapprovisionnement..."
+                        "question": "À quoi sert le STOCK DE SÉCURITÉ d'une référence ?",
+                        "options": [
+                            "À couvrir la consommation pendant le délai de livraison",
+                            "À absorber les aléas (consommation plus forte que prévue, retard de livraison du fournisseur) sans tomber en rupture",
+                            "À constituer une réserve de pièces anciennes sans réapprovisionnement",
+                            "À déclencher la commande de réapprovisionnement"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Le stock de sécurité est une réserve « tampon » consommée uniquement lorsque la réalité s'écarte de la prévision. Il se situe sous le seuil de réapprovisionnement : si la commande est passée au stock mini, on ne devrait jamais y toucher en fonctionnement normal.",
+                        "quote": "Graphique de gestion des stocks : stock maximum, stock minimum, stock de sécurité, stock en transit, point de commande, délai d'approvisionnement."
                     },
                     {
-                        question: "À quoi sert principalement le STOCK MAXI d'une référence ?",
-                        options: ["À fixer le prix de vente de la pièce", "À déterminer la quantité plafond à ne pas dépasser pour viser le juste niveau de stock", "À déclencher automatiquement une commande au fournisseur", "À calculer le salaire du magasinier"],
-                        correctAnswer: 1,
-                        explanation: "Le stock maxi définit la quantité maximale d'une référence à détenir. Il évite le sur-stockage (immobilisation d'argent, obsolescence) tout en garantissant la disponibilité.",
-                        quote: "Stock maxi : Une fois la décision prise de stocker une référence il convient d’en déterminer la quantité annuelle sachant que le taux de rotation annuelle du stock pour un SAV est habituellement compris entre 1 et 1,5 fois."
+                        "question": "Sur quelle base le STOCK MAXI d'une pièce est-il calculé en SAV ?",
+                        "options": [
+                            "Sur la consommation moyenne pendant le délai de réapprovisionnement",
+                            "Sur le chiffre d'affaires prévu divisé par le taux de rotation visé (1 à 1,5 fois/an), puis converti en pièces",
+                            "Sur la quantité minimale de commande du fournisseur",
+                            "Sur le prix d'achat de la pièce divisé par le taux de rotation"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Le stock maxi est le plafond qui évite le sur-stockage tout en garantissant la disponibilité. On part de la prévision de vente, on calcule le CA, on divise par le taux de rotation cible, puis on divise la valeur obtenue par le prix unitaire.",
+                        "quote": "Prévision de vente de 30 pièces/an, pour une pièce à 2.- (prix de vente). Estimation du chiffre d'affaires : 60.- ; valeur du stock : 60/1,5 = 40 ; stock maxi : 40/2 = 20 pièces. Le taux de rotation annuelle du stock pour un SAV est habituellement compris entre 1 et 1,5 fois."
                     },
                     {
-                        question: "Sur quelle base le STOCK MAXI d'une pièce est-il calculé en SAV ?",
-                        options: ["Sur l'espace disponible dans le tiroir", "Sur le chiffre d'affaires prévu divisé par le taux de rotation visé (entre 1 et 1,5 fois/an)", "Sur le nombre d'employés de l'atelier", "Au hasard, selon l'intuition du responsable"],
-                        correctAnswer: 1,
-                        explanation: "On part de la prévision de vente, on en déduit le CA, puis on divise par le taux de rotation cible (1 à 1,5). On obtient la valeur du stock puis la quantité en pièces.",
-                        quote: "Estimation du chiffre d’affaires : 60.- / Valeur du stock : 60/1,5 = 40 / Stock maxi : 40/2 = 20 pièces. Le taux de rotation annuelle du stock pour un SAV est habituellement compris entre 1 et 1,5 fois."
+                        "question": "Prévision : 40 pièces/an à 20.- ; taux de rotation visé 1,5. Quel est le stock maxi ?",
+                        "options": [
+                            "60 pièces",
+                            "40 pièces",
+                            "27 pièces",
+                            "13 pièces"
+                        ],
+                        "correctAnswer": 2,
+                        "explanation": "CA = 40 × 20 = 800.- ; valeur du stock = 800 / 1,5 = 533.- ; stock maxi = 533 / 20 = 26,7 → arrondi à 27 pièces (exercice 1 de la séquence 12).",
+                        "quote": "Le chiffre d'affaires est de CHF 800.- (40 x 20.-). La valeur du stock est de 800/1.5 = 533.33. Le nouveau stock maximum est de 533.33/20 = 26.66 donc 27 unités."
                     },
                     {
-                        question: "À quoi sert principalement le STOCK MINI d'une référence ?",
-                        options: ["À fixer la quantité minimum stockée à 0 pièce", "À indiquer le moment exact de déclenchement d'une commande de réapprovisionnement", "À déterminer combien de pièces peuvent être jetées", "À calculer la TVA sur les pièces"],
-                        correctAnswer: 1,
-                        explanation: "Le stock mini n'est pas qu'un minimum : c'est surtout le SEUIL D'ALERTE qui dit « il faut commander maintenant » pour ne pas tomber en rupture pendant le délai de livraison.",
-                        quote: "Pour déterminer le seuil de stock mini, qui ne correspond pas seulement au stock minimum mais surtout au moment de déclenchement d’une commande de réapprovisionnement, il convient de connaître le nombre moyen de pièces servies sur la durée de rotation et la durée de réapprovisionnement..."
+                        "question": "À quoi sert principalement le STOCK MINI d'une référence ?",
+                        "options": [
+                            "À fixer la quantité en dessous de laquelle on refuse les réparations",
+                            "À indiquer le moment exact de déclenchement d'une commande de réapprovisionnement",
+                            "À définir le stock de sécurité",
+                            "À calculer la valeur minimale du stock à inventorier"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Le stock mini n'est pas qu'un minimum : c'est surtout le SEUIL D'ALERTE qui dit « il faut commander maintenant » pour ne pas tomber en rupture pendant le délai de livraison.",
+                        "quote": "Pour déterminer le seuil de stock mini, qui ne correspond pas seulement au stock minimum mais surtout au moment de déclenchement d’une commande de réapprovisionnement, il convient de connaître le nombre moyen de pièces servies sur la durée de rotation et la durée de réapprovisionnement..."
                     },
                     {
-                        question: "Quels éléments faut-il connaître pour déterminer correctement le STOCK MINI ?",
-                        options: ["Uniquement le prix de vente de la pièce", "Le nombre moyen de pièces servies sur la durée de rotation ET la durée de réapprovisionnement", "La couleur de l'emballage et le poids du colis", "Le nom du fournisseur uniquement"],
-                        correctAnswer: 1,
-                        explanation: "Il faut estimer la consommation pendant le délai de livraison : si on consomme X pièces/semaine et que le fournisseur livre en 3 semaines, le stock mini doit couvrir au minimum cette consommation.",
-                        quote: "...il convient de connaître le nombre moyen de pièces servies sur la durée de rotation et la durée de réapprovisionnement pour remettre l’article à son niveau stock maximum."
+                        "question": "Quels éléments faut-il connaître pour déterminer correctement le STOCK MINI ?",
+                        "options": [
+                            "Le prix de vente et le taux de rotation",
+                            "Le nombre moyen de pièces servies sur la durée de rotation ET la durée de réapprovisionnement",
+                            "Le stock maxi et la quantité minimale de commande",
+                            "Le chiffre d'affaires annuel de la référence"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Il faut estimer la consommation pendant le délai de livraison : si on consomme X pièces/semaine et que le fournisseur livre en 3 semaines, le stock mini doit couvrir au minimum cette consommation.",
+                        "quote": "...il convient de connaître le nombre moyen de pièces servies sur la durée de rotation et la durée de réapprovisionnement pour remettre l’article à son niveau stock maximum."
                     },
                     {
-                        question: "Dans l'horlogerie de prestige, quelle durée de garantie de disponibilité des pièces observe-t-on généralement ?",
-                        options: ["2 ans", "5 ans", "15 ans", "À vie"],
-                        correctAnswer: 3,
-                        explanation: "Le luxe implique une promesse de pérennité forte, obligeant parfois la marque à recréer des pièces disparues.",
-                        quote: "La garantie de disponibilité des pièces de rechange est une promesse faîte au client qui a un coût. Gamme Prestige = Durée A vie."
+                        "question": "Selon le tableau du cours, quelle durée de disponibilité des pièces est associée à la gamme Prestige ?",
+                        "options": [
+                            "5 ans",
+                            "10 ans",
+                            "15 ans",
+                            "À vie"
+                        ],
+                        "correctAnswer": 3,
+                        "explanation": "Certaines manufactures de haute horlogerie s'engagent à entretenir toute montre jamais produite. C'est une promesse commerciale propre à chaque maison (pas une norme de branche) et elle a un coût : stock, outillage, voire refabrication de pièces disparues.",
+                        "quote": "Exemple de garantie de disponibilité des pièces de rechange communément pratiquée : Prestige = à vie ; Haut de gamme et luxe = 15 ans ; Moyenne gamme = 10 ans ; Mode = 5 ans ; Bas de gamme = 2 ans."
                     },
                     {
-                        question: "À quelle fréquence un « inventaire » doit-il idéalement être tenu si le système tournant n'est pas utilisé ?",
-                        options: ["Tous les jours", "Tous les mois", "Tous les 6 mois", "Tous les 10 ans"],
-                        correctAnswer: 2,
-                        explanation: "L'inventaire garantit l'exactitude des quantités informatiques par rapport aux quantités physiques dans les tiroirs.",
-                        quote: "Un inventaire du stock doit être tenu tous les six mois si le département des fournitures ne pratique pas l’inventaire tournant."
+                        "question": "Selon le cours, à quelle fréquence un inventaire complet est-il tenu si le système d'inventaire tournant n'est pas pratiqué ?",
+                        "options": [
+                            "Tous les trois mois",
+                            "Une fois par an, à la clôture",
+                            "Tous les 6 mois",
+                            "Tous les deux ans"
+                        ],
+                        "correctAnswer": 2,
+                        "explanation": "L'inventaire garantit l'exactitude des quantités informatiques par rapport aux quantités physiques. Le rythme semestriel est une règle de bonne pratique SAV ; l'obligation légale (CO) porte sur un inventaire à la clôture de l'exercice.",
+                        "quote": "Un inventaire du stock doit être tenu tous les six mois si le département des fournitures ne pratique pas l'inventaire tournant. Il est impératif que le stock soit géré avec une rigueur absolue à travers un système performant."
                     }
                 ]
             },
             {
-                id: "theme-8",
-                title: "8. Planning & Livraison",
-                questions: [
+                "id": "theme-8",
+                "title": "8. Planning & Livraison",
+                "questions": [
                     {
-                        question: "Pourquoi le « planning » est-il indispensable à l'organisation d'un atelier SAV ?",
-                        options: ["Pour afficher les menus de la cantine", "Pour optimiser les gammes opératoires, gérer les charges et garantir les prévisions de délais", "Pour réduire les salaires", "Pour commander les pièces détachées"],
-                        correctAnswer: 1,
-                        explanation: "Le planning est l'outil central de pilotage de l'atelier pour gérer le flux de montres et les imprévus.",
-                        quote: "Pour optimiser les différentes gammes opératoires un planning est établi... Il doit contenir : Toutes les informations de position des OF... Le suivi des délais... informations nécessaires aux prévisions de délais..."
+                        "question": "Pourquoi le « planning » est-il indispensable à l'organisation d'un atelier SAV ?",
+                        "options": [
+                            "Pour répartir équitablement le travail entre horlogers",
+                            "Pour optimiser les gammes opératoires, gérer les charges et garantir les prévisions de délais",
+                            "Pour calculer le prix des réparations à partir du temps standard",
+                            "Pour déclencher les commandes de pièces au bon moment"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Le planning est l'outil central de pilotage de l'atelier pour gérer le flux de montres et les imprévus.",
+                        "quote": "Pour optimiser les différentes gammes opératoires un planning est établi... Il doit contenir : Toutes les informations de position des OF... Le suivi des délais... informations nécessaires aux prévisions de délais..."
                     },
                     {
-                        question: "Que faut-il faire en cas de retard inévitable sur une réparation ?",
-                        options: ["Attendre que le client appelle pour se plaindre", "Informer rapidement le client avec des explications et un nouveau délai", "Lui rendre la montre non réparée sans rien dire", "Fermer le dossier"],
-                        correctAnswer: 1,
-                        explanation: "L'anticipation et la transparence désamorcent la frustration. L'absence de communication l'aggrave.",
-                        quote: "En cas de retard inévitable, informer rapidement le client avec des explications et un nouveau délai est crucial. Ne jamais attendre que le client appelle pour faire des excuses !"
+                        "question": "Que faut-il faire en cas de retard inévitable sur une réparation ?",
+                        "options": [
+                            "Prolonger discrètement le délai si le retard reste inférieur à une semaine",
+                            "Informer rapidement le client avec des explications et un nouveau délai",
+                            "Attendre de connaître le nouveau délai exact avant de contacter le client",
+                            "Proposer un geste commercial avant même d'annoncer le retard"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "L'anticipation et la transparence désamorcent la frustration. L'absence de communication l'aggrave.",
+                        "quote": "En cas de retard inévitable, informer rapidement le client avec des explications et un nouveau délai est crucial. Ne jamais attendre que le client appelle pour faire des excuses !"
                     },
                     {
-                        question: "Lors du « Contrôle Final Esthétique », que vérifie-t-on ?",
-                        options: ["La précision de la montre", "L'absence de rayures, la propreté et l'alignement des aiguilles", "L'étanchéité de la boîte", "La réserve de marche"],
-                        correctAnswer: 1,
-                        explanation: "Le contrôle esthétique se concentre exclusivement sur l'aspect visuel de la montre.",
-                        quote: "Contrôle Esthétique : Vérification de l'absence de rayures... Assurer que le boîtier et le bracelet sont propres... S'assurer que les aiguilles sont bien alignées."
+                        "question": "Lors du « Contrôle Final Esthétique », que vérifie-t-on ?",
+                        "options": [
+                            "La précision et la réserve de marche",
+                            "L'absence de rayures, la propreté et l'alignement des aiguilles",
+                            "Le fonctionnement de la couronne et des poussoirs",
+                            "L'étanchéité et la luminescence"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Le contrôle esthétique se concentre exclusivement sur l'aspect visuel de la montre.",
+                        "quote": "Contrôle Esthétique : Vérification de l'absence de rayures... Assurer que le boîtier et le bracelet sont propres... S'assurer que les aiguilles sont bien alignées."
                     },
                     {
-                        question: "Lors du Contrôle Final, que doit impérativement faire le SAV si le test d'étanchéité échoue ?",
-                        options: ["Mettre un joint en silicone", "Ignorer le résultat", "Il est important de le rappeler au client (l'en informer)", "Confisquer la montre"],
-                        correctAnswer: 2,
-                        explanation: "Si l'étanchéité ne peut être garantie (ex: montre ancienne très corrodée), le client doit le savoir pour éviter de noyer sa montre.",
-                        quote: "Étanchéité : Test d'étanchéité pour s'assurer que la montre est bien résistante à l'eau... Si ce n’est pas le cas, il est important de le rappeler aux clients."
+                        "question": "Lors du Contrôle Final, que doit impérativement faire le SAV si le test d'étanchéité échoue ?",
+                        "options": [
+                            "Remplacer systématiquement les joints et refaire le test",
+                            "Facturer une restitution d'étanchéité en supplément",
+                            "Il est important de le rappeler au client (l'en informer)",
+                            "Mentionner la réserve sur la facture sans en parler au client"
+                        ],
+                        "correctAnswer": 2,
+                        "explanation": "Si l'étanchéité ne peut être garantie (ex: montre ancienne très corrodée), le client doit le savoir pour éviter de noyer sa montre.",
+                        "quote": "Étanchéité : Test d'étanchéité pour s'assurer que la montre est bien résistante à l'eau... Si ce n’est pas le cas, il est important de le rappeler aux clients."
                     },
                     {
-                        question: "Quels éléments essentiels doivent figurer sur la Facture de livraison ?",
-                        options: ["Les recettes de polissage", "Nom, adresse, description des services, prix, taxes (TVA) et une numérotation séquentielle", "La date de naissance du client", "Le nom de la machine utilisée"],
-                        correctAnswer: 1,
-                        explanation: "La facture est un document comptable et légal qui obéit à des règles strictes.",
-                        quote: "Données essentielles : Inclure toutes les informations nécessaires telles que le nom et l'adresse du client, la description... prix unitaire, total, taxes applicables (TVA)... Numérotation séquentielle."
+                        "question": "Quels éléments essentiels doivent figurer sur la Facture de livraison ?",
+                        "options": [
+                            "Description des services, prix et délai de garantie de réparation",
+                            "Nom, adresse, description des services, prix, taxes (TVA) et une numérotation séquentielle",
+                            "Description des services, prix TTC et numéro de dossier SAV",
+                            "Nom, adresse, prix HT et montant de la TVA, sans numérotation obligatoire"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "La facture est un document comptable et légal. Outre les données commerciales (client, prestation, quantité, prix, total), la loi sur la TVA (art. 26 LTVA) impose notamment le numéro IDE/TVA, la date, l'objet de la prestation et le montant de TVA ; la numérotation séquentielle assure la traçabilité comptable.",
+                        "quote": "Données essentielles : Inclure toutes les informations nécessaires telles que le nom et l'adresse du client, la description... prix unitaire, total, taxes applicables (TVA)... Numérotation séquentielle."
                     },
                     {
-                        question: "En Suisse, pendant combien de temps les factures doivent-elles être archivées au minimum ?",
-                        options: ["2 ans", "5 ans", "10 ans", "À vie"],
-                        correctAnswer: 2,
-                        explanation: "C'est une obligation légale pour répondre à d'éventuels contrôles de l'Administration Fédérale des Contributions.",
-                        quote: "Archivage des factures : Conserver les factures pendant une durée minimale de 10 ans, conformément à la législation suisse."
+                        "question": "En Suisse, pendant combien de temps les factures doivent-elles être archivées au minimum ?",
+                        "options": [
+                            "5 ans",
+                            "7 ans",
+                            "10 ans",
+                            "20 ans"
+                        ],
+                        "correctAnswer": 2,
+                        "explanation": "Art. 958f CO : les livres et pièces comptables sont conservés dix ans, délai qui court à partir de la fin de l'exercice comptable (et non de la date de la facture). Ils doivent pouvoir être présentés lors d'un contrôle de l'Administration fédérale des contributions.",
+                        "quote": "Archivage des factures : Conserver les factures pendant dix ans à compter de la fin de l'exercice comptable (art. 958f CO)."
+                    },
+                    {
+                        "question": "Au contrôle final, quel repère de précision le cours donne-t-il pour un chronomètre certifié COSC ?",
+                        "options": [
+                            "Entre −2 et +2 s/jour",
+                            "Entre −4 et +6 s/jour",
+                            "Entre −6 et +4 s/jour",
+                            "Entre −5 et +15 s/jour"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "La marche est vérifiée au chronocomparateur. Le repère COSC (norme ISO 3159) est de −4 à +6 s/jour ; chaque marque fixe ensuite ses propres tolérances de livraison, souvent plus serrées.",
+                        "quote": "Précision : Vérification de la marche du mouvement au chronocomparateur. Repère : un chronomètre certifié COSC doit rester entre −4 et +6 s/jour (norme ISO 3159) ; chaque marque fixe ses propres tolérances de livraison."
+                    },
+                    {
+                        "question": "Une révision est facturée CHF 850.– hors taxe. Avec le taux normal de TVA en vigueur (8,1 %), quel est le montant TTC ?",
+                        "options": [
+                            "CHF 872.10",
+                            "CHF 918.85",
+                            "CHF 924.15",
+                            "CHF 916.30"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "850 × 1,081 = 918.85, soit CHF 68.85 de TVA. Le taux normal est de 8,1 % depuis le 1er janvier 2024 (taux réduit 2,6 %, hébergement 3,8 %) ; il peut être relevé pour financer l'AVS : vérifier estv.admin.ch chaque début d'année.",
+                        "quote": "Exemple : une révision facturée CHF 850.– hors taxe donne CHF 850 × 1,081 = CHF 918.85 TTC, soit CHF 68.85 de TVA."
                     }
                 ]
             },
             {
-                id: "theme-9",
-                title: "9. Les Réclamations",
-                questions: [
+                "id": "theme-9",
+                "title": "9. Les Réclamations",
+                "questions": [
                     {
-                        question: "Quel est l'objectif premier lors du traitement d'une réclamation ?",
-                        options: ["Donner tort au client rapidement", "Résoudre la véritable raison qui a conduit à la réclamation et tirer des conclusions pour s'améliorer", "Lui offrir systématiquement une montre neuve", "Le rediriger vers un centre d'appel externe"],
-                        correctAnswer: 1,
-                        explanation: "Une plainte est une occasion en or d'identifier une faille dans ses processus et de la corriger définitivement.",
-                        quote: "Les buts de la gestion des réclamations : Résoudre les véritables raisons qui ont conduit à la réclamation... Tirer des conclusions positives des réclamations avec une approche de prise en compte des plaintes..."
+                        "question": "Quel est l'objectif premier lors du traitement d'une réclamation ?",
+                        "options": [
+                            "Compenser le client pour le désagrément subi",
+                            "Résoudre la véritable raison qui a conduit à la réclamation et tirer des conclusions pour s'améliorer",
+                            "Déterminer si la réclamation est justifiée avant d'agir",
+                            "Clore la réclamation dans le délai le plus court possible"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Une plainte est une occasion en or d'identifier une faille dans ses processus et de la corriger définitivement.",
+                        "quote": "Les buts de la gestion des réclamations : Résoudre les véritables raisons qui ont conduit à la réclamation... Tirer des conclusions positives des réclamations avec une approche de prise en compte des plaintes..."
                     },
                     {
-                        question: "Selon les statistiques du cours, quel pourcentage de consommateurs insatisfaits formulent réellement une plainte ?",
-                        options: ["Moins de 5%", "Environ 50%", "75%", "100%"],
-                        correctAnswer: 0,
-                        explanation: "La grande majorité des clients mécontents choisissent de partir en silence sans vous donner la chance de réparer l'erreur.",
-                        quote: "Moins de 5% de consommateurs insatisfaits se plaignent... 75% à 95% des clients mécontents et qui n’ont pas fait part de leurs plaintes n’achèteront plus jamais de produit de la marque."
+                        "question": "Selon les statistiques du cours, quel pourcentage de consommateurs insatisfaits formulent réellement une plainte ?",
+                        "options": [
+                            "Moins de 5%",
+                            "Environ 25%",
+                            "Environ 50%",
+                            "Plus de 75%"
+                        ],
+                        "correctAnswer": 0,
+                        "explanation": "La grande majorité des clients mécontents partent en silence sans donner la chance de corriger l'erreur. Le cours précise qu'il s'agit d'ordres de grandeur couramment cités dans la littérature marketing (études TARP, années 1980-90), pas de valeurs exactes.",
+                        "quote": "Ordres de grandeur couramment cités dans la littérature marketing (repères, non des valeurs exactes) : Moins de 5 % de consommateurs insatisfaits se plaignent."
                     },
                     {
-                        question: "Face à un client mécontent, quelle est la première chose à dire ou faire pour désamorcer le conflit ?",
-                        options: ["S'excuser au nom de l'horloger", "L'interrompre pour lui prouver qu'il a tort", "Commencer par valider son opinion (ex: « Je comprends votre point de vue ») et l'écouter jusqu'au bout", "Appeler la sécurité"],
-                        correctAnswer: 2,
-                        explanation: "L'empathie et l'écoute active calment instantanément la colère et montrent que vous prenez son problème au sérieux.",
-                        quote: "Toujours commencer par valider l'opinion de son interlocuteur avec une phrase comme \"Je comprends votre point de vue\". Écouter sa réclamation jusqu'au bout, ne pas l'interrompre ou se chercher des excuses."
+                        "question": "Face à un client mécontent, quelle est la première chose à dire ou faire pour désamorcer le conflit ?",
+                        "options": [
+                            "S'excuser immédiatement au nom de l'atelier",
+                            "Proposer d'emblée un geste commercial pour calmer la situation",
+                            "Commencer par valider son opinion (ex: « Je comprends votre point de vue ») et l'écouter jusqu'au bout",
+                            "Expliquer calmement les raisons techniques du problème"
+                        ],
+                        "correctAnswer": 2,
+                        "explanation": "L'empathie et l'écoute active calment instantanément la colère et montrent que vous prenez son problème au sérieux.",
+                        "quote": "Toujours commencer par valider l'opinion de son interlocuteur avec une phrase comme \"Je comprends votre point de vue\". Écouter sa réclamation jusqu'au bout, ne pas l'interrompre ou se chercher des excuses."
                     },
                     {
-                        question: "Vrai ou Faux concernant la fidélisation selon le cours :",
-                        options: ["Il coûte 5 fois moins cher de garder un client que d'en gagner un nouveau", "Il coûte plus cher de fidéliser que de faire du marketing", "Un client satisfait en parle à 10 personnes", "Les clients mécontents reviennent toujours au bout de 2 ans"],
-                        correctAnswer: 0,
-                        explanation: "Ce ratio financier explique pourquoi offrir un geste commercial (goodwill) est souvent plus rentable que de perdre un client acquis.",
-                        quote: "Garder et fidéliser un client coûte 5 fois moins cher que d’en gagner un nouveau."
+                        "question": "Parmi ces affirmations sur la fidélisation, laquelle correspond au cours ?",
+                        "options": [
+                            "Garder un client coûte environ 5 fois moins cher que d'en gagner un nouveau",
+                            "Un client satisfait en parle à 10 personnes, un insatisfait à 3",
+                            "Environ 50 % des clients insatisfaits formulent une réclamation",
+                            "Les clients mécontents qui ne se plaignent pas reviennent dans la majorité des cas"
+                        ],
+                        "correctAnswer": 0,
+                        "explanation": "Cet ordre de grandeur (les études citent 5 à 25 fois selon les secteurs) explique pourquoi un geste commercial (goodwill) est souvent plus rentable que de perdre un client acquis. Un client satisfait en parle à 3 personnes, un insatisfait à 10.",
+                        "quote": "Garder et fidéliser un client coûte 5 fois moins cher que d'en gagner un nouveau. Un client satisfait en fait part à 3 personnes, un consommateur insatisfait en fait part à 10 personnes."
                     },
                     {
-                        question: "Lorsqu'un client se détourne de l'entreprise, quelle action proactive permet parfois de le récupérer ?",
-                        options: ["Lui envoyer une lettre d'avocat", "Le recontacter pour savoir pourquoi il est parti et ce qu'on aurait pu faire mieux", "Lui interdire l'accès à la boutique", "Critiquer les concurrents chez qui il est allé"],
-                        correctAnswer: 1,
-                        explanation: "Ce simple geste d'humilité prouve votre implication et suffit souvent à restaurer la confiance.",
-                        quote: "Lorsqu'un client se détourne de l'entreprise... Le recontacter pour savoir pourquoi il est parti et ce que l’on aurait pu faire mieux pour le retenir. Ce simple geste suffit parfois."
+                        "question": "Lorsqu'un client se détourne de l'entreprise, quelle action proactive permet parfois de le récupérer ?",
+                        "options": [
+                            "Lui envoyer une offre promotionnelle sur la prochaine révision",
+                            "Le recontacter pour savoir pourquoi il est parti et ce qu'on aurait pu faire mieux",
+                            "Lui proposer une extension de garantie gratuite",
+                            "Attendre sa prochaine visite pour aborder le sujet"
+                        ],
+                        "correctAnswer": 1,
+                        "explanation": "Ce simple geste d'humilité prouve votre implication et suffit souvent à restaurer la confiance.",
+                        "quote": "Lorsqu'un client se détourne de l'entreprise... Le recontacter pour savoir pourquoi il est parti et ce que l’on aurait pu faire mieux pour le retenir. Ce simple geste suffit parfois."
                     },
                     {
-                        question: "Que conseille le cours face à des « clients toxiques » (attentes irréalistes, chroniquement insatisfaits) ?",
-                        options: ["Accepter de travailler à perte pour eux", "Les nommer ambassadeurs de la marque", "Mieux vaut renoncer à faire des affaires avec eux pour protéger l'entreprise et se concentrer sur les clients fidèles", "Céder à toutes leurs demandes pour éviter un scandale"],
-                        correctAnswer: 2,
-                        explanation: "Un client dont les attentes sont impossibles draine le temps et l'énergie du SAV de manière toxique. Il faut savoir s'en séparer.",
-                        quote: "Certains consommateurs sont chroniquement insatisfaits ou ont des attentes irréalistes. Vouloir les exaucer mettrait en danger la stabilité financière de l'entreprise. Mieux vaut renoncer à faire des affaires avec ces personnes..."
+                        "question": "Que conseille le cours face à des « clients toxiques » (attentes irréalistes, chroniquement insatisfaits) ?",
+                        "options": [
+                            "Les traiter en priorité pour éviter une mauvaise réputation",
+                            "Leur proposer systématiquement un goodwill",
+                            "Mieux vaut renoncer à faire des affaires avec eux pour protéger l'entreprise et se concentrer sur les clients fidèles",
+                            "Les orienter vers le SAV de la marque"
+                        ],
+                        "correctAnswer": 2,
+                        "explanation": "Un client dont les attentes sont impossibles draine le temps et l'énergie du SAV de manière toxique. Il faut savoir s'en séparer.",
+                        "quote": "Certains consommateurs sont chroniquement insatisfaits ou ont des attentes irréalistes. Vouloir les exaucer mettrait en danger la stabilité financière de l'entreprise. Mieux vaut renoncer à faire des affaires avec ces personnes..."
                     }
                 ]
             }
         ];
-
 
         // =====================================================================
         //  ÉTAT & DOM
@@ -853,7 +1203,7 @@
             "theme-5": { objectif: "5.6.2", revision: "Revoir la séquence 6 (Diagnostic) et la séquence 9 (Devis standard et spécifique) : démontage partiel, fiche de devis interne, catégories de réparation, mentions obligatoires d'un devis, forfaits de réparation et informations complémentaires pour le client." },
             "theme-6": { objectif: "5.6.1 / 5.6.2", revision: "Reprendre les séquences 10 et 11 (Opérations SAV, opérations et gammes) : flux du produit et des documents, gamme opératoire, carte d'opération, temps standard, outillage prescrit par les marques, accès aux fiches techniques et manuels." },
             "theme-7": { objectif: "5.6.6", revision: "Relire la séquence 12 (Stock) : rôle et genres de stock, graphique de gestion (stock maxi, mini, de sécurité, point de commande, délai d'approvisionnement), taux de rotation, FIFO / LIFO, inventaire physique, contrôles ponctuels et inventaire tournant." },
-            "theme-8": { objectif: "5.6.2", revision: "Revoir le planning d'atelier et la gestion des retards, les contrôles finaux (esthétique, fonctionnel, étanchéité) et les documents de sortie : fiches contrôle, bulletin de livraison, facture et durée d'archivage des documents comptables." },
+            "theme-8": { objectif: "5.6.2", revision: "Revoir le planning d'atelier et la gestion des retards, les contrôles finaux (esthétique, fonctionnel avec repère COSC −4/+6 s/jour, étanchéité ISO 22810 / 6425) et les documents de sortie : fiches contrôle, bulletin de livraison, facture (mentions TVA, taux 8,1 %, numérotation) et archivage 10 ans (art. 958f CO)." },
             "theme-9": { objectif: "5.6.1", revision: "Reprendre la partie gestion des réclamations de la séquence 4 : buts du traitement d'une réclamation, statistiques d'insatisfaction, posture face à un client mécontent, coût de la fidélisation, clients toxiques." }
         };
         const cleanTitle = t => t.replace(/^\d+\.\s*/, '');
@@ -904,6 +1254,19 @@
             $('nav-next').disabled = currentThemeIndex === quizThemes.length - 1;
         }
         function goToPrevTheme() { if (currentThemeIndex > 0) loadTheme(currentThemeIndex - 1); }
+
+
+        // ---------- Modale lien / QR ----------
+        const LIEN_QUIZ = "https://nicolas-derobert.github.io/CS-reparation/quizz-revision-accueil-a-livraison-rentree";
+        function ouvrirQR(open) {
+            $('modale-qr').classList.toggle('ouverte', open);
+            if (open) { toggleDrawer(false); $('btn-copier').innerText = 'Copier le lien'; }
+        }
+        async function copierLien() {
+            try { await navigator.clipboard.writeText(LIEN_QUIZ); $('btn-copier').innerText = 'Lien copié'; }
+            catch (e) { window.prompt("Copiez le lien :", LIEN_QUIZ); }
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') ouvrirQR(false); });
 
         function init() { applyMode(); renderTabs(); loadTheme(0); }
 
