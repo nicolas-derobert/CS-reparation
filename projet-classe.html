@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GESPRO L02 — Classer les étapes d'un projet dans ses phases</title>
+<style>
+  :root{
+    --ink:#000; --ink-2:#444; --ink-3:#777; --line:#000; --line-2:#9a9a9a; --paper:#fff; --grey:#f2f2f2; --grey-2:#e6e6e6;
+    --ok:#2e7d32; --ok-bg:#eef6ee; --ko:#c62828; --ko-bg:#fbeeee;
+    --display:"Century Gothic","URW Gothic","Avant Garde","Futura","Segoe UI",Arial,sans-serif;
+    --body:Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.45 var(--body)}
+  .page{max-width:1240px;margin:0 auto;padding:22px 28px 30px}
+
+  .ehg{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:26px}
+  .ehg .inst{font:10px/1.25 var(--body);text-transform:uppercase;letter-spacing:.02em}
+  .ehg .inst b{display:block;font-size:12px;text-transform:none;letter-spacing:0;margin-top:2px}
+  .ehg .ref{text-align:right;font:11px/1.4 var(--body);color:var(--ink-2)}
+  .ehg .ref b{color:var(--ink)}
+
+  h1{margin:0 0 4px;font:400 30px/1.15 var(--display)}
+  .sub{font:400 20px/1.2 var(--display);color:var(--ink-2);margin:0 0 22px}
+  h2.sec{margin:26px 0 10px;font:400 14px/1.3 var(--display);font-variant:small-caps;letter-spacing:.04em}
+  h2.sec span{display:inline-block;min-width:36px;font-variant:normal}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:0;margin:0 0 16px;border-bottom:1px solid var(--line)}
+  .tabs button{border:0;border-bottom:3px solid transparent;background:none;color:var(--ink-2);padding:8px 14px;cursor:pointer;font:14px var(--display);margin-bottom:-1px}
+  .tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--ink)}
+  .tabs button:hover{color:var(--ink)}
+  .tabs button:focus-visible,.deck li:focus-visible,.col:focus-visible,.bar button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+  .ctx{margin:0 0 12px}
+  .ctx b{display:block;font:400 16px var(--display);margin-bottom:4px}
+  .ctx p{margin:0;font-style:italic;color:var(--ink-2)}
+  .consigne{margin:0 0 16px;color:var(--ink)}
+
+  .board{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start}
+  @media (max-width:860px){.board{grid-template-columns:1fr}}
+
+  .deck{border:1px solid var(--line);padding:0}
+  .deck h2,.cols h2{margin:0;padding:6px 8px;font:700 12px var(--body);background:var(--grey-2);border-bottom:1px solid var(--line)}
+  .deck h2 span{font-weight:400;color:var(--ink-2)}
+  .deck ul{list-style:none;margin:0;padding:8px;display:flex;flex-direction:column;gap:5px;min-height:40px}
+  .deck .empty{color:var(--ink-3);font-size:12.5px;padding:8px;border:1px dotted var(--line-2);text-align:center}
+
+  .step{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start;background:#fff;border:1px solid var(--line-2);padding:6px 8px;cursor:grab;user-select:none;font-size:13px;line-height:1.3}
+  .step .n{font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+  .step:hover{border-color:var(--ink)}
+  .step.sel{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+  .step.drag{opacity:.45}
+  .step.ok{background:var(--ok-bg);border-color:var(--ok)}
+  .step.ko{background:var(--ko-bg);border-color:var(--ko)}
+  .step.jalon .n::after{content:"◆";font-size:9px;margin-left:2px;vertical-align:2px}
+
+  .cols{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line)}
+  @media (max-width:1100px){.cols{grid-template-columns:repeat(3,1fr)}}
+  @media (max-width:560px){.cols{grid-template-columns:1fr 1fr}}
+  .col{min-height:340px;display:flex;flex-direction:column;border-right:1px solid var(--line)}
+  .col:last-child{border-right:0}
+  .col h3{margin:0;padding:8px 8px;font:700 13px/1.25 var(--body);background:var(--grey-2);border-bottom:1px solid var(--line);min-height:52px}
+  .col h3 small{display:block;font-weight:400;font-style:italic;font-size:11px;color:var(--ink-2);margin-top:2px}
+  .col ul{list-style:none;margin:0;padding:8px;display:flex;flex-direction:column;gap:5px;flex:1}
+  .col.over{background:var(--grey)}
+  .col.over ul{outline:1px dashed var(--ink);outline-offset:-5px}
+
+  .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:16px}
+  .bar button{font:13px var(--body);padding:7px 14px;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;border-radius:0}
+  .bar button.ghost{background:#fff;color:var(--ink)}
+  .bar button:disabled{opacity:.4;cursor:default}
+  .score{margin-left:auto;font-weight:700}
+  .score.ok{color:var(--ok)} .score.ko{color:var(--ko)}
+  .legend{font-size:11.5px;color:var(--ink-2);margin-top:8px;font-style:italic}
+
+  .debat{display:none;margin-top:18px;border:1px solid var(--line);padding:12px 14px}
+  .debat.show{display:block}
+  .debat p{margin:0 0 8px}
+  .debat ul{margin:0;padding-left:18px;color:var(--ink-2);font-size:13px}
+
+  footer{max-width:1240px;margin:30px auto 0;padding:6px 28px 24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font:11px/1.4 var(--body);color:var(--ink-2)}
+  footer b{color:var(--ink);display:block}
+  @media (prefers-reduced-motion:no-preference){ .step{transition:background .2s,border-color .2s} .step.ko{animation:sh .35s} }
+  @keyframes sh{20%{transform:translateX(-3px)}60%{transform:translateX(3px)}}
+  @media print{.tabs,.bar,.consigne{display:none} .board{grid-template-columns:1fr} .step{cursor:default}}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="ehg">
+  <div class="inst">République et canton de Genève<br>Département de l'instruction publique, de la formation et de la jeunesse<br>Enseignement secondaire II<b>Centre de formation professionnelle technique</b></div>
+  <div class="ref"><b>Gestion de projet</b>Leçon 02 — Acteurs, phases et référentiel<br>Exercice interactif</div>
+</div>
+<h1>Classer les étapes d'un projet</h1>
+<p class="sub">dans ses phases</p>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <h2 class="sec"><span>1</span>Situation</h2>
+  <div class="ctx"><b id="ctxTitle"></b><p id="ctxText"></p></div>
+  <h2 class="sec"><span>2</span>Consigne</h2>
+  <p class="consigne">Glissez chaque étape dans la phase où elle se déroule (ou cliquez une étape, puis une colonne). Les étapes sont données dans le désordre. Quand tout est placé, vérifiez vos réponses.</p>
+
+  <h2 class="sec"><span>3</span>Classement</h2>
+  <div class="board">
+    <section class="deck" aria-label="Étapes à classer">
+      <h2>Étapes à classer <span id="left"></span></h2>
+      <ul id="deck"></ul>
+    </section>
+    <section class="cols" aria-label="Phases du projet" id="cols"></section>
+  </div>
+
+  <div class="bar">
+    <button id="check">Vérifier mes réponses</button>
+    <button id="show" class="ghost">Voir le corrigé</button>
+    <button id="reset" class="ghost">Recommencer</button>
+    <button id="shuffle" class="ghost">Mélanger</button>
+    <span class="score" id="score"></span>
+  </div>
+  <div class="legend">◆ après vérification : étape qui marque le jalon de fin d'initialisation (go / no go).</div>
+
+  <div class="debat" id="debat">
+    <p><b>Résultat :</b> <span id="synth"></span></p>
+    <p><b>Point de débat :</b> <span id="debatTxt"></span></p>
+    <ul>
+      <li>Chaque phase se termine par un jalon : un point de décision (go / no go) et souvent un livrable.</li>
+      <li>Une demande de changement se traite en réalisation ; elle ne renvoie pas le projet en initialisation.</li>
+      <li>La surveillance et maîtrise n'est pas une phase dans le temps : elle court sur toute la durée du projet.</li>
+    </ul>
+  </div>
+</div>
+<footer><div><b>CFPT</b>Gestion de projet</div><div>CH02 – Exercice phases<br>Version web</div></footer>
+
+<script>
+const PH = {I:["Initialisation","Quoi ? Pour quoi ?"],P:["Planification","Comment ? Qui ? Quand ? Combien ?"],R:["Réalisation","Faire"],S:["Surveillance et maîtrise","Tout au long du projet"],C:["Clôture","Terminer et capitaliser"]};
+const EX = [
+ {t:"Transfert d'un calibre en production",
+  ctx:"Le bureau technique a validé un nouveau calibre. On vous confie son transfert en production de série : outillages, gammes, moyens de contrôle, présérie.",
+  debat:"« Modification d'une cote par le bureau technique » est souvent placée en initialisation. C'est une demande de modification, document propre à la réalisation. « Taux de rebut de présérie » montre que la surveillance porte aussi sur des indicateurs techniques, pas seulement sur le budget.",
+  s:[["Recueillir les exigences du bureau technique et de la production","I"],["Vérifier les capacités des machines et la surface d'atelier disponible","I"],["Rédiger la fiche de lancement","I"],["Obtenir l'accord de la direction pour lancer le transfert (go / no go)","I*"],["Découper le projet en lots : outillages, gammes, moyens de contrôle, formation","P"],["Établir le planning avec les jalons de qualification","P"],["Chiffrer outillages, postes de travail et sous-traitance","P"],["Identifier les risques : retard de l'outilleur, composant non conforme","P"],["Commander et réceptionner les outillages","R"],["Réaliser la présérie et mesurer les pièces","R"],["Rédiger et valider les gammes de fabrication et de contrôle","R"],["Traiter une demande de changement : modification d'une cote par le bureau technique","R"],["Présenter l'avancement au comité de pilotage","S"],["Suivre le taux de rebut de présérie par rapport à l'objectif","S"],["Libérer le calibre pour la série : procès-verbal de qualification signé","C"],["Rédiger le rapport de fin de projet et archiver les dossiers","C"]]},
+ {t:"Mise en place du 5S dans un atelier",
+  ctx:"La direction souhaite déployer le 5S sur la zone de contrôle final. Vous pilotez le chantier avec l'équipe de la zone.",
+  debat:"Projet organisationnel : les livrables sont des standards et une zone transformée, pas un objet. Trier, ranger, nettoyer, standardiser, maintenir sont un découpage de la réalisation (WBS), à ne pas confondre avec les phases du projet. L'audit final et la remise à l'équipe illustrent la clôture par acceptation du client interne.",
+  s:[["Recueillir les attentes du chef d'atelier et des opérateurs","I"],["Vérifier le périmètre : quelle zone, quelles contraintes de production","I"],["Rédiger la fiche de lancement","I"],["Obtenir l'accord de la direction et une enveloppe pour le matériel (go / no go)","I*"],["Découper le chantier en étapes : trier, ranger, nettoyer, standardiser, maintenir","P"],["Planifier les journées d'intervention par zone et désigner les responsables","P"],["Chiffrer marquage au sol, rangements et panneaux","P"],["Identifier les risques : arrêt de production, résistance de l'équipe","P"],["Trier et évacuer le matériel inutile (zone rouge)","R"],["Installer les rangements et le marquage au sol","R"],["Rédiger le standard de la zone : photos de référence et check-list","R"],["Traiter une demande de changement : ajout d'une servante mobile demandée par les opérateurs","R"],["Faire le point d'avancement hebdomadaire avec le chef d'atelier","S"],["Suivre les dépenses par rapport à l'enveloppe","S"],["Réaliser l'audit 5S final et remettre la zone à l'équipe","C"],["Rédiger le bilan et archiver les photos avant / après","C"]]},
+ {t:"Portes ouvertes de l'école",
+  ctx:"L'école organise ses portes ouvertes un samedi de novembre. La date est fixée, le budget est limité. Votre classe est chargée de l'organisation.",
+  debat:"La date imposée est une contrainte externe à vérifier en initialisation. « Accueillir les visiteurs le jour J » est parfois placé en clôture : le jour J est la réalisation ; le projet se termine avec le bilan et les comptes.",
+  s:[["Recueillir ce que la direction attend de la journée","I"],["Vérifier la date, les locaux disponibles et les règles de sécurité","I"],["Rédiger la fiche de lancement","I"],["Obtenir l'accord de la direction (go / no go)","I*"],["Découper en lots : ateliers de démonstration, accueil, communication, logistique","P"],["Établir le planning et désigner les responsables","P"],["Chiffrer flyers, collation et matériel de démonstration","P"],["Identifier les risques : peu de visiteurs, panne d'une machine de démonstration","P"],["Imprimer et diffuser les flyers et l'annonce","R"],["Préparer les postes de démonstration","R"],["Accueillir les visiteurs le jour J","R"],["Traiter une demande de changement : une classe supplémentaire veut présenter un atelier","R"],["Présenter l'avancement à la direction","S"],["Suivre les dépenses par rapport au budget","S"],["Compter les visiteurs et faire le bilan avec les participants","C"],["Boucler les comptes et archiver le dossier pour l'année suivante","C"]]},
+ {t:"Application de suivi des non-conformités",
+  ctx:"Le service qualité suit ses non-conformités dans un fichier Excel devenu ingérable. On vous confie la mise en place d'une petite application interne.",
+  debat:"Projet informatique, cas typique Hermes. Les tests avec trois utilisateurs pilotes ouvrent la discussion sur les versions successives. L'ajout d'un champ « coût » est la demande de modification : les utilisateurs découvrent leurs besoins en utilisant l'outil. Un projet se termine quand l'ancien mode de fonctionnement disparaît.",
+  s:[["Recueillir les besoins du service qualité et de la production","I"],["Vérifier les contraintes informatiques et la protection des données","I"],["Rédiger la fiche de lancement","I"],["Obtenir l'accord de la direction (go / no go)","I*"],["Découper en lots : saisie, traitement, statistiques, formation","P"],["Établir le planning des versions et désigner les responsables","P"],["Chiffrer développement, licences et formation","P"],["Identifier les risques : utilisateurs qui n'adhèrent pas, données à migrer","P"],["Développer le formulaire de saisie d'une non-conformité","R"],["Tester l'application avec trois utilisateurs pilotes","R"],["Former les utilisateurs","R"],["Traiter une demande de changement : ajout d'un champ « coût de la non-conformité »","R"],["Présenter l'avancement au comité de pilotage","S"],["Suivre l'avancement des versions par rapport au planning","S"],["Mettre en service et arrêter l'ancien fichier Excel","C"],["Rédiger le rapport de fin de projet et archiver la documentation","C"]]},
+ {t:"Voyage d'études de la classe",
+  ctx:"La classe organise son voyage d'études de fin de formation. Dates, destination et budget sont à construire, dans le respect du règlement de l'école.",
+  debat:"« Vérifier le règlement » est la contrainte externe à contrôler avant d'aller plus loin. « Un participant se désiste » est la demande de changement : elle modifie le budget et la réservation sans remettre le projet en cause. « Archiver le dossier pour la volée suivante » illustre la capitalisation en clôture.",
+  s:[["Recueillir ce que la classe attend du voyage","I"],["Vérifier le règlement : pas d'avion, dates autorisées","I"],["Rédiger la fiche de lancement","I"],["Obtenir l'accord de la direction (go / no go)","I*"],["Découper le voyage en tâches : transport, hébergement, visites, budget","P"],["Établir le planning et désigner les responsables","P"],["Chiffrer le budget et fixer la participation par personne","P"],["Lister ce qui pourrait mal tourner : météo, désistements, retard de réservation","P"],["Réserver le transport et l'hébergement","R"],["Collecter les paiements","R"],["Confirmer les visites et préparer le programme jour par jour","R"],["Traiter une demande de changement : un participant se désiste","R"],["Faire le rapport d'avancement à la direction","S"],["Suivre les dépenses par rapport au budget","S"],["Faire le bilan du voyage avec la classe","C"],["Boucler les comptes et archiver le dossier pour la volée suivante","C"]]},
+ {t:"Nouveau poste de contrôle dimensionnel",
+  ctx:"La direction veut un nouveau poste de mesure optique à l'atelier pour la fin de l'année : achat, installation, qualification et formation.",
+  debat:"Distinguer livrable technique (le poste installé) et livrable projet (la qualification signée). « Installer » est souvent placé en clôture : le projet n'est pas fini quand la machine est posée mais quand le client interne l'a acceptée. « Ajout d'un palpeur tactile » est la demande de modification propre à la réalisation. L'étude R&R fait le lien avec le module métrologie.",
+  s:[["Recueillir les besoins des contrôleurs et des méthodes","I"],["Vérifier les contraintes : surface disponible, alimentation, température de la salle","I"],["Rédiger la fiche de lancement","I"],["Obtenir l'accord de la direction sur l'enveloppe (go / no go)","I*"],["Découper le projet en lots : achat, installation, qualification, formation","P"],["Établir le planning et désigner les responsables","P"],["Chiffrer machine, accessoires, formation et maintenance","P"],["Identifier les risques : délai fournisseur, pièce d'essai indisponible","P"],["Passer commande et réceptionner la machine","R"],["Installer et raccorder le poste","R"],["Réaliser l'étude R&R sur les pièces de référence","R"],["Traiter une demande de changement : ajout d'un palpeur tactile","R"],["Présenter l'avancement au comité de pilotage","S"],["Suivre les dépenses par rapport au budget","S"],["Valider la qualification et libérer le poste pour la production","C"],["Rédiger le rapport de fin de projet et archiver les procès-verbaux","C"]]},
+];
+
+let cur=0, steps=[], placed={}, checked=false, selected=null;
+const $=id=>document.getElementById(id);
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function load(i, reshuffle=true){
+  cur=i; checked=false; selected=null; placed={};
+  if(reshuffle) steps=shuffle(EX[i].s.map(s=>({t:s[0],ph:s[1].replace("*",""),jalon:s[1].endsWith("*")}))).map((s,k)=>({...s,n:k+1}));
+  $("ctxTitle").textContent="Exercice "+(i+1)+" — "+EX[i].t; $("ctxText").textContent=EX[i].ctx;
+  $("debatTxt").textContent=EX[i].debat;
+  [...$("tabs").children].forEach((b,k)=>b.setAttribute("aria-selected",k===i));
+  render();
+}
+
+function render(){
+  const deck=$("deck"); deck.innerHTML="";
+  const free=steps.filter(s=>!placed[s.n]);
+  if(!free.length) deck.innerHTML='<li class="empty">Toutes les étapes sont placées.</li>';
+  free.forEach(s=>deck.appendChild(stepEl(s)));
+  $("left").textContent=free.length?"("+free.length+" restantes)":"";
+  const cols=$("cols"); cols.innerHTML="";
+  for(const k of ["I","P","R","S","C"]){
+    const c=document.createElement("div"); c.className="col"; c.dataset.ph=k; c.tabIndex=0;
+    c.innerHTML=`<h3>${PH[k][0]}<small>${PH[k][1]}</small></h3><ul></ul>`;
+    const ul=c.querySelector("ul");
+    steps.filter(s=>placed[s.n]===k).forEach(s=>ul.appendChild(stepEl(s)));
+    c.addEventListener("dragover",e=>{e.preventDefault();c.classList.add("over")});
+    c.addEventListener("dragleave",()=>c.classList.remove("over"));
+    c.addEventListener("drop",e=>{e.preventDefault();c.classList.remove("over");place(+e.dataTransfer.getData("text"),k)});
+    c.addEventListener("click",()=>{if(selected!=null)place(selected,k)});
+    c.addEventListener("keydown",e=>{if(e.key==="Enter"&&selected!=null)place(selected,k)});
+    cols.appendChild(c);
+  }
+  $("check").disabled=free.length>0||checked;
+  $("debat").classList.toggle("show",checked);
+  if(!checked)$("score").textContent="";
+}
+
+function stepEl(s){
+  const li=document.createElement("li"); li.className="step"; li.draggable=!checked; li.tabIndex=0;
+  if(selected===s.n)li.classList.add("sel");
+  if(checked){li.classList.add(placed[s.n]===s.ph?"ok":"ko"); if(s.jalon)li.classList.add("jalon");}
+  li.innerHTML=`<span class="n">${s.n}</span><span>${s.t}</span>`;
+  li.addEventListener("dragstart",e=>{e.dataTransfer.setData("text",s.n);li.classList.add("drag")});
+  li.addEventListener("dragend",()=>li.classList.remove("drag"));
+  li.addEventListener("click",e=>{e.stopPropagation();if(checked)return;selected=selected===s.n?null:s.n;render()});
+  li.addEventListener("keydown",e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();li.click()}});
+  return li;
+}
+$("deck").addEventListener("dragover",e=>e.preventDefault());
+$("deck").addEventListener("drop",e=>{e.preventDefault();const n=+e.dataTransfer.getData("text");if(!checked){delete placed[n];render()}});
+
+function place(n,k){ if(checked)return; placed[n]=k; selected=null; render(); }
+
+function check(){
+  checked=true;
+  const ok=steps.filter(s=>placed[s.n]===s.ph).length;
+  const sc=$("score"); sc.textContent=ok+" / "+steps.length+" étapes bien placées"; sc.className="score "+(ok===steps.length?"ok":"ko");
+  $("synth").textContent=["I","P","R","S","C"].map(k=>PH[k][0]+" : "+steps.filter(s=>s.ph===k).map(s=>s.n).sort((a,b)=>a-b).join(", ")).join("  ·  ");
+  render();
+}
+$("check").onclick=check;
+$("show").onclick=()=>{steps.forEach(s=>placed[s.n]=s.ph);check()};
+$("reset").onclick=()=>load(cur,false);
+$("shuffle").onclick=()=>load(cur,true);
+
+EX.forEach((e,i)=>{const b=document.createElement("button");b.role="tab";b.textContent=(i+1)+". "+e.t;b.onclick=()=>load(i);$("tabs").appendChild(b)});
+load(0);
+</script>
+</body>
+</html>
