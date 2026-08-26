@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GESPRO L02 — Les acteurs du projet</title>
+<style>
+  :root{
+    --ink:#000; --ink-2:#444; --ink-3:#777; --line:#000; --line-2:#9a9a9a; --paper:#fff; --grey:#f2f2f2; --grey-2:#e6e6e6;
+    --ok:#2e7d32; --ok-bg:#eef6ee; --ko:#c62828; --ko-bg:#fbeeee;
+    --display:"Century Gothic","URW Gothic","Avant Garde","Futura","Segoe UI",Arial,sans-serif;
+    --body:Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.45 var(--body)}
+  .page{max-width:1240px;margin:0 auto;padding:22px 28px 30px}
+  .ehg{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:26px}
+  .ehg .inst{font:10px/1.25 var(--body);text-transform:uppercase;letter-spacing:.02em}
+  .ehg .inst b{display:block;font-size:12px;text-transform:none;letter-spacing:0;margin-top:2px}
+  .ehg .ref{text-align:right;font:11px/1.4 var(--body);color:var(--ink-2)}
+  .ehg .ref b{color:var(--ink)}
+  h1{margin:0 0 4px;font:400 30px/1.15 var(--display)}
+  .sub{font:400 20px/1.2 var(--display);color:var(--ink-2);margin:0 0 22px}
+  h2.sec{margin:26px 0 10px;font:400 14px/1.3 var(--display);font-variant:small-caps;letter-spacing:.04em;border-bottom:1px solid var(--line-2);padding-bottom:4px}
+  h2.sec span{display:inline-block;min-width:36px;font-variant:normal}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:0;margin:0 0 16px;border-bottom:1px solid var(--line)}
+  .tabs button{border:0;border-bottom:3px solid transparent;background:none;color:var(--ink-2);padding:8px 14px;cursor:pointer;font:14px var(--display);margin-bottom:-1px}
+  .tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--ink)}
+  .tabs button:hover{color:var(--ink)}
+  button:focus-visible,.step:focus-visible,.col:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+  .ctx{margin:0 0 12px}
+  .ctx b{display:block;font:400 16px var(--display);margin-bottom:4px}
+  .ctx p{margin:0;font-style:italic;color:var(--ink-2)}
+  .ctx p b{display:inline;font:inherit;font-weight:700;margin:0}
+  .ctx p.situ{font-style:normal;color:var(--ink);margin:0 0 6px;max-width:1000px;padding-left:13px}
+  .consigne{margin:0 0 10px;font-style:normal !important;color:var(--ink-2);border-left:3px solid var(--ink);padding-left:10px;max-width:1000px}
+
+  .cats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);margin-bottom:12px}
+  @media (max-width:860px){.cats{grid-template-columns:1fr 1fr}}
+  .cat{padding:8px 10px;border-right:1px solid var(--line);font-size:12.5px}
+  .cat:last-child{border-right:0}
+  .cat b{font:400 15px var(--display);display:block}
+  .cat b span{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:var(--ink);color:#fff;font:700 12px var(--body);margin-right:6px}
+  .cat i{display:block;color:var(--ink-2);font-style:normal;margin-top:2px}
+
+  .quest{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;margin-bottom:14px}
+  @media (max-width:860px){.quest{grid-template-columns:1fr}}
+  .q label{display:block;font-size:12.5px;margin-bottom:3px}
+  .q label span{color:var(--ink-3);margin-right:4px}
+  .q input{width:100%;font:13px var(--body);padding:6px 8px;border:0;border-bottom:1px solid var(--line);background:var(--grey)}
+  .hint{font-style:italic;color:var(--ink-2);margin:0 0 12px;font-size:13px}
+
+  .alist{columns:2;column-gap:28px;margin:0 0 14px;font-size:13px;border:1px solid var(--line);padding:8px 8px 8px 34px}
+  @media (max-width:700px){.alist{columns:1}}
+  .alist li{break-inside:avoid;padding:2px 0}
+  .alist li.done{color:var(--ink-3);text-decoration:line-through}
+
+  .board{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start}
+  @media (max-width:860px){.board{grid-template-columns:1fr}}
+  .deck{border:1px solid var(--line)}
+  .deck h2,.cols h2{margin:0;padding:6px 8px;font:700 12px var(--body);background:var(--grey-2);border-bottom:1px solid var(--line)}
+  .deck h2 span{font-weight:400;color:var(--ink-2)}
+  .deck ul{list-style:none;margin:0;padding:8px;display:flex;flex-direction:column;gap:5px;min-height:40px}
+
+  .step{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start;background:#fff;border:1px solid var(--line-2);padding:6px 8px;cursor:grab;user-select:none;font-size:13px;line-height:1.3}
+  .step .n{font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+  .step:hover{border-color:var(--ink)}
+  .step.sel{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+  .step.drag{opacity:.45}
+  .step.ok{background:var(--ok-bg);border-color:var(--ok)}
+  .step.ko{background:var(--ko-bg);border-color:var(--ko)}
+  .step .role{grid-column:1/3;display:none;margin-top:4px;font-size:12px;color:var(--ink-2);font-style:italic}
+  .step.ok .role,.step.ko .role{display:block}
+  .step.dual .n::after{content:"◆";font-size:9px;margin-left:2px;vertical-align:2px}
+
+  .cols{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line)}
+  @media (max-width:1100px){.cols{grid-template-columns:repeat(2,1fr)}}
+  .col{min-height:320px;display:flex;flex-direction:column;border-right:1px solid var(--line)}
+  .col:last-child{border-right:0}
+  .col h3{margin:0;padding:8px;font:700 13px/1.25 var(--body);background:var(--grey-2);border-bottom:1px solid var(--line);min-height:52px}
+  .col h3 small{display:block;font-weight:400;font-style:italic;font-size:11px;color:var(--ink-2);margin-top:2px}
+  .col ul{list-style:none;margin:0;padding:8px;display:flex;flex-direction:column;gap:5px;flex:1}
+  .col.over{background:var(--grey)}
+  .col.over ul{outline:1px dashed var(--ink);outline-offset:-5px}
+
+  .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:16px}
+  .bar button{font:13px var(--body);padding:7px 14px;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;border-radius:0}
+  .bar button.ghost{background:#fff;color:var(--ink)}
+  .score{margin-left:auto;font-weight:700}
+  .score.ok{color:var(--ok)} .score.ko{color:var(--ko)}
+  .legend{font-size:11.5px;color:var(--ink-2);margin-top:8px;font-style:italic}
+
+  .debat{display:none;margin-top:18px;border:1px solid var(--line);padding:12px 14px}
+  .debat.show{display:block}
+  .debat p{margin:0}
+
+  footer{max-width:1240px;margin:30px auto 0;padding:6px 28px 24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font:11px/1.4 var(--body);color:var(--ink-2)}
+  footer b{color:var(--ink);display:block}
+  @media (prefers-reduced-motion:no-preference){ .step{transition:background .2s,border-color .2s} .step.ko{animation:sh .35s} }
+  @keyframes sh{20%{transform:translateX(-3px)}60%{transform:translateX(3px)}}
+  @media print{.tabs,.bar,.consigne{display:none} .board{grid-template-columns:1fr} .step{cursor:default} .debat{display:block}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="ehg">
+    <div class="inst">République et canton de Genève<br>Département de l'instruction publique<br>Enseignement secondaire II postobligatoire<b>Centre de Formation Professionnelle Technique</b></div>
+    <div class="ref">Gestion de projet<br><b>GESPRO — Leçon 02</b><br>Activité : les acteurs du projet</div>
+  </div>
+
+  <h1>Les acteurs du projet</h1>
+  <p class="sub">Imaginer, classer, définir le rôle</p>
+
+  <div class="tabs" role="tablist" id="tabs"></div>
+
+  <div class="ctx"><b id="ctxTitle"></b>
+    <p class="consigne"><b>Consigne.</b> Lisez la situation. Répondez aux six questions en imaginant les personnes, services ou entreprises qui interviennent dans ce projet ou sont concernés par son résultat. Classez ensuite chaque acteur de la liste proposée dans sa catégorie, puis vérifiez : le rôle de chaque acteur s'affiche après vérification. Comparez avec vos réponses : quels acteurs aviez-vous oubliés ?</p>
+    <p class="situ"><b>Situation.</b> <span id="ctxIntro"></span></p></div>
+
+  <h2 class="sec"><span>1.</span>Imaginer les acteurs</h2>
+  <p class="hint" id="hint"></p>
+  <div class="quest" id="quest"></div>
+
+  <h2 class="sec"><span>2.</span>Classer les acteurs proposés</h2>
+  <p class="hint">Même numérotation que la fiche papier. Glissez chaque acteur dans sa catégorie (ou cliquez la carte puis la colonne, ou touche A / B / C / D), puis vérifiez. ◆ = acteur à double casquette : deux catégories sont acceptées.</p>
+  <div class="cats" id="cats"></div>
+  <ol class="alist" id="alist"></ol>
+  <div class="board">
+    <div class="deck"><h2>Acteurs à classer <span id="deck2n"></span></h2><ul id="deck2"></ul></div>
+    <div class="cols" id="cols2"></div>
+  </div>
+  <div class="bar">
+    <button id="check">Vérifier</button>
+    <button class="ghost" id="reveal">Voir le corrigé</button>
+    <button class="ghost" id="reset2">Recommencer</button>
+    <span class="score" id="score"></span>
+  </div>
+  <p class="legend">Transfert : quel acteur a le plus d'influence sur le projet ? Lequel est le plus impliqué ? Sont-ils les mêmes ?</p>
+  <div class="debat" id="debat"></div>
+</div>
+<footer><div><b>GESPRO-L02-Exercice_acteurs_projet</b>Activité interactive — six projets, numérotation identique à la fiche papier</div><div>1TMT_GESPRO</div></footer>
+
+<script>
+const CATS=[
+ ["A","Superviser, décider","Client / MOA, sponsor, direction, comité de pilotage","Commande, fixe les objectifs, alloue le budget, décide aux jalons."],
+ ["B","Faire avancer","Chef de projet / MOE, responsables de lots","Organise, planifie, coordonne, suit, rend compte."],
+ ["C","Faire fonctionner, réaliser","Équipe projet, services support, sous-traitants, fournisseurs, experts","Produit les livrables, fournit matériel ou compétences."],
+ ["D","Partie prenante hors équipe","Utilisateurs finaux, bénéficiaires, services impactés, administrations…","Concerné par le résultat : peut soutenir ou freiner."]];
+const QUESTIONS=["Qui a besoin du résultat et l'a demandé ?","Qui décide, paie et peut arrêter le projet ?","Qui organise et suit le travail au quotidien ?","Qui réalise concrètement le travail ?","Qui fournit du matériel, un service ou une expertise ?","Qui est concerné par le résultat sans faire partie de l'équipe ?"];
+const PROJECTS=[{"t":"Exercice 1 — Transfert d'un calibre en production (industrialisation)","s":"Le bureau technique a validé un nouveau calibre. On vous confie son transfert en production de série : outillages, gammes, moyens de contrôle, présérie.","hint":"Pensez à ceux qui ont dessiné le calibre, à ceux qui vont le fabriquer, à ceux qui fabriquent les outillages, à ceux qui contrôlent et à ceux qui attendent le produit.","ans":[["Direction générale / directeur industriel","A","Commande le transfert, fixe la date de lancement, valide le go / no go et le budget."],["Comité de pilotage (responsables production, technique, qualité)","A","Suit l'avancement, arbitre les priorités, valide les jalons de qualification."],["Chef de projet industrialisation (méthodes)","B","Planifie, coordonne les lots, suit le budget et le taux de rebut, rend compte."],["Bureau technique","C","Fournit plans et tolérances, répond aux questions, traite les modifications de cotes."],["Service méthodes","C","Rédige les gammes de fabrication, définit les postes de travail."],["Qualité / métrologie","C","Définit les moyens de contrôle, mesure la présérie, rédige le PV de qualification."],["Production (chef d'atelier, régleurs, opérateurs)","C / D","Réalise la présérie ; futurs utilisateurs des gammes et postes."],["Outilleur (interne ou sous-traitant)","C","Fabrique et livre les outillages ; risque de retard identifié."],["Fournisseurs de composants","C","Livrent des composants conformes pour la présérie."],["Achats","C","Passe les commandes d'outillages et de sous-traitance."],["Maintenance","D","Garantit la disponibilité et la capacité des machines."],["Client final / marque","D","Attend le calibre à la date annoncée ; n'intervient pas dans le projet."]],"debate":"Le bureau technique est à la fois fournisseur de l'équipe (plans) et source de changements (modification de cote) : c'est un acteur interne dont l'implication doit être forte. La production est équipe projet pendant la présérie, puis utilisateur du résultat : un même acteur peut changer de catégorie selon la phase.","list":[["Maintenance","D","Garantit la disponibilité et la capacité des machines."],["Client final / marque","D","Attend le calibre à la date annoncée ; n'intervient pas dans le projet."],["Achats","C","Passe les commandes d'outillages et de sous-traitance."],["Fournisseurs de composants","C","Livrent des composants conformes pour la présérie."],["Service méthodes","C","Rédige les gammes de fabrication, définit les postes de travail."],["Direction générale / directeur industriel","A","Commande le transfert, fixe la date de lancement, valide le go / no go et le budget."],["Outilleur (interne ou sous-traitant)","C","Fabrique et livre les outillages ; risque de retard identifié."],["Bureau technique","C","Fournit plans et tolérances, répond aux questions, traite les modifications de cotes."],["Chef de projet industrialisation (méthodes)","B","Planifie, coordonne les lots, suit le budget et le taux de rebut, rend compte."],["Comité de pilotage (responsables production, technique, qualité)","A","Suit l'avancement, arbitre les priorités, valide les jalons de qualification."],["Production (chef d'atelier, régleurs, opérateurs)","C / D","Réalise la présérie ; futurs utilisateurs des gammes et postes."],["Qualité / métrologie","C","Définit les moyens de contrôle, mesure la présérie, rédige le PV de qualification."]],"intro":"Manufacture horlogère de 250 personnes, spécialisée dans les mouvements mécaniques. Après dix-huit mois de développement, le bureau technique a validé le calibre 1420, un mouvement automatique destiné à une nouvelle collection dont le lancement commercial est annoncé pour le salon de mars. La direction industrielle vous nomme responsable du transfert en production de série : il faut commander les outillages, rédiger les gammes, définir les moyens de contrôle, réaliser une présérie de 300 mouvements et qualifier le processus avant le démarrage. Les ateliers tournent déjà à pleine capacité, l’outilleur habituel annonce des délais de douze semaines et le bureau technique travaille encore sur quelques cotes du pont de barillet."},{"t":"Exercice 2 — Mise en place du 5S dans un atelier","s":"La direction souhaite déployer le 5S sur la zone de contrôle final. Vous pilotez le chantier avec l'équipe de la zone.","hint":"Pensez à ceux qui travaillent dans la zone, à ceux qui décident de l'arrêt de production, à ceux qui fournissent le matériel et à ceux des zones voisines.","ans":[["Direction","A","Sponsor : valide le chantier, accorde l'enveloppe matériel."],["Chef d'atelier","A","Client interne : exprime ses attentes, suit l'avancement hebdomadaire, réceptionne la zone."],["Pilote 5S (vous)","B","Planifie les journées, anime l'équipe, suit les dépenses, rédige le bilan."],["Opérateurs de la zone de contrôle final","C / D","Trient, rangent, proposent (servante mobile) ; ils appliqueront le standard au quotidien."],["Responsable qualité / amélioration continue","C","Apporte la méthode 5S, réalise l'audit final."],["Maintenance / infrastructure","C","Évacue le matériel, installe rangements et marquage au sol."],["Achats et fournisseurs de rangements, marquage, panneaux","C","Chiffrent et livrent le matériel dans l'enveloppe."],["Ordonnancement / planning production","D","Doit accepter les arrêts de production pendant les journées 5S."],["Chargé de sécurité (SST)","D","Valide le marquage, les accès et le stockage."],["Zones voisines de l'atelier","D","Récupèrent le matériel de la zone rouge, peuvent craindre un déploiement chez elles."],["Représentant du personnel","D","Veille aux conditions de travail ; relais en cas de résistance."]],"debate":"Projet organisationnel : les opérateurs sont à la fois équipe projet et utilisateurs finaux. La résistance de l'équipe, identifiée comme risque, se traite par l'implication (catégorie C) et non par la contrainte. Le chef d'atelier est le client interne, pas le chef de projet.","list":[["Ordonnancement / planning production","D","Doit accepter les arrêts de production pendant les journées 5S."],["Maintenance / infrastructure","C","Évacue le matériel, installe rangements et marquage au sol."],["Zones voisines de l'atelier","D","Récupèrent le matériel de la zone rouge, peuvent craindre un déploiement chez elles."],["Pilote 5S (vous)","B","Planifie les journées, anime l'équipe, suit les dépenses, rédige le bilan."],["Représentant du personnel","D","Veille aux conditions de travail ; relais en cas de résistance."],["Responsable qualité / amélioration continue","C","Apporte la méthode 5S, réalise l'audit final."],["Chef d'atelier","A","Client interne : exprime ses attentes, suit l'avancement hebdomadaire, réceptionne la zone."],["Opérateurs de la zone de contrôle final","C / D","Trient, rangent, proposent (servante mobile) ; ils appliqueront le standard au quotidien."],["Direction","A","Sponsor : valide le chantier, accorde l'enveloppe matériel."],["Achats et fournisseurs de rangements, marquage, panneaux","C","Chiffrent et livrent le matériel dans l'enveloppe."],["Chargé de sécurité (SST)","D","Valide le marquage, les accès et le stockage."]],"intro":"Atelier de contrôle final d’une entreprise de composants horlogers, huit contrôleurs sur deux équipes. La zone s’est encombrée au fil des années : binoculaires hors d’usage, gabarits d’anciennes références, documents périmés et postes que chacun a aménagés à sa manière. Un client important a relevé le désordre lors d’un audit et la direction a décidé de lancer un chantier 5S, le premier de l’entreprise, avec l’intention de l’étendre ensuite aux autres ateliers. Le chef d’atelier accepte trois journées d’arrêt partiel de la zone et une enveloppe de 4 000 CHF pour le matériel. Vous, jeune technicien qualité, êtes désigné pilote du chantier ; une partie des contrôleurs juge que « ça marchait très bien avant »."},{"t":"Exercice 3 — Organisation des portes ouvertes de l'école","s":"L'école organise ses portes ouvertes un samedi de novembre. La date est fixée, le budget est limité. Votre classe est chargée de l'organisation.","hint":"Pensez à ceux qui ont demandé la journée, à ceux qui viendront, à ceux qui gèrent les locaux, à ceux qui impriment ou nourrissent, et aux autres classes.","ans":[["Direction de l'école","A","Commanditaire : fixe la date et le budget, valide le go / no go, reçoit l'avancement."],["Doyen ou maître de classe référent","A","Supervise, arbitre, fait le lien avec la direction."],["Chef de projet élève et responsables de lots","B","Planifient, répartissent les tâches, suivent le budget, font le bilan."],["Élèves de la classe","C","Préparent les postes de démonstration, accueillent, diffusent les flyers."],["Enseignants d'atelier","C","Experts : sécurité des machines de démonstration, contenu des ateliers."],["Secrétariat / communication de l'école","C","Mise en page et diffusion de l'annonce, inscriptions."],["Concierge / intendance","C","Ouvre et prépare les locaux, matériel, nettoyage."],["Imprimeur, traiteur","C","Fournisseurs : flyers, collation."],["Visiteurs (futurs apprentis, parents)","D","Bénéficiaires : leur nombre est l'indicateur de réussite."],["Autre classe qui veut présenter un atelier","D","Demande de changement en cours de réalisation."],["Entreprises formatrices","D","Intéressées par le recrutement d'apprentis ; peuvent participer."],["Commune, service du feu","D","Règles de sécurité et d'accueil du public."]],"debate":"Cas connu de tous : la difficulté est de distinguer le commanditaire (direction) des bénéficiaires (visiteurs). Le visiteur ne décide rien mais son absence fait échouer le projet : forte importance, faible influence directe. L'autre classe illustre la partie prenante qui devient acteur en cours de projet.","list":[["Secrétariat / communication de l'école","C","Mise en page et diffusion de l'annonce, inscriptions."],["Commune, service du feu","D","Règles de sécurité et d'accueil du public."],["Imprimeur, traiteur","C","Fournisseurs : flyers, collation."],["Enseignants d'atelier","C","Experts : sécurité des machines de démonstration, contenu des ateliers."],["Chef de projet élève et responsables de lots","B","Planifient, répartissent les tâches, suivent le budget, font le bilan."],["Visiteurs (futurs apprentis, parents)","D","Bénéficiaires : leur nombre est l'indicateur de réussite."],["Concierge / intendance","C","Ouvre et prépare les locaux, matériel, nettoyage."],["Élèves de la classe","C","Préparent les postes de démonstration, accueillent, diffusent les flyers."],["Doyen ou maître de classe référent","A","Supervise, arbitre, fait le lien avec la direction."],["Autre classe qui veut présenter un atelier","D","Demande de changement en cours de réalisation."],["Entreprises formatrices","D","Intéressées par le recrutement d'apprentis ; peuvent participer."],["Direction de l'école","A","Commanditaire : fixe la date et le budget, valide le go / no go, reçoit l'avancement."]],"intro":"École professionnelle de 400 apprentis, filières horlogerie, mécanique et microtechnique. Chaque automne, la journée portes ouvertes attire les futurs apprentis et leurs parents ; l’an dernier, seules 60 familles sont venues et la direction souhaite doubler ce nombre. Elle confie l’organisation de l’édition de novembre à votre classe : date fixée au samedi 14, budget de 1 500 CHF, locaux disponibles la veille pour la préparation. Il faut concevoir un programme de démonstrations dans les ateliers, communiquer auprès des écoles du secondaire I, prévoir l’accueil, la sécurité autour des machines et une collation. Trois semaines avant la date, une autre classe demande à présenter son propre projet."},{"t":"Exercice 4 — Développement d'une application de suivi des non-conformités","s":"Le service qualité suit ses non-conformités dans un fichier Excel devenu ingérable. On vous confie la mise en place d'une petite application interne.","hint":"Pensez à ceux qui utiliseront l'outil chaque jour, à ceux qui le développent, à ceux qui gèrent l'informatique et les données, et à ceux qui lisent les statistiques.","ans":[["Responsable qualité","A","Client interne / MOA : exprime le besoin, valide les versions, réceptionne l'application."],["Direction","A","Sponsor : valide le go / no go, le budget développement et licences."],["Comité de pilotage (qualité, production, informatique)","A","Suit l'avancement des versions, arbitre les demandes de changement."],["Chef de projet (vous)","B","Découpe en lots, planifie les versions, coordonne, suit le planning."],["Développeur interne ou prestataire","C","Développe le formulaire, le traitement, les statistiques."],["Service informatique","C","Expert : contraintes techniques, hébergement, sécurité, sauvegardes."],["Utilisateurs pilotes (contrôleurs, techniciens qualité)","C / D","Testent les versions, remontent les besoins ; futurs utilisateurs."],["Production (opérateurs qui déclarent les non-conformités)","D","Utilisateurs finaux de la saisie ; risque de non-adhésion."],["Éditeur de licences / fournisseur logiciel","C","Fournit les licences et le support."],["Responsable protection des données","D","Valide le traitement des données personnelles."],["Contrôle de gestion / finance","D","Demande le champ « coût de la non-conformité »."],["Clients externes et auditeurs","D","Exigent la traçabilité des non-conformités ; lisent les indicateurs."]],"debate":"Cas typique HERMES : séparer le client (responsable qualité) du chef de projet et du réalisateur (développeur). Les utilisateurs découvrent leurs besoins en utilisant l'outil : la demande de changement vient d'une partie prenante (finance) qui n'était pas dans l'équipe. À qui appartient la décision de l'accepter ?","list":[["Utilisateurs pilotes (contrôleurs, techniciens qualité)","C / D","Testent les versions, remontent les besoins ; futurs utilisateurs."],["Service informatique","C","Expert : contraintes techniques, hébergement, sécurité, sauvegardes."],["Production (opérateurs qui déclarent les non-conformités)","D","Utilisateurs finaux de la saisie ; risque de non-adhésion."],["Direction","A","Sponsor : valide le go / no go, le budget développement et licences."],["Chef de projet (vous)","B","Découpe en lots, planifie les versions, coordonne, suit le planning."],["Responsable qualité","A","Client interne / MOA : exprime le besoin, valide les versions, réceptionne l'application."],["Éditeur de licences / fournisseur logiciel","C","Fournit les licences et le support."],["Responsable protection des données","D","Valide le traitement des données personnelles."],["Clients externes et auditeurs","D","Exigent la traçabilité des non-conformités ; lisent les indicateurs."],["Développeur interne ou prestataire","C","Développe le formulaire, le traitement, les statistiques."],["Contrôle de gestion / finance","D","Demande le champ « coût de la non-conformité »."],["Comité de pilotage (qualité, production, informatique)","A","Suit l'avancement des versions, arbitre les demandes de changement."]],"intro":"PME de décolletage de 60 personnes, certifiée ISO 9001. Le service qualité suit ses non-conformités internes et clients dans un fichier Excel partagé, alimenté par quatre personnes : doublons, colonnes vides, statistiques refaites à la main chaque mois et impossibilité de retrouver rapidement l’historique d’une référence. Lors du dernier audit, l’auditeur a demandé une meilleure traçabilité des actions correctives. Le responsable qualité obtient de la direction un budget modeste pour une petite application interne, développée en trois versions successives, et vous en confie la conduite. Le service informatique compte deux personnes déjà très sollicitées, et les opérateurs qui déclarent les non-conformités n’ont jamais utilisé d’outil de saisie."},{"t":"Exercice 5 — Organisation d'un voyage d'études de la classe","s":"La classe part trois jours visiter deux manufactures et un salon professionnel. Le budget est partagé entre l'école, les apprentis et une participation des entreprises formatrices. Vous êtes chargés de l'organisation.","hint":"Pensez à ceux qui autorisent le départ, à ceux qui paient, à ceux qui vous accueillent sur place, à ceux qui vous transportent et vous logent, et à ceux qui restent à l'école.","ans":[["Direction de l'école","A","Autorise le voyage, valide le budget et l'encadrement, donne le go / no go."],["Maître de classe / enseignant accompagnant","A","Client interne et responsable légal : fixe les objectifs pédagogiques, arbitre, encadre sur place."],["Chef de projet apprenti et responsables de lots (transport, hébergement, visites, budget)","B","Planifient, répartissent, suivent le budget, rendent compte à l'enseignant."],["Apprentis de la classe","C / D","Préparent les visites, participent ; bénéficiaires du voyage."],["Secrétariat / comptabilité de l'école","C","Encaisse les participations, règle les factures, établit les autorisations."],["Manufactures et organisateur du salon","C","Accueillent le groupe, fixent les créneaux et les règles de visite (confidentialité, sécurité)."],["Transporteur, hébergement","C","Fournisseurs : car ou train, auberge ; devis, réservations, conditions d'annulation."],["Entreprises formatrices","A / D","Cofinancent et libèrent les apprentis ; attendent un retour sur les visites."],["Parents / représentants légaux","D","Autorisent le départ des mineurs, financent une part."],["Autres enseignants","D","Cours annulés ou déplacés pendant l'absence de la classe."],["Assurance / service juridique de l'école","D","Couverture des apprentis en déplacement."]],"debate":"Trois financeurs pour un seul projet : qui est le maître d'ouvrage ? La direction autorise, l'enseignant porte la responsabilité, les entreprises paient en partie. Occasion de montrer qu'un commanditaire peut être collectif et que les conditions d'annulation des fournisseurs sont un risque à traiter en planification.","list":[["Secrétariat / comptabilité de l'école","C","Encaisse les participations, règle les factures, établit les autorisations."],["Direction de l'école","A","Autorise le voyage, valide le budget et l'encadrement, donne le go / no go."],["Transporteur, hébergement","C","Fournisseurs : car ou train, auberge ; devis, réservations, conditions d'annulation."],["Manufactures et organisateur du salon","C","Accueillent le groupe, fixent les créneaux et les règles de visite (confidentialité, sécurité)."],["Autres enseignants","D","Cours annulés ou déplacés pendant l'absence de la classe."],["Parents / représentants légaux","D","Autorisent le départ des mineurs, financent une part."],["Maître de classe / enseignant accompagnant","A","Client interne et responsable légal : fixe les objectifs pédagogiques, arbitre, encadre sur place."],["Apprentis de la classe","C / D","Préparent les visites, participent ; bénéficiaires du voyage."],["Entreprises formatrices","A / D","Cofinancent et libèrent les apprentis ; attendent un retour sur les visites."],["Chef de projet apprenti et responsables de lots (transport, hébergement, visites, budget)","B","Planifient, répartissent, suivent le budget, rendent compte à l'enseignant."],["Assurance / service juridique de l'école","D","Couverture des apprentis en déplacement."]],"intro":"Classe de 16 apprentis en deuxième année d’horlogerie. Le maître de classe propose un voyage d’études de trois jours dans le Jura vaudois et neuchâtelois : visite de deux manufactures, dont l’une exige une confidentialité stricte et limite les groupes à dix personnes, puis une journée au salon professionnel de l’horlogerie. Le coût est estimé à 350 CHF par apprenti, financé pour un tiers par l’école, un tiers par les apprentis et un tiers par les entreprises formatrices, qui doivent aussi accepter de libérer leurs apprentis. Quatre apprentis sont mineurs. La direction de l’école ne donnera son accord qu’avec un programme, un budget et un encadrement validés. La classe se charge de l’organisation, sous la responsabilité du maître de classe."},{"t":"Exercice 6 — Mise en place d'un nouveau poste de contrôle dimensionnel","s":"Le service qualité remplace un projecteur de profil vieillissant par un système de mesure optique automatisé. Il faut choisir l'équipement, aménager le poste, créer les programmes de mesure, qualifier le moyen et former les contrôleurs.","hint":"Pensez à ceux qui ont demandé le nouveau moyen, à ceux qui le vendent et l'installent, à ceux qui l'utiliseront chaque jour, à ceux qui garantissent la traçabilité et à ceux dont les pièces seront mesurées.","ans":[["Responsable qualité","A","Client interne / MOA : exprime le besoin, valide le cahier des charges et la réception du moyen."],["Direction","A","Sponsor : valide l'investissement, donne le go / no go."],["Responsable métrologie (vous)","B","Chef de projet : rédige le cahier des charges, compare les offres, planifie installation, qualification et formation."],["Contrôleurs / opérateurs de contrôle","C / D","Participent aux essais et aux programmes ; futurs utilisateurs quotidiens du poste."],["Fournisseur de l'équipement","C","Propose l'offre, livre, installe, forme, assure le SAV et l'étalonnage initial."],["Méthodes / bureau technique","C","Fournissent plans et cotes à mesurer, valident les programmes de mesure."],["Maintenance / infrastructure","C","Prépare le poste : alimentation, climatisation, table antivibratoire, réseau."],["Service informatique","C","Raccorde le moyen au réseau, gère le logiciel et l'archivage des résultats."],["Achats","C","Négocie et passe la commande, gère le contrat de maintenance."],["Production (ateliers dont les pièces sont contrôlées)","D","Attend des délais de contrôle plus courts ; concernée par les nouvelles capacités de mesure."],["Laboratoire d'étalonnage accrédité","C","Étalonne les étalons de référence utilisés pour la qualification."],["Clients externes / auditeurs","D","Exigent la traçabilité des mesures et la qualification du moyen (MSA, R&R)."]],"debate":"Projet d'investissement typique métrologie : le fournisseur est un acteur majeur mais reste en catégorie C, il ne décide ni du besoin ni de la réception. La qualification du moyen (R&R) fait intervenir les contrôleurs comme équipe projet avant qu'ils ne deviennent utilisateurs. Le responsable qualité et le responsable métrologie sont deux personnes distinctes : MOA ≠ MOE.","list":[["Clients externes / auditeurs","D","Exigent la traçabilité des mesures et la qualification du moyen (MSA, R&R)."],["Achats","C","Négocie et passe la commande, gère le contrat de maintenance."],["Méthodes / bureau technique","C","Fournissent plans et cotes à mesurer, valident les programmes de mesure."],["Direction","A","Sponsor : valide l'investissement, donne le go / no go."],["Maintenance / infrastructure","C","Prépare le poste : alimentation, climatisation, table antivibratoire, réseau."],["Service informatique","C","Raccorde le moyen au réseau, gère le logiciel et l'archivage des résultats."],["Laboratoire d'étalonnage accrédité","C","Étalonne les étalons de référence utilisés pour la qualification."],["Contrôleurs / opérateurs de contrôle","C / D","Participent aux essais et aux programmes ; futurs utilisateurs quotidiens du poste."],["Production (ateliers dont les pièces sont contrôlées)","D","Attend des délais de contrôle plus courts ; concernée par les nouvelles capacités de mesure."],["Responsable qualité","A","Client interne / MOA : exprime le besoin, valide le cahier des charges et la réception du moyen."],["Fournisseur de l'équipement","C","Propose l'offre, livre, installe, forme, assure le SAV et l'étalonnage initial."],["Responsable métrologie (vous)","B","Chef de projet : rédige le cahier des charges, compare les offres, planifie installation, qualification et formation."]],"intro":"Laboratoire de métrologie d’une manufacture de composants (platines, ponts, pignons). Le projecteur de profil qui mesure les pièces depuis vingt ans devient imprécis, les pièces de rechange ne sont plus disponibles et les contrôles prennent trop de temps : la production attend ses résultats jusqu’à deux jours. La direction accepte d’investir dans un système de mesure optique automatisé, dans la limite de 180 000 CHF. Vous, responsable métrologie, devez rédiger le cahier des charges, comparer les offres de trois fournisseurs, préparer le local (table antivibratoire, climatisation, réseau), créer les programmes de mesure des vingt références les plus fréquentes, qualifier le moyen par une étude R&R et former les trois contrôleurs. Un audit client exigeant la traçabilité des mesures est prévu dans sept mois."}];
+const $=s=>document.querySelector(s);
+let cur=0, sel=null;
+
+$("#cats").innerHTML=CATS.map(c=>`<div class="cat"><b><span>${c[0]}</span>${c[1]}</b>${c[2]}<i>${c[3]}</i></div>`).join("");
+$("#quest").innerHTML=QUESTIONS.map((q,i)=>`<div class="q"><label><span>${i+1}.</span>${q}</label><input type="text"></div>`).join("");
+$("#tabs").innerHTML=PROJECTS.map((p,i)=>`<button role="tab" aria-selected="${i===0}" data-i="${i}">${p.t.split(" — ")[1]}</button>`).join("");
+$("#tabs").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;cur=+b.dataset.i;load();});
+
+const colsHTML=()=>CATS.map(c=>`<div class="col" data-cat="${c[0]}" tabindex="0"><h3>${c[0]} — ${c[1]}<small>${c[2]}</small></h3><ul></ul></div>`).join("");
+function card(a,i){
+  const li=document.createElement("li"); li.className="step"+(a[1].includes("/")?" dual":""); li.draggable=true; li.tabIndex=0; li.dataset.i=i; li.dataset.cat=a[1];
+  li.innerHTML=`<span class="n">${i+1}</span><span>${a[0]}</span><div class="role">${a[2]}</div>`;
+  return li;
+}
+function fillDeck(){const p=PROJECTS[cur];$("#cols2").innerHTML=colsHTML();const d=$("#deck2");d.innerHTML="";p.list.forEach((a,i)=>d.appendChild(card(a,i)));$("#score").textContent="";$("#score").className="score";$("#debat").classList.remove("show");sel=null;updateCounts();}
+function load(){
+  const p=PROJECTS[cur];
+  document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected",+b.dataset.i===cur));
+  $("#ctxTitle").textContent=p.t; $("#ctxIntro").textContent=p.intro; $("#hint").textContent=p.hint;
+  document.querySelectorAll("#quest input").forEach(i=>i.value="");
+  $("#alist").innerHTML=p.list.map((a,i)=>`<li data-i="${i}">${a[0]}${a[1].includes("/")?" ◆":""}</li>`).join("");
+  $("#debat").innerHTML=`<p><b>Point de débat attendu.</b> ${p.debate}</p>`;
+  fillDeck();
+}
+function updateCounts(){
+  $("#deck2n").textContent=`(${$("#deck2").children.length})`;
+  const inDeck=new Set([...$("#deck2").children].map(c=>c.dataset.i));
+  document.querySelectorAll("#alist li").forEach(li=>li.classList.toggle("done",!inDeck.has(li.dataset.i)));
+}
+$("#check").onclick=()=>{
+  let ok=0,tot=0;
+  document.querySelectorAll("#cols2 .col").forEach(c=>c.querySelectorAll(".step").forEach(s=>{tot++;const good=s.dataset.cat.split(" / ").includes(c.dataset.cat);s.classList.toggle("ok",good);s.classList.toggle("ko",!good);if(good)ok++;}));
+  const left=$("#deck2").children.length, sc=$("#score");
+  sc.textContent=left?`${ok} / ${tot} bien classés — ${left} acteur${left>1?"s":""} à placer`:`${ok} / ${tot} bien classés`; sc.className="score "+(ok===tot&&!left?"ok":"ko");
+  if(!left)$("#debat").classList.add("show");
+};
+$("#reveal").onclick=()=>{
+  document.querySelectorAll("#cols2 .step,#deck2 .step").forEach(s=>{const c=s.dataset.cat.split(" / ")[0];document.querySelector(`#cols2 .col[data-cat="${c}"] ul`).appendChild(s);s.classList.remove("ko","sel");s.classList.add("ok");});
+  $("#score").textContent="Corrigé affiché"; $("#score").className="score"; $("#debat").classList.add("show"); updateCounts();
+};
+$("#reset2").onclick=fillDeck;
+
+function place(step,target){const ul=target.matches("ul")?target:target.querySelector("ul");ul.appendChild(step);step.classList.remove("ok","ko","sel");sel=null;updateCounts();}
+document.addEventListener("dragstart",e=>{const s=e.target.closest(".step");if(!s)return;s.classList.add("drag");e.dataTransfer.setData("text",s.dataset.i);e.dataTransfer.effectAllowed="move";});
+document.addEventListener("dragend",e=>e.target.closest?.(".step")?.classList.remove("drag"));
+document.addEventListener("dragover",e=>{const t=e.target.closest(".col,.deck");if(t){e.preventDefault();t.classList.add("over");}});
+document.addEventListener("dragleave",e=>e.target.closest?.(".col,.deck")?.classList.remove("over"));
+document.addEventListener("drop",e=>{const t=e.target.closest(".col,.deck");if(!t)return;e.preventDefault();t.classList.remove("over");const s=document.querySelector(".step.drag");if(s)place(s,t);});
+document.addEventListener("click",e=>{
+  if(e.target.closest("input,button"))return;
+  const s=e.target.closest(".step");
+  if(s){if(sel===s){s.classList.remove("sel");sel=null;}else{sel?.classList.remove("sel");sel=s;s.classList.add("sel");}return;}
+  const t=e.target.closest(".col,.deck");
+  if(t&&sel)place(sel,t);
+});
+document.addEventListener("keydown",e=>{
+  if(e.target.matches("input"))return;
+  if(e.key==="Enter"||e.key===" "){const t=e.target.closest(".col,.deck,.step");if(!t||e.target.matches("button"))return;e.preventDefault();t.click();}
+  if(/^[abcdABCD]$/.test(e.key)&&sel){const t=document.querySelector(`#cols2 .col[data-cat="${e.key.toUpperCase()}"]`);if(t)place(sel,t);}
+});
+load();
+</script>
+</body>
+</html>
