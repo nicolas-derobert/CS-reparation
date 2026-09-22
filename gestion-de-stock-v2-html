@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion du stock SAV — CPH_HO_02 — École d'Horlogerie de Genève</title>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "react": "https://esm.sh/react@18",
+                "react-dom/client": "https://esm.sh/react-dom@18/client",
+                "lucide-react": "https://esm.sh/lucide-react@0.344.0"
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+    /* ==========================================================================
+       CHARTE GRAPHIQUE EHG — tokens (ehg.css v1.0, identiques au quiz de révision)
+       ========================================================================== */
+    @import url('https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+    :root {
+      --ehg-noir:#141414; --ehg-or:#AA8802; --ehg-blanc:#FFFFFF;
+      --ehg-or-clair:#D4B24C; --ehg-or-pale:#F4EDD6; --ehg-or-fonce:#7D6400;
+      --ehg-graphite:#3A3A3A; --ehg-acier:#898989; --ehg-perle:#EAEAEA; --ehg-brume:#F6F6F6;
+      --ehg-ok:#2E6B4B; --ehg-ok-pale:#E4EFE8; --ehg-alerte:#AA8802; --ehg-alerte-pale:#F4EDD6;
+      --ehg-erreur:#9B2C2C; --ehg-erreur-pale:#F5E4E4; --ehg-info:#3A3A3A; --ehg-info-pale:#EAEAEA;
+      --ehg-font-titre:"Jost","Century Gothic","Futura","Avenir Next","Calibri Light",sans-serif;
+      --ehg-font-texte:"Source Sans 3","Calibri","Segoe UI","Helvetica Neue",Arial,sans-serif;
+      --ehg-font-serif:"Playfair Display","Cambria","Georgia","Times New Roman",serif;
+      --ehg-radius:4px; --ehg-radius-lg:8px;
+      --ehg-filet:1px solid var(--ehg-perle);
+      --ehg-ombre:0 1px 2px rgba(20,20,20,.06);
+    }
+
+    /* ---------- Base ---------- */
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%}
+    body{font-family:var(--ehg-font-texte);font-size:15px;line-height:1.5;color:var(--ehg-noir);background:var(--ehg-brume)}
+    h1,h2,h3,h4{font-family:var(--ehg-font-titre);font-weight:500;margin:0;line-height:1.25}
+    p{margin:0 0 .6em}
+    ul{margin:0;padding-left:1.2em}
+    b,strong{font-weight:600}
+    small{font-size:.85em}
+    button{font-family:inherit}
+    #root{height:100vh}
+    .preload{display:flex;align-items:center;justify-content:center;height:100vh;color:var(--ehg-acier);font-family:var(--ehg-font-titre);letter-spacing:.1em;text-transform:uppercase;font-size:12px}
+    :focus-visible{outline:2px solid var(--ehg-or);outline-offset:2px}
+    .serif{font-family:var(--ehg-font-serif)}
+    .or{color:var(--ehg-or)}
+    .or-fonce{color:var(--ehg-or-fonce)}
+    .ok{color:var(--ehg-ok)}
+    .erreur{color:var(--ehg-erreur)}
+    .acier{color:var(--ehg-acier)}
+    .graphite{color:var(--ehg-graphite)}
+    .mono{font-variant-numeric:tabular-nums}
+    .petit{font-size:12.5px}
+    .italique{font-style:italic}
+    .centre{text-align:center}
+
+    @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+    @keyframes popIn{0%{transform:scale(.92);opacity:0}100%{transform:scale(1);opacity:1}}
+    @keyframes drawLine{from{stroke-dashoffset:2400}to{stroke-dashoffset:0}}
+    .anim-fade{animation:fadeIn .25s ease-out}
+    .anim-pop{animation:popIn .22s ease-out}
+    .draw-line{stroke-dasharray:2400;animation:drawLine 1.4s ease-out forwards}
+    @media (prefers-reduced-motion:reduce){.anim-fade,.anim-pop,.draw-line{animation:none;stroke-dasharray:none}}
+
+    /* ---------- Structure ---------- */
+    .app{display:flex;height:100vh;overflow:hidden}
+    .sidebar{width:264px;flex-shrink:0;background:var(--ehg-noir);color:var(--ehg-blanc);display:flex;flex-direction:column;transition:transform .25s ease}
+    .sidebar__marque{padding:26px 24px 18px;border-bottom:1px solid rgba(255,255,255,.12)}
+    .sidebar__ecole{font-family:var(--ehg-font-titre);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ehg-perle);line-height:1.5}
+    .sidebar__millesime{font-family:var(--ehg-font-serif);font-size:38px;line-height:1;color:var(--ehg-or-clair);margin-top:8px}
+    .sidebar__module{padding:14px 24px;font-size:12.5px;line-height:1.45;color:var(--ehg-acier);border-bottom:1px solid rgba(255,255,255,.12)}
+    .sidebar__module b{display:block;color:var(--ehg-blanc);font-family:var(--ehg-font-titre);letter-spacing:.08em}
+    .sidebar nav{flex:1;overflow-y:auto;padding:12px}
+    .nav-btn{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;margin-bottom:2px;border:0;border-left:3px solid transparent;border-radius:var(--ehg-radius);background:transparent;color:var(--ehg-perle);font-family:var(--ehg-font-titre);font-size:14px;text-align:left;cursor:pointer;transition:background .15s}
+    .nav-btn:hover{background:rgba(255,255,255,.06)}
+    .nav-btn.actif{border-left-color:var(--ehg-or);background:rgba(170,136,2,.12);color:var(--ehg-or-clair)}
+    .nav-btn .num{font-family:var(--ehg-font-serif);color:var(--ehg-or);width:12px;text-align:center;font-size:15px}
+    .nav-btn svg{flex-shrink:0;opacity:.85}
+    .sidebar__pied{padding:14px 24px;font-size:11px;line-height:1.5;color:var(--ehg-acier);border-top:1px solid rgba(255,255,255,.12)}
+
+    .main{flex:1;display:flex;flex-direction:column;min-width:0}
+    .entete{background:var(--ehg-blanc);border-bottom:var(--ehg-filet);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+    .entete__gauche{display:flex;align-items:center;gap:14px;min-width:0}
+    .entete__sur{font-family:var(--ehg-font-titre);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ehg-or-fonce)}
+    .entete h1{font-size:19px;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .entete__actions{display:flex;gap:8px;flex-shrink:0}
+    .btn-ico{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:var(--ehg-filet);border-radius:var(--ehg-radius);background:#fff;color:var(--ehg-graphite);cursor:pointer}
+    .btn-ico:hover{background:var(--ehg-brume)}
+    .btn-menu{display:none}
+    .contenu{flex:1;overflow-y:auto;padding:26px 28px 40px}
+    .contenu__int{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+    .pied{background:var(--ehg-blanc);border-top:var(--ehg-filet);padding:9px 28px;font-size:11px;letter-spacing:.04em;color:var(--ehg-acier);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .voile{display:none}
+
+    .intro{font-size:14.5px;color:var(--ehg-graphite);border-left:2px solid var(--ehg-or);padding:4px 0 4px 14px;margin:0}
+    .intro b{color:var(--ehg-noir)}
+
+    /* ---------- Cartes / grilles ---------- */
+    .carte{background:var(--ehg-blanc);border:var(--ehg-filet);border-radius:var(--ehg-radius-lg);padding:20px 22px;box-shadow:var(--ehg-ombre)}
+    .carte--or{border-top:3px solid var(--ehg-or)}
+    .carte--noir{border-top:3px solid var(--ehg-noir)}
+    .carte--brume{background:var(--ehg-brume);box-shadow:none}
+    .carte__titre{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+    .carte__titre h2,.carte__titre h3{display:flex;align-items:center;gap:10px;font-size:14px;letter-spacing:.12em;text-transform:uppercase}
+    .carte__titre svg{color:var(--ehg-or);flex-shrink:0}
+    .carte__aide{font-size:12.5px;color:var(--ehg-acier);margin:-8px 0 14px}
+    .grille{display:grid;gap:16px}
+    .grille--2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grille--3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grille--4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .grille--5{grid-template-columns:repeat(5,minmax(0,1fr))}
+    .grille--6{grid-template-columns:repeat(6,minmax(0,1fr))}
+    .pile{display:flex;flex-direction:column;gap:12px}
+    .ligne{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .espace{flex:1}
+
+    /* ---------- KPI ---------- */
+    .kpi{background:var(--ehg-brume);border:var(--ehg-filet);border-radius:var(--ehg-radius-lg);padding:14px 16px}
+    .kpi__lib{font-family:var(--ehg-font-titre);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ehg-acier)}
+    .kpi__val{font-family:var(--ehg-font-serif);font-size:28px;line-height:1.15;margin-top:4px;color:var(--ehg-noir)}
+    .kpi__val small{font-family:var(--ehg-font-texte);font-size:12px;color:var(--ehg-acier);margin-left:4px}
+    .kpi__note{font-size:11.5px;color:var(--ehg-acier);margin-top:4px}
+    .kpi--erreur .kpi__val{color:var(--ehg-erreur)}
+    .kpi--or .kpi__val{color:var(--ehg-or-fonce)}
+    .kpi--ok .kpi__val{color:var(--ehg-ok)}
+
+    /* ---------- Statuts ---------- */
+    .statuts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+    .statut{text-align:center;padding:10px 6px;border-radius:var(--ehg-radius);background:var(--ehg-brume);border:var(--ehg-filet)}
+    .statut__pastille{width:10px;height:10px;border-radius:50%;margin:0 auto 6px}
+    .statut__lib{font-family:var(--ehg-font-titre);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ehg-graphite)}
+    .statut__val{font-family:var(--ehg-font-serif);font-size:24px;line-height:1.1}
+    .p-normal{background:var(--ehg-ok)}.p-bas{background:var(--ehg-or)}.p-critique{background:#C4473F}.p-rupture{background:var(--ehg-erreur)}.p-surstock{background:var(--ehg-graphite)}
+
+    .badge{display:inline-block;padding:3px 9px;border-radius:999px;border:1px solid transparent;font-family:var(--ehg-font-titre);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;line-height:1.4}
+    .badge--normal{background:var(--ehg-ok-pale);color:var(--ehg-ok);border-color:#BFD6C7}
+    .badge--bas{background:var(--ehg-or-pale);color:var(--ehg-or-fonce);border-color:#E3D39C}
+    .badge--critique{background:var(--ehg-erreur-pale);color:var(--ehg-erreur);border-color:#E5BDBD}
+    .badge--rupture{background:var(--ehg-erreur);color:#fff;border-color:var(--ehg-erreur)}
+    .badge--surstock{background:var(--ehg-perle);color:var(--ehg-graphite);border-color:#CFCFCF}
+    .badge--neutre{background:var(--ehg-brume);color:var(--ehg-acier);border-color:var(--ehg-perle)}
+
+    /* ---------- Tableaux ---------- */
+    .defile{overflow-x:auto}
+    .ehg-tableau{width:100%;border-collapse:collapse;font-size:13.5px}
+    .ehg-tableau th{font-family:var(--ehg-font-titre);font-weight:500;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ehg-graphite);text-align:left;padding:9px 10px;border-bottom:2px solid var(--ehg-noir);white-space:nowrap}
+    .ehg-tableau td{padding:9px 10px;border-bottom:var(--ehg-filet);vertical-align:middle}
+    .ehg-tableau tbody tr:hover>td{background:var(--ehg-brume)}
+    .ehg-tableau tr.detail>td{background:var(--ehg-or-pale);font-size:12.5px;padding:12px 16px}
+    .ehg-tableau tr.detail:hover>td{background:var(--ehg-or-pale)}
+    .ehg-tableau tr.total>td{border-top:2px solid var(--ehg-noir);border-bottom:0;font-weight:600}
+    .td-c{text-align:center}.td-r{text-align:right}
+    .stock-val{font-family:var(--ehg-font-serif);font-size:17px}
+    .ehg-tableau--compact th,.ehg-tableau--compact td{padding:6px 8px;font-size:12.5px}
+
+    /* ---------- Boutons ---------- */
+    .ehg-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:9px 16px;border:1px solid var(--ehg-noir);border-radius:var(--ehg-radius);background:var(--ehg-noir);color:#fff;font-family:var(--ehg-font-titre);font-size:12px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .15s,color .15s;white-space:nowrap}
+    .ehg-btn:hover{background:var(--ehg-graphite)}
+    .ehg-btn--secondaire{background:transparent;color:var(--ehg-noir)}
+    .ehg-btn--secondaire:hover{background:var(--ehg-brume)}
+    .ehg-btn--or{background:var(--ehg-or);border-color:var(--ehg-or)}
+    .ehg-btn--or:hover{background:var(--ehg-or-fonce);border-color:var(--ehg-or-fonce)}
+    .ehg-btn--danger{background:transparent;border-color:var(--ehg-erreur);color:var(--ehg-erreur)}
+    .ehg-btn--danger:hover{background:var(--ehg-erreur-pale)}
+    .ehg-btn--ok{background:transparent;border-color:var(--ehg-ok);color:var(--ehg-ok)}
+    .ehg-btn--ok:hover{background:var(--ehg-ok-pale)}
+    .ehg-btn--petit{padding:6px 10px;font-size:11px;letter-spacing:.1em}
+    .ehg-btn--bloc{width:100%}
+    .ehg-btn:disabled{opacity:.4;cursor:not-allowed}
+    .btn-action{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:var(--ehg-filet);border-radius:var(--ehg-radius);background:#fff;color:var(--ehg-graphite);cursor:pointer;margin:0 2px}
+    .btn-action:hover{border-color:var(--ehg-or);color:var(--ehg-or-fonce);background:var(--ehg-or-pale)}
+    .btn-action.actif{background:var(--ehg-noir);color:#fff;border-color:var(--ehg-noir)}
+    .btn-lien{background:none;border:0;padding:0;color:var(--ehg-or-fonce);font:inherit;font-size:12.5px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+    /* ---------- Champs ---------- */
+    .lib{display:block;font-family:var(--ehg-font-titre);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ehg-graphite);margin-bottom:5px}
+    .champ{width:100%;padding:8px 10px;border:1px solid #D6D6D6;border-radius:var(--ehg-radius);background:#fff;color:var(--ehg-noir);font:inherit;font-size:14px}
+    .champ:focus{outline:none;border-color:var(--ehg-or);box-shadow:0 0 0 3px var(--ehg-or-pale)}
+    .champ--centre{text-align:center;font-variant-numeric:tabular-nums}
+    .champ--ok{border-color:var(--ehg-ok);background:var(--ehg-ok-pale)}
+    .champ--erreur{border-color:var(--ehg-erreur);background:var(--ehg-erreur-pale)}
+    .case{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer;user-select:none}
+    .case input{accent-color:var(--ehg-or);width:16px;height:16px}
+    .segment{display:inline-flex;border:1px solid var(--ehg-noir);border-radius:var(--ehg-radius);overflow:hidden}
+    .segment button{border:0;background:#fff;color:var(--ehg-noir);padding:7px 14px;font-family:var(--ehg-font-titre);font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+    .segment button.actif{background:var(--ehg-noir);color:#fff}
+    .segment button+button{border-left:1px solid var(--ehg-noir)}
+
+    .param{border:var(--ehg-filet);border-left:3px solid var(--ehg-or);border-radius:var(--ehg-radius);padding:12px 14px;background:#fff}
+    .param--noir{border-left-color:var(--ehg-noir)}
+    .param--erreur{border-left-color:var(--ehg-erreur)}
+    .param--verrou{background:var(--ehg-brume)}
+    .param__lib{font-family:var(--ehg-font-titre);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ehg-graphite)}
+    .param input{width:100%;border:0;border-bottom:1px solid var(--ehg-perle);background:transparent;font-family:var(--ehg-font-serif);font-size:26px;color:var(--ehg-noir);padding:2px 0;margin-top:4px}
+    .param input:focus{outline:none;border-bottom-color:var(--ehg-or)}
+    .param input:disabled{color:var(--ehg-acier)}
+    .param__unite{font-size:11.5px;color:var(--ehg-acier);margin-top:3px}
+    .param__valeur{font-family:var(--ehg-font-serif);font-size:26px;color:var(--ehg-acier);padding:2px 0;margin-top:4px;border-bottom:1px solid var(--ehg-perle)}
+
+    /* ---------- Étapes de calcul ---------- */
+    .etape{padding:12px 14px;border-radius:var(--ehg-radius);background:var(--ehg-brume);border-left:3px solid var(--ehg-perle)}
+    .etape--fin{background:var(--ehg-or-pale);border-left-color:var(--ehg-or)}
+    .etape__tete{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+    .etape__num{width:22px;height:22px;border-radius:50%;background:var(--ehg-noir);color:var(--ehg-or-clair);font-family:var(--ehg-font-serif);font-size:13px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+    .etape__lib{font-family:var(--ehg-font-titre);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ehg-graphite)}
+    .etape__formule{margin-left:32px;font-size:13.5px;color:var(--ehg-graphite)}
+    .etape__res{margin-left:32px;font-family:var(--ehg-font-serif);font-size:21px;line-height:1.3}
+    .etape--fin .etape__res{color:var(--ehg-or-fonce)}
+    .etape__interp{margin:8px 0 0 32px;padding-top:6px;border-top:1px dashed #D9CFA4;font-size:12.5px;font-style:italic;color:var(--ehg-graphite)}
+    .fleche{text-align:center;color:var(--ehg-or);font-size:18px;line-height:1;margin:-2px 0}
+
+    /* ---------- Encadrés ---------- */
+    .encadre{padding:12px 14px;border-radius:var(--ehg-radius);font-size:13.5px;line-height:1.5}
+    .encadre--info{background:var(--ehg-info-pale)}
+    .encadre--or{background:var(--ehg-or-pale)}
+    .encadre--erreur{background:var(--ehg-erreur-pale);color:var(--ehg-erreur)}
+    .encadre--ok{background:var(--ehg-ok-pale);color:var(--ehg-ok)}
+    .encadre__titre{display:flex;align-items:center;gap:8px;font-family:var(--ehg-font-titre);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+    .citation{font-family:var(--ehg-font-serif);font-style:italic;font-size:14.5px;color:var(--ehg-graphite);border-left:2px solid var(--ehg-or);padding:2px 0 2px 14px;margin:8px 0 10px}
+    .liste-num{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px;font-size:13.5px}
+    .liste-num li{display:flex;gap:10px}
+    .liste-num .num{font-family:var(--ehg-font-serif);color:var(--ehg-or);flex-shrink:0;width:16px}
+    .def{display:grid;grid-template-columns:190px 1fr;gap:8px 16px;font-size:13.5px}
+    .def dt{font-family:var(--ehg-font-titre);letter-spacing:.04em;color:var(--ehg-noir)}
+    .def dd{margin:0;color:var(--ehg-graphite)}
+    @media (max-width:640px){.def{grid-template-columns:1fr}}
+
+    /* ---------- Légende ---------- */
+    .legende{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;font-size:12px;color:var(--ehg-graphite);margin-top:10px}
+    .legende span{display:inline-flex;align-items:center;gap:6px}
+    .pastille{display:inline-block;width:12px;height:12px;border-radius:2px;border:1px solid transparent}
+    .rond{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;color:#fff;font-family:var(--ehg-font-titre);font-size:9px}
+    .trait{display:inline-block;width:18px;height:2px;background:var(--ehg-noir)}
+
+    /* ---------- Simulation ---------- */
+    .mois{border:var(--ehg-filet);border-radius:var(--ehg-radius);padding:10px;background:#fff;display:flex;flex-direction:column;gap:8px}
+    .mois__titre{text-align:center;font-family:var(--ehg-font-titre);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+    .mois__titre small{display:block;font-family:var(--ehg-font-texte);font-size:10.5px;color:var(--ehg-acier);letter-spacing:0;text-transform:none}
+    .mois__bloc{display:flex;gap:6px;align-items:stretch}
+    .mois__bloc .champ{flex:0 0 48px;width:48px;padding:6px 2px;font-size:13px}
+    .mois__bloc .ehg-btn{flex:1;min-width:0;padding:6px 4px;font-size:10.5px;letter-spacing:.05em;gap:4px}
+    @media (min-width:901px) and (max-width:1240px){.mois__bloc .ehg-btn svg{display:none}}
+    .ehg-tableau--mois{table-layout:fixed}
+    .ehg-tableau--mois th:first-child{width:22%}
+    .ehg-tableau--mois .badge{white-space:normal;line-height:1.25;max-width:100%}
+    .mois__conseil{font-size:11px;color:var(--ehg-acier);text-align:center;line-height:1.35}
+    .journal{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:4px;font-size:13px}
+    .journal li{display:flex;align-items:center;gap:8px;padding:5px 8px;border:var(--ehg-filet);border-radius:var(--ehg-radius);background:var(--ehg-brume)}
+    .journal .sup{margin-left:auto;background:none;border:0;color:var(--ehg-acier);cursor:pointer;padding:2px;display:inline-flex}
+    .journal .sup:hover{color:var(--ehg-erreur)}
+    .regle{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:var(--ehg-radius);font-size:13.5px}
+    .regle--ok{background:var(--ehg-ok-pale);color:var(--ehg-ok)}
+    .regle--ko{background:var(--ehg-erreur-pale);color:var(--ehg-erreur)}
+    .regle--attente{background:var(--ehg-brume);color:var(--ehg-acier)}
+    .regle svg{flex-shrink:0;margin-top:2px}
+    .regle small{display:block;font-size:12px;opacity:.85}
+
+    /* ---------- FIFO / LIFO ---------- */
+    .rayon{display:flex;align-items:center;gap:8px;padding:14px;border:var(--ehg-filet);border-radius:var(--ehg-radius);background:var(--ehg-brume);min-height:96px;overflow-x:auto}
+    .lot{width:84px;flex-shrink:0;text-align:center;padding:10px 6px;border:1px solid #D6D6D6;border-radius:var(--ehg-radius);background:#fff;transition:transform .15s}
+    .lot.prochain{border-color:var(--ehg-or);background:var(--ehg-or-pale);transform:translateY(-3px)}
+    .lot__id{font-family:var(--ehg-font-serif);font-size:20px}
+    .lot__date{font-size:11px;color:var(--ehg-acier)}
+    .rayon__bord{font-family:var(--ehg-font-titre);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ehg-acier);writing-mode:vertical-rl;transform:rotate(180deg);flex-shrink:0}
+
+    /* ---------- Modale ---------- */
+    .modale{position:fixed;inset:0;z-index:60;background:rgba(20,20,20,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+    .modale__boite{background:#fff;width:100%;max-width:440px;padding:24px;border-radius:var(--ehg-radius-lg);border-top:4px solid var(--ehg-or);box-shadow:0 20px 50px rgba(0,0,0,.25)}
+    .modale__boite h3{font-size:17px;margin-bottom:4px}
+
+    /* ---------- Exercices ---------- */
+    .exo__enonce{font-size:14px;color:var(--ehg-graphite);background:var(--ehg-brume);padding:12px 14px;border-radius:var(--ehg-radius);border-left:3px solid var(--ehg-noir)}
+    .exo__champ{display:flex;flex-direction:column;gap:4px}
+    .exo__champ .lib{margin-bottom:0}
+    .exo__unite{font-size:11.5px;color:var(--ehg-acier)}
+    .exo__score{font-family:var(--ehg-font-serif);font-size:20px}
+    .corrige{background:var(--ehg-or-pale);border-radius:var(--ehg-radius);padding:12px 14px;font-size:13.5px}
+    .corrige ol{margin:4px 0 0;padding-left:1.3em}
+
+    /* ---------- Responsive ---------- */
+    @media (max-width:1024px){.grille--4,.grille--6{grid-template-columns:repeat(2,minmax(0,1fr))}.grille--5{grid-template-columns:repeat(3,minmax(0,1fr))}.statuts{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media (max-width:900px){
+      .sidebar{position:fixed;top:0;bottom:0;left:0;z-index:50;transform:translateX(-100%)}
+      .sidebar.ouvert{transform:none}
+      .voile{display:block;position:fixed;inset:0;z-index:45;background:rgba(0,0,0,.45)}
+      .btn-menu{display:inline-flex}
+      .contenu{padding:16px 16px 40px}
+      .entete{padding:12px 16px}
+      .entete h1{font-size:16px}
+      .pied{padding:9px 16px}
+      .grille--2,.grille--3{grid-template-columns:1fr}
+      .pied span+span{display:none}
+    }
+    @media (max-width:640px){.grille--4,.grille--5,.grille--6{grid-template-columns:repeat(2,minmax(0,1fr))}.statuts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+    /* ---------- Impression ---------- */
+    @media print{
+      body{background:#fff}
+      .app{display:block;height:auto;overflow:visible}
+      .sidebar,.entete__actions,.pied,.no-print,.voile{display:none!important}
+      .main{display:block}
+      .contenu{overflow:visible;padding:0}
+      .carte{box-shadow:none;break-inside:avoid}
+      .entete{padding:0 0 10px;border-bottom:2px solid var(--ehg-noir);margin-bottom:14px}
+    }
+    </style>
+</head>
+<body>
+    <div id="root"><div class="preload">Chargement de l'application…</div></div>
+
+    <script type="text/babel" data-type="module">
+        import React, { useState, useEffect, useMemo } from 'react';
+        import { createRoot } from 'react-dom/client';
+        import {
+            Package, Calculator, Activity, BookOpen, ClipboardList, Menu, X, MinusCircle, PlusCircle,
+            RotateCcw, ShoppingCart, Truck, Info, CheckCircle2, AlertTriangle, XCircle, Trash2,
+            ChevronDown, ChevronUp, Target, Layers, Printer, GraduationCap, Lightbulb, TrendingUp,
+            AlertCircle, Sparkles, Plus, Check, Boxes
+        } from 'lucide-react';
+
+        // ============================================================
+        // CONSTANTES PÉDAGOGIQUES (alignées sur le support de cours, § Le stock)
+        // ============================================================
+        const ROTATION_CIBLE = 1.5;                      // taux de rotation visé (cours : 1 à 1,5 tours/an pour un SAV)
+        const MOIS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'];
+
+        // Chaque référence est décrite par ses paramètres de gestion ; mini et maxi sont DÉRIVÉS
+        // des formules du cours, de sorte que les élèves puissent les recalculer avec les calculateurs.
+        const REFERENCES = [
+            { id: 'r1', name: 'Couronne acier Ø 6 mm',    category: 'Habillement', prevision: 12,  price: 140.00, leadTime: 1, safety: 2,  stock: 6  },
+            { id: 'r2', name: 'Joint O-ring 32 mm',       category: 'Consommable', prevision: 360, price: 2.00,   leadTime: 1, safety: 20, stock: 45 },
+            { id: 'r3', name: 'Mouvement cal. 3235',      category: 'Mouvement',   prevision: 6,   price: 325.00, leadTime: 2, safety: 1,  stock: 1  },
+            { id: 'r4', name: "Jeu d'aiguilles or rose",  category: 'Habillement', prevision: 9,   price: 65.00,  leadTime: 1, safety: 1,  stock: 4  },
+            { id: 'r5', name: 'Huile Moebius 9010',       category: 'Consommable', prevision: 6,   price: 45.00,  leadTime: 1, safety: 1,  stock: 2  },
+            { id: 'r6', name: 'Glace saphir bombée',      category: 'Habillement', prevision: 15,  price: 111.40, leadTime: 1, safety: 2,  stock: 0  },
+            { id: 'r7', name: 'Ressort de barillet',      category: 'Mouvement',   prevision: 24,  price: 35.00,  leadTime: 1, safety: 3,  stock: 19 },
+        ];
+
+        // ============================================================
+        // UTILITAIRES
+        // ============================================================
+        const plafond = (x) => Math.ceil(Math.round(x * 1e6) / 1e6);   // arrondi à l'unité supérieure, sans artefact binaire
+        const fmt = (v, d = 1) => Number(v).toLocaleString('fr-CH', { minimumFractionDigits: 0, maximumFractionDigits: d });
+        const fmtCHF = (v) => new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF' }).format(v);
+
+        const deriver = (r) => {
+            const conso = r.prevision / 12;                                  // pièces / mois
+            const min = plafond(conso * r.leadTime + r.safety);              // point de commande
+            const max = plafond(r.prevision / ROTATION_CIBLE);               // stock maxi (prévision × prix ÷ rotation ÷ prix)
+            return { ...r, conso, min, max, ca: r.prevision * r.price };
+        };
+        const INVENTAIRE_INITIAL = REFERENCES.map(deriver);
+
+        const statut = (item) => {
+            if (item.stock <= 0)            return { key: 'rupture',  label: 'Rupture' };
+            if (item.stock <= item.safety)  return { key: 'critique', label: 'Critique' };
+            if (item.stock <= item.min)     return { key: 'bas',      label: 'Point de commande' };
+            if (item.stock > item.max)      return { key: 'surstock', label: 'Surstock' };
+            return { key: 'normal', label: 'Normal' };
+        };
+        const rotation = (item) => { const v = item.stock * item.price; return v > 0 ? item.ca / v : null; };
+
+        const Badge = ({ s }) => <span className={`badge badge--${s.key}`}>{s.label}</span>;
+
+        // ============================================================
+        // NAVIGATION
+        // ============================================================
+        const PAGES = [
+            { id: 'stock', num: '1', label: 'Gestion du stock',        icon: Package,       sur: 'Tableau de bord',   titre: 'Stock de pièces détachées de l\'atelier' },
+            { id: 'calc',  num: '2', label: 'Calcul mini / maxi',      icon: Calculator,    sur: 'Calculateurs',      titre: 'Stock mini (point de commande) et stock maxi' },
+            { id: 'sim',   num: '3', label: 'Simulation 6 mois',       icon: Activity,      sur: 'Simulation',        titre: 'Piloter une référence pendant 6 mois' },
+            { id: 'exos',  num: '4', label: 'Exercices SEQ12',         icon: GraduationCap, sur: 'Séquence 12',       titre: 'Exercices de gestion de stock' },
+            { id: 'cours', num: '5', label: 'Repères du cours',        icon: BookOpen,      sur: 'Objectif 5.6.6',    titre: 'Repères du cours — gestion d\'un stock et de son flux' },
+        ];
+
+        const Sidebar = ({ page, setPage, ouvert, fermer }) => (
+            <>
+                {ouvert && <div className="voile" onClick={fermer} />}
+                <aside className={`sidebar ${ouvert ? 'ouvert' : ''}`} aria-label="Navigation">
+                    <div className="sidebar__marque">
+                        <div className="sidebar__ecole">École d'Horlogerie<br />de Genève</div>
+                        <div className="sidebar__millesime">1824</div>
+                    </div>
+                    <div className="sidebar__module">
+                        <b>CPH_HO_02</b>
+                        CS : de l'accueil à la livraison<br />
+                        Objectif 5.6.6 — gestion du stock
+                    </div>
+                    <nav>
+                        {PAGES.map(p => (
+                            <button key={p.id} className={`nav-btn ${page === p.id ? 'actif' : ''}`}
+                                    onClick={() => { setPage(p.id); fermer(); }}>
+                                <span className="num">{p.num}</span>
+                                <p.icon size={16} />
+                                <span>{p.label}</span>
+                            </button>
+                        ))}
+                    </nav>
+                    <div className="sidebar__pied">
+                        Application pédagogique<br />
+                        Horloger·ère rhabilleur·euse CFC — semestre 5
+                    </div>
+                </aside>
+            </>
+        );
+
+        // ============================================================
+        // PAGE 1 — GESTION DU STOCK
+        // ============================================================
+        const PageStock = ({ inventaire, setInventaire, aller }) => {
+            const [mouvement, setMouvement] = useState(null);   // { item, type: 'sortie' | 'entree' }
+            const [detail, setDetail] = useState(null);         // id de la ligne dépliée
+
+            const stats = useMemo(() => {
+                const valeur = inventaire.reduce((a, i) => a + i.stock * i.price, 0);
+                const caTotal = inventaire.reduce((a, i) => a + i.ca, 0);
+                const cptr = { normal: 0, bas: 0, critique: 0, rupture: 0, surstock: 0 };
+                inventaire.forEach(i => { cptr[statut(i).key] += 1; });
+                return { valeur, caTotal, cptr, rotGlobale: valeur > 0 ? caTotal / valeur : 0, alertes: cptr.bas + cptr.critique + cptr.rupture };
+            }, [inventaire]);
+
+            const appliquer = (id, type, qty) => setInventaire(prev => prev.map(i =>
+                i.id !== id ? i : { ...i, stock: type === 'sortie' ? Math.max(0, i.stock - qty) : i.stock + qty }));
+
+            const rotClasse = stats.rotGlobale < 1 ? 'kpi--erreur' : (stats.rotGlobale > 1.5 ? 'kpi--or' : 'kpi--ok');
+            const rotNote = stats.rotGlobale < 1 ? 'Sous la cible : capital immobilisé' : (stats.rotGlobale > 1.5 ? 'Au-dessus de la cible : stock tendu' : 'Dans la cible du cours (1 à 1,5)');
+
+            return (
+                <div className="contenu__int anim-fade">
+                    <p className="intro">
+                        <b>Fil rouge.</b> Vous gérez le stock de pièces détachées de votre atelier indépendant. Le tableau ci-dessous est votre fiche de stock :
+                        chaque seuil (sécurité, mini, maxi) a été calculé avec les formules du cours — dépliez une ligne pour voir le calcul.
+                    </p>
+
+                    <div className="grille grille--4">
+                        <div className="kpi">
+                            <div className="kpi__lib">Valeur du stock</div>
+                            <div className="kpi__val">{fmtCHF(stats.valeur)}</div>
+                            <div className="kpi__note">Capital immobilisé (prix de vente)</div>
+                        </div>
+                        <div className={`kpi ${rotClasse}`}>
+                            <div className="kpi__lib">Rotation du stock global</div>
+                            <div className="kpi__val">{fmt(stats.rotGlobale, 2)}<small>tours / an</small></div>
+                            <div className="kpi__note">{rotNote}</div>
+                        </div>
+                        <div className={`kpi ${stats.alertes > 0 ? 'kpi--erreur' : 'kpi--ok'}`}>
+                            <div className="kpi__lib">Références à réapprovisionner</div>
+                            <div className="kpi__val">{stats.alertes}<small>/ {inventaire.length}</small></div>
+                            <div className="kpi__note">Au point de commande ou en dessous</div>
+                        </div>
+                        <div className="kpi">
+                            <div className="kpi__lib">CA prévisionnel annuel</div>
+                            <div className="kpi__val">{fmtCHF(stats.caTotal)}</div>
+                            <div className="kpi__note">Somme des prévisions × prix de vente</div>
+                        </div>
+                    </div>
+
+                    <div className="carte carte--noir">
+                        <div className="carte__titre">
+                            <h2><Layers size={16} /> Répartition par statut</h2>
+                            <button className="btn-lien" onClick={() => aller('cours')}>Rappel des seuils dans les repères du cours →</button>
+                        </div>
+                        <div className="statuts">
+                            {[
+                                { key: 'normal',   lib: 'Normal' },
+                                { key: 'bas',      lib: 'Point de commande' },
+                                { key: 'critique', lib: 'Critique' },
+                                { key: 'rupture',  lib: 'Rupture' },
+                                { key: 'surstock', lib: 'Surstock' },
+                            ].map(s => (
+                                <div key={s.key} className="statut">
+                                    <div className={`statut__pastille p-${s.key}`}></div>
+                                    <div className="statut__lib">{s.lib}</div>
+                                    <div className="statut__val">{stats.cptr[s.key]}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="carte">
+                        <div className="carte__titre">
+                            <h2><ClipboardList size={16} /> Fiche de stock — {inventaire.length} références</h2>
+                            <div className="ligne">
+                                <button className="ehg-btn ehg-btn--secondaire ehg-btn--petit" onClick={() => setInventaire(INVENTAIRE_INITIAL)}>
+                                    <RotateCcw size={13} /> Réinitialiser
+                                </button>
+                            </div>
+                        </div>
+                        <p className="carte__aide">
+                            Rotation = CA prévisionnel ÷ valeur du stock actuel (indicative). Cible du cours : 1 à 1,5 tours/an.
+                            Actions : <b>−</b> sortie de stock (pièce posée sur une montre), <b>+</b> réception d'une commande.
+                        </p>
+                        <div className="defile">
+                            <table className="ehg-tableau">
+                                <thead>
+                                    <tr>
+                                        <th>Référence</th>
+                                        <th>Catégorie</th>
+                                        <th className="td-c">Stock</th>
+                                        <th className="td-c">Séc.</th>
+                                        <th className="td-c">Mini</th>
+                                        <th className="td-c">Maxi</th>
+                                        <th className="td-c">Statut</th>
+                                        <th className="td-c">Rotation</th>
+                                        <th className="td-r">Valeur</th>
+                                        <th className="td-c">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {inventaire.map(item => {
+                                        const s = statut(item);
+                                        const rot = rotation(item);
+                                        const ouvert = detail === item.id;
+                                        return (
+                                            <React.Fragment key={item.id}>
+                                                <tr>
+                                                    <td><b>{item.name}</b></td>
+                                                    <td className="graphite">{item.category}</td>
+                                                    <td className={`td-c stock-val ${s.key === 'rupture' || s.key === 'critique' ? 'erreur' : ''}`}>{item.stock}</td>
+                                                    <td className="td-c acier">{item.safety}</td>
+                                                    <td className="td-c acier">{item.min}</td>
+                                                    <td className="td-c acier">{item.max}</td>
+                                                    <td className="td-c"><Badge s={s} /></td>
+                                                    <td className="td-c mono">{rot === null ? '—' : fmt(rot, 2)}</td>
+                                                    <td className="td-r mono">{fmtCHF(item.stock * item.price)}</td>
+                                                    <td className="td-c" style={{ whiteSpace: 'nowrap' }}>
+                                                        <button className="btn-action" title="Sortie de stock" onClick={() => setMouvement({ item, type: 'sortie' })} disabled={item.stock === 0}><MinusCircle size={15} /></button>
+                                                        <button className="btn-action" title="Réception d'une commande" onClick={() => setMouvement({ item, type: 'entree' })}><PlusCircle size={15} /></button>
+                                                        <button className={`btn-action ${ouvert ? 'actif' : ''}`} title="Voir le calcul des seuils" onClick={() => setDetail(ouvert ? null : item.id)}>
+                                                            {ouvert ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                {ouvert && (
+                                                    <tr className="detail">
+                                                        <td colSpan={10}>
+                                                            <div className="grille grille--3" style={{ gap: 12 }}>
+                                                                <div>
+                                                                    <span className="lib">Données de la référence</span>
+                                                                    Prévision : <b>{item.prevision} pièces/an</b> → consommation moyenne <b>{fmt(item.conso, 2)} pièce(s)/mois</b><br />
+                                                                    Prix de vente : <b>{fmtCHF(item.price)}</b> · Délai fournisseur : <b>{item.leadTime} mois</b> · Sécurité : <b>{item.safety}</b>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="lib">Stock maxi (rotation cible {ROTATION_CIBLE})</span>
+                                                                    CA = {item.prevision} × {fmt(item.price, 2)} = <b>{fmtCHF(item.ca)}</b><br />
+                                                                    Valeur cible = {fmt(item.ca, 2)} ÷ {ROTATION_CIBLE} = <b>{fmtCHF(item.ca / ROTATION_CIBLE)}</b><br />
+                                                                    Maxi = {fmt(item.ca / ROTATION_CIBLE, 2)} ÷ {fmt(item.price, 2)} = {fmt(item.prevision / ROTATION_CIBLE, 2)} → <b>{item.max} pièces</b>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="lib">Stock mini (point de commande)</span>
+                                                                    Conso pendant le délai = {fmt(item.conso, 2)} × {item.leadTime} = <b>{fmt(item.conso * item.leadTime, 2)}</b><br />
+                                                                    Mini = {fmt(item.conso * item.leadTime, 2)} + {item.safety} = {fmt(item.conso * item.leadTime + item.safety, 2)} → <b>{item.min} pièces</b><br />
+                                                                    Rotation actuelle = {fmt(item.ca, 0)} ÷ {fmt(item.stock * item.price, 0)} = <b>{rot === null ? 'non calculable (stock nul)' : fmt(rot, 2)}</b>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </React.Fragment>
+                                        );
+                                    })}
+                                    <tr className="total">
+                                        <td colSpan={8}>Total</td>
+                                        <td className="td-r mono">{fmtCHF(stats.valeur)}</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {mouvement && <ModaleMouvement mouvement={mouvement} onClose={() => setMouvement(null)} onConfirm={appliquer} />}
+                </div>
+            );
+        };
+
+        // ============================================================
+        // MODALE — SORTIE / RÉCEPTION
+        // ============================================================
+        const ModaleMouvement = ({ mouvement, onClose, onConfirm }) => {
+            const { item, type } = mouvement;
+            const sortie = type === 'sortie';
+            const conseil = Math.max(0, item.max - item.stock);
+            const [qty, setQty] = useState(sortie ? 1 : (conseil || 1));
+            const invalide = !(qty > 0) || (sortie && qty > item.stock);
+            const apres = sortie ? Math.max(0, item.stock - qty) : item.stock + qty;
+
+            useEffect(() => {
+                const k = (e) => { if (e.key === 'Escape') onClose(); };
+                window.addEventListener('keydown', k);
+                return () => window.removeEventListener('keydown', k);
+            }, [onClose]);
+
+            return (
+                <div className="modale" onClick={onClose}>
+                    <div className="modale__boite anim-pop" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true">
+                        <div className="entete__sur">{sortie ? 'Sortie de stock' : 'Réception d\'une commande'}</div>
+                        <h3>{item.name}</h3>
+                        <p className="petit acier">Stock actuel : <b>{item.stock}</b> · mini {item.min} · maxi {item.max}</p>
+                        <label className="lib" htmlFor="qte">Quantité</label>
+                        <input id="qte" type="number" min="1" max={sortie ? item.stock : undefined} value={qty} autoFocus
+                               onChange={e => setQty(parseInt(e.target.value) || 0)} className="champ champ--centre" />
+                        {!sortie && conseil > 0 && (
+                            <p className="petit acier" style={{ marginTop: 6 }}>
+                                Pour remonter au stock maxi : <b>{conseil} pièces</b> (maxi {item.max} − stock {item.stock}).
+                            </p>
+                        )}
+                        {!sortie && conseil === 0 && (
+                            <p className="petit erreur" style={{ marginTop: 6 }}>Le stock est déjà au maxi ou au-dessus : commander aggrave le surstock.</p>
+                        )}
+                        <div className={`encadre ${apres > item.max ? 'encadre--erreur' : (apres <= item.safety ? 'encadre--erreur' : (apres <= item.min ? 'encadre--or' : 'encadre--ok'))}`} style={{ marginTop: 12 }}>
+                            Après l'opération : <b>{apres}</b> pièce(s) → <Badge s={statut({ ...item, stock: apres })} />
+                        </div>
+                        <div className="ligne" style={{ marginTop: 16 }}>
+                            <button className="ehg-btn ehg-btn--secondaire" onClick={onClose}>Annuler</button>
+                            <span className="espace" />
+                            <button className={`ehg-btn ${sortie ? '' : 'ehg-btn--or'}`} disabled={invalide}
+                                    onClick={() => { onConfirm(item.id, type, qty); onClose(); }}>
+                                {sortie ? <MinusCircle size={14} /> : <Truck size={14} />} {sortie ? 'Sortir du stock' : 'Réceptionner'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ============================================================
+        // GRAPHIQUE DE GESTION DES STOCKS (dents de scie)
+        // Les 6 éléments du plan d'enseignement 5.6.6 : stock maxi, stock mini, stock de sécurité,
+        // stock en transit, point de commande, délai d'approvisionnement.
+        // ============================================================
+        // Graduations lisibles (pas de 1, 2, 5, 10, 20, 25, 50…) pour les axes verticaux
+        const graduations = (yMax) => {
+            const brut = yMax / 5;
+            const p = Math.pow(10, Math.floor(Math.log10(brut)));
+            const pas = [1, 2, 2.5, 5, 10].map(k => k * p).find(v => v >= brut) || 10 * p;
+            const out = [];
+            for (let v = 0; v <= yMax + 1e-9; v += pas) out.push(Math.round(v * 100) / 100);
+            return out;
+        };
+
+        const GraphiqueGestion = ({ maxi, mini, securite, conso, delai }) => {
+            const W = 880, H = 350;
+            const m = { top: 44, right: 172, bottom: 64, left: 56 };
+            const plotW = W - m.left - m.right, plotH = H - m.top - m.bottom;
+
+            if (!(maxi > mini) || !(conso > 0) || !(delai > 0)) {
+                return (
+                    <div className="encadre encadre--erreur">
+                        <div className="encadre__titre"><AlertTriangle size={14} /> Paramètres incohérents</div>
+                        Le stock maxi ({maxi}) doit être supérieur au stock mini ({mini}), avec une consommation et un délai positifs.
+                        Diminuez le délai, la sécurité ou la rotation cible, ou augmentez la prévision.
+                    </div>
+                );
+            }
+
+            const yMax = Math.max(maxi * 1.25, 10);
+            const yS = (v) => m.top + plotH - (v / yMax) * plotH;
+            const dureeNormale = (maxi - mini) / conso;                    // mois entre une livraison et le point de commande
+            const niveauLivraison = Math.max(0, mini - conso * delai);       // stock restant à l'arrivée de la commande
+            const qCommande = maxi - niveauLivraison;                        // quantité commandée = en transit pendant le délai
+            const dureeCycle = dureeNormale + delai;
+            const totalMois = Math.max(dureeCycle * 2, 6);
+            const xS = (t) => m.left + (t / totalMois) * plotW;
+
+            const pts = [];
+            let t = 0;
+            for (let c = 0; c < 2; c++) {
+                pts.push([t, maxi]);
+                t += dureeNormale;             pts.push([t, mini]);
+                t += delai;                    pts.push([t, niveauLivraison]);
+                pts.push([t, maxi]);
+            }
+            const poly = pts.filter(p => p[0] <= totalMois + 1e-9).map(p => `${xS(p[0])},${yS(p[1])}`).join(' ');
+            const t1 = dureeNormale, t2 = dureeNormale + delai;
+
+            const grille = '#EAEAEA', axe = '#898989', texte = '#3A3A3A';
+            const ticks = graduations(yMax);
+            const nbMois = Math.ceil(totalMois);
+            const yDelai = m.top + plotH + 36;
+            const yTransit = yS(maxi) - 16;
+
+            return (
+                <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto', display: 'block' }} role="img"
+                     aria-label="Graphique de gestion des stocks en dents de scie">
+                    {/* Zones */}
+                    <rect x={m.left} y={m.top} width={plotW} height={Math.max(0, yS(maxi) - m.top)} fill="#3A3A3A" fillOpacity="0.06" />
+                    <rect x={m.left} y={yS(maxi)} width={plotW} height={Math.max(0, yS(mini) - yS(maxi))} fill="#2E6B4B" fillOpacity="0.08" />
+                    <rect x={m.left} y={yS(mini)} width={plotW} height={Math.max(0, yS(securite) - yS(mini))} fill="#AA8802" fillOpacity="0.12" />
+                    <rect x={m.left} y={yS(securite)} width={plotW} height={Math.max(0, yS(0) - yS(securite))} fill="#9B2C2C" fillOpacity="0.10" />
+
+                    {/* Grille et axes */}
+                    {ticks.map((v, i) => <line key={i} x1={m.left} y1={yS(v)} x2={m.left + plotW} y2={yS(v)} stroke={grille} strokeWidth="1" />)}
+                    <line x1={m.left} y1={m.top} x2={m.left} y2={m.top + plotH} stroke={axe} strokeWidth="1.2" />
+                    <line x1={m.left} y1={m.top + plotH} x2={m.left + plotW} y2={m.top + plotH} stroke={axe} strokeWidth="1.2" />
+                    {ticks.map((v, i) => <text key={i} x={m.left - 8} y={yS(v) + 4} textAnchor="end" fontSize="11" fill={texte}>{v}</text>)}
+                    {Array.from({ length: nbMois + 1 }, (_, i) => i).filter(i => i <= totalMois + 1e-9).map(i => (
+                        <g key={i}>
+                            <line x1={xS(i)} y1={m.top + plotH} x2={xS(i)} y2={m.top + plotH + 4} stroke={axe} />
+                            <text x={xS(i)} y={m.top + plotH + 17} textAnchor="middle" fontSize="10" fill={texte}>M{i}</text>
+                        </g>
+                    ))}
+                    <text x={18} y={m.top + plotH / 2} textAnchor="middle" fontSize="10" fontWeight="600" fill={texte} letterSpacing="1"
+                          transform={`rotate(-90, 18, ${m.top + plotH / 2})`}>QUANTITÉ EN STOCK</text>
+                    <text x={xS(Math.floor(totalMois)) + 22} y={m.top + plotH + 17} fontSize="9.5" fontWeight="600" fill={texte} letterSpacing="1">TEMPS (MOIS) →</text>
+
+                    {/* Seuils */}
+                    <line x1={m.left} y1={yS(maxi)} x2={m.left + plotW} y2={yS(maxi)} stroke="#2E6B4B" strokeWidth="1.5" strokeDasharray="6 3" />
+                    <line x1={m.left} y1={yS(mini)} x2={m.left + plotW} y2={yS(mini)} stroke="#AA8802" strokeWidth="1.5" strokeDasharray="6 3" />
+                    <line x1={m.left} y1={yS(securite)} x2={m.left + plotW} y2={yS(securite)} stroke="#9B2C2C" strokeWidth="1.5" strokeDasharray="6 3" />
+                    <text x={m.left + plotW + 8} y={yS(maxi) + 4} fontSize="11" fontWeight="600" fill="#2E6B4B">STOCK MAXI = {maxi}</text>
+                    <text x={m.left + plotW + 8} y={yS(mini) + 4} fontSize="11" fontWeight="600" fill="#7D6400">STOCK MINI = {mini}</text>
+                    <text x={m.left + plotW + 8} y={yS(mini) + 16} fontSize="9.5" fill="#7D6400">(point de commande)</text>
+                    <text x={m.left + plotW + 8} y={yS(securite) + 4} fontSize="11" fontWeight="600" fill="#9B2C2C">SÉCURITÉ = {securite}</text>
+
+                    {/* Stock en transit (pendant le délai) */}
+                    <line x1={xS(t1)} y1={yTransit} x2={xS(t2)} y2={yTransit} stroke="#AA8802" strokeWidth="2" strokeDasharray="4 3" />
+                    <line x1={xS(t1)} y1={yTransit - 5} x2={xS(t1)} y2={yTransit + 5} stroke="#AA8802" strokeWidth="2" />
+                    <line x1={xS(t2)} y1={yTransit - 5} x2={xS(t2)} y2={yTransit + 5} stroke="#AA8802" strokeWidth="2" />
+                    <text x={xS(t1)} y={yTransit - 9} fontSize="10.5" fontWeight="600" fill="#7D6400">Stock en transit : commande de {plafond(qCommande)} pièce{plafond(qCommande) > 1 ? 's' : ''} (retour au maxi)</text>
+
+                    {/* Délai d'approvisionnement (sous l'axe) */}
+                    <line x1={xS(t1)} y1={yDelai} x2={xS(t2)} y2={yDelai} stroke="#141414" strokeWidth="1.5" />
+                    <line x1={xS(t1)} y1={yDelai - 5} x2={xS(t1)} y2={yDelai + 5} stroke="#141414" strokeWidth="1.5" />
+                    <line x1={xS(t2)} y1={yDelai - 5} x2={xS(t2)} y2={yDelai + 5} stroke="#141414" strokeWidth="1.5" />
+                    <text x={(xS(t1) + xS(t2)) / 2} y={yDelai + 15} textAnchor="middle" fontSize="10.5" fontWeight="600" fill="#141414">
+                        Délai d'approvisionnement ({fmt(delai, 1)} mois)
+                    </text>
+                    <line x1={xS(t1)} y1={yS(mini)} x2={xS(t1)} y2={yDelai - 5} stroke="#898989" strokeWidth="1" strokeDasharray="2 3" />
+                    <line x1={xS(t2)} y1={yS(niveauLivraison)} x2={xS(t2)} y2={yDelai - 5} stroke="#898989" strokeWidth="1" strokeDasharray="2 3" />
+
+                    {/* Courbe */}
+                    <polyline fill="none" stroke="#141414" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" points={poly}
+                              className="draw-line" key={`c-${maxi}-${mini}-${securite}-${conso}-${delai}`} />
+
+                    {/* Points remarquables du 1er cycle */}
+                    <circle cx={xS(t1)} cy={yS(mini)} r="6" fill="#AA8802" stroke="#fff" strokeWidth="2" />
+                    <text x={xS(t1) + 10} y={yS(mini) - 11} fontSize="10.5" fontWeight="600" fill="#7D6400">Point de commande</text>
+                    <circle cx={xS(t2)} cy={yS(niveauLivraison)} r="6" fill="#2E6B4B" stroke="#fff" strokeWidth="2" />
+                    <text x={xS(t2) + 10} y={yS(niveauLivraison) + 18} fontSize="10.5" fontWeight="600" fill="#2E6B4B">Livraison</text>
+                </svg>
+            );
+        };
+
+        const LegendeGraphique = () => (
+            <div className="legende">
+                <span><i className="pastille" style={{ background: 'rgba(58,58,58,.12)', borderColor: '#3A3A3A' }} />Surstock</span>
+                <span><i className="pastille" style={{ background: 'rgba(46,107,75,.15)', borderColor: '#2E6B4B' }} />Zone normale</span>
+                <span><i className="pastille" style={{ background: 'rgba(170,136,2,.2)', borderColor: '#AA8802' }} />Sous le point de commande</span>
+                <span><i className="pastille" style={{ background: 'rgba(155,44,44,.15)', borderColor: '#9B2C2C' }} />Zone critique (sécurité entamée)</span>
+                <span><i className="trait" />Niveau de stock</span>
+            </div>
+        );
+
+        // Composants de saisie définis au niveau module (jamais dans une page) : sinon React les
+        // remonte à chaque frappe et le champ perd le focus.
+        const Param = ({ label, value, onChange, unit, tone = 'or', step = 1, min = 0, max, disabled = false }) => (
+            <div className={`param param--${tone} ${disabled ? 'param--verrou' : ''}`}>
+                <div className="param__lib">{label}</div>
+                {disabled
+                    ? <div className="param__valeur">{fmt(value, 2)}</div>
+                    : <input type="number" step={step} min={min} max={max} value={value}
+                             onChange={e => { const v = parseFloat(e.target.value); onChange(isNaN(v) ? 0 : v); }} />}
+                <div className="param__unite">{unit}</div>
+            </div>
+        );
+
+        const Etape = ({ num, label, formule, resultat, interpretation, fin = false }) => (
+            <div className={`etape ${fin ? 'etape--fin' : ''}`}>
+                <div className="etape__tete"><span className="etape__num">{num}</span><span className="etape__lib">{label}</span></div>
+                <div className="etape__formule">{formule}</div>
+                <div className="etape__res">= {resultat}</div>
+                {interpretation && <div className="etape__interp">{interpretation}</div>}
+            </div>
+        );
+
+        // ============================================================
+        // PAGE 2 — CALCULATEURS MINI / MAXI
+        // ============================================================
+        const EXEMPLE_COURS = { prevision: 30, prix: 2, rot: 1.5, delai: 1, securite: 3 };
+
+        const PageCalculateurs = () => {
+            const [prevision, setPrevision] = useState(EXEMPLE_COURS.prevision);
+            const [prix, setPrix] = useState(EXEMPLE_COURS.prix);
+            const [rot, setRot] = useState(EXEMPLE_COURS.rot);
+            const [delai, setDelai] = useState(EXEMPLE_COURS.delai);
+            const [securite, setSecurite] = useState(EXEMPLE_COURS.securite);
+            const [lie, setLie] = useState(true);
+            const [consoLibre, setConsoLibre] = useState(2.5);
+            const conso = lie ? prevision / 12 : consoLibre;
+
+            const ca = prevision * prix;
+            const valeurCible = rot > 0 ? ca / rot : 0;
+            const stockMaxi = prix > 0 ? plafond(valeurCible / prix) : 0;
+            const consoDelai = conso * delai;
+            const stockMini = plafond(consoDelai + securite);
+            const coherent = stockMaxi > stockMini;
+
+            const exempleCours = () => {
+                setPrevision(EXEMPLE_COURS.prevision); setPrix(EXEMPLE_COURS.prix); setRot(EXEMPLE_COURS.rot);
+                setDelai(EXEMPLE_COURS.delai); setSecurite(EXEMPLE_COURS.securite); setLie(true);
+            };
+
+            return (
+                <div className="contenu__int anim-fade">
+                    <div className="ligne">
+                        <p className="intro" style={{ flex: 1 }}>
+                            <b>Deux seuils, deux logiques.</b> Le stock <b>mini</b> répond à la question « quand commander ? » ; le stock <b>maxi</b> répond à « combien stocker au plus ? ».
+                            Modifiez un paramètre : les calculs et le graphique se mettent à jour.
+                        </p>
+                        <button className="ehg-btn ehg-btn--secondaire ehg-btn--petit no-print" onClick={exempleCours}><RotateCcw size={13} /> Exemple du cours</button>
+                    </div>
+
+                    <div className="grille grille--2">
+                        {/* ---- Ligne 1 : définitions ---- */}
+                        <div className="carte carte--or">
+                            <div className="carte__titre"><h2><AlertCircle size={16} /> Stock mini — point de commande</h2></div>
+                            <p>C'est le <b>seuil qui déclenche une commande</b>. Quand le stock descend à ce niveau, on commande pour que la livraison arrive avant d'entamer le stock de sécurité.</p>
+                            <p className="petit italique graphite">Ce n'est pas un plancher : c'est un signal d'action.</p>
+                            <div className="citation">« Il convient de connaître le nombre moyen de pièces servies […] et la durée de réapprovisionnement pour remettre l'article à son niveau stock maximum. »</div>
+                            <ul className="liste-num">
+                                <li><span className="num">1</span><span><b>La consommation moyenne</b> — plus on consomme vite, plus il faut commander tôt.</span></li>
+                                <li><span className="num">2</span><span><b>Le délai de réapprovisionnement</b> — plus il est long, plus il faut anticiper.</span></li>
+                                <li><span className="num">3</span><span><b>Le stock de sécurité</b> — la marge contre les imprévus (retard fournisseur, pic de demande).</span></li>
+                            </ul>
+                        </div>
+                        <div className="carte carte--noir">
+                            <div className="carte__titre"><h2><Target size={16} /> Stock maxi — limite haute</h2></div>
+                            <p>C'est la <b>quantité à ne pas dépasser</b>, fixée pour obtenir le <b>taux de rotation visé</b>. Au-delà, le capital dort dans les casiers et les pièces risquent l'obsolescence.</p>
+                            <p className="petit italique graphite">Taux de rotation = chiffre d'affaires réalisé ÷ valeur moyenne du stock (au prix de vente).</p>
+                            <div className="citation">« Le taux de rotation annuelle du stock pour un SAV est habituellement compris entre 1 et 1,5 fois. »</div>
+                            <ul className="liste-num">
+                                <li><span className="num">1</span><span><b>La prévision de vente</b> — volume annuel attendu, d'après l'expérience.</span></li>
+                                <li><span className="num">2</span><span><b>Le prix de vente</b> — convertit la valeur du stock en nombre de pièces.</span></li>
+                                <li><span className="num">3</span><span><b>La rotation cible</b> — 1 = stock large, 1,5 = stock tendu. À réajuster chaque année selon les ventes réelles.</span></li>
+                            </ul>
+                        </div>
+
+                        {/* ---- Ligne 2 : paramètres ---- */}
+                        <div className="carte">
+                            <div className="carte__titre"><h3><Sparkles size={15} /> Paramètres du stock mini</h3></div>
+                            <div className="pile">
+                                <Param label="Consommation mensuelle" value={lie ? prevision / 12 : consoLibre} onChange={setConsoLibre} unit={lie ? 'pièces / mois — déduite de la prévision annuelle ÷ 12' : 'pièces / mois'} step={0.5} disabled={lie} />
+                                <label className="case no-print">
+                                    <input type="checkbox" checked={lie} onChange={e => { if (!e.target.checked) setConsoLibre(Math.round(prevision / 12 * 100) / 100); setLie(e.target.checked); }} />
+                                    Lier la consommation à la prévision annuelle (cohérence mini ↔ maxi)
+                                </label>
+                                <Param label="Délai de réapprovisionnement" value={delai} onChange={setDelai} unit="mois" step={0.5} />
+                                <Param label="Stock de sécurité" value={securite} onChange={setSecurite} unit="pièces" tone="erreur" />
+                            </div>
+                        </div>
+                        <div className="carte">
+                            <div className="carte__titre"><h3><Sparkles size={15} /> Paramètres du stock maxi</h3></div>
+                            <div className="pile">
+                                <Param label="Prévision de vente annuelle" value={prevision} onChange={setPrevision} unit="pièces / an" tone="noir" min={1} />
+                                <Param label="Prix de vente unitaire" value={prix} onChange={setPrix} unit="CHF" tone="noir" step={0.1} />
+                                <Param label="Taux de rotation cible" value={rot} onChange={setRot} unit="tours / an — cible SAV : 1 à 1,5" tone="noir" step={0.1} min={0.5} max={3} />
+                            </div>
+                        </div>
+
+                        {/* ---- Ligne 3 : calculs ---- */}
+                        <div className="carte carte--or">
+                            <div className="carte__titre"><h3><Calculator size={15} /> Calcul du stock mini</h3><span className="badge badge--bas">2 étapes</span></div>
+                            <div className="pile">
+                                <Etape num="1" label="Consommation pendant le délai"
+                                       formule={`Conso / mois (${fmt(conso, 2)}) × Délai (${fmt(delai, 1)} mois)`}
+                                       resultat={`${fmt(consoDelai, 2)} pièce(s)`}
+                                       interpretation={`Pendant les ${fmt(delai, 1)} mois que met le fournisseur à livrer, l'atelier consomme ${fmt(consoDelai, 2)} pièce(s). Il faut au moins cette quantité en stock au moment de commander.`} />
+                                <div className="fleche">↓</div>
+                                <Etape num="2" label="Ajouter le stock de sécurité" fin
+                                       formule={`Conso pendant le délai (${fmt(consoDelai, 2)}) + Sécurité (${securite})`}
+                                       resultat={`${stockMini} pièces — point de commande`}
+                                       interpretation={`Dès que le stock atteint ${stockMini} pièce(s), on commande. La marge de ${securite} pièce(s) protège contre un retard fournisseur ou un pic de consommation.`} />
+                            </div>
+                        </div>
+                        <div className="carte carte--noir">
+                            <div className="carte__titre"><h3><Calculator size={15} /> Calcul du stock maxi</h3><span className="badge badge--surstock">3 étapes</span></div>
+                            <div className="pile">
+                                <Etape num="1" label="Estimer le chiffre d'affaires annuel"
+                                       formule={`Prévision (${prevision}) × Prix (${fmt(prix, 2)})`}
+                                       resultat={`${fmtCHF(ca)} / an`}
+                                       interpretation={`Sur une année, cette référence devrait rapporter ${fmtCHF(ca)}. C'est l'enveloppe de référence pour dimensionner le stock.`} />
+                                <div className="fleche">↓</div>
+                                <Etape num="2" label="Valeur cible du stock"
+                                       formule={`CA (${fmt(ca, 2)}) ÷ Rotation cible (${fmt(rot, 2)})`}
+                                       resultat={fmtCHF(valeurCible)}
+                                       interpretation={`Pour que le stock se renouvelle ${fmt(rot, 2)} fois par an, sa valeur ne doit pas dépasser ${fmtCHF(valeurCible)}.`} />
+                                <div className="fleche">↓</div>
+                                <Etape num="3" label="Convertir en pièces (arrondi à l'unité supérieure)" fin
+                                       formule={`Valeur cible (${fmt(valeurCible, 2)}) ÷ Prix (${fmt(prix, 2)}) = ${fmt(valeurCible / (prix || 1), 2)}`}
+                                       resultat={`${stockMaxi} pièces`}
+                                       interpretation={`On ne stocke jamais plus de ${stockMaxi} pièce(s). Si les ventes réelles s'écartent de la prévision, on réajuste le maxi l'année suivante.`} />
+                            </div>
+                            <div className="encadre encadre--info petit" style={{ marginTop: 12 }}>
+                                <b>Pour aller plus loin.</b> Le prix apparaît au numérateur (étape 1) puis au dénominateur (étape 3) : il se simplifie.
+                                Stock maxi = prévision ÷ rotation = {prevision} ÷ {fmt(rot, 2)} = {fmt(prevision / (rot || 1), 2)} → {stockMaxi}. On garde les trois étapes parce qu'au SAV, on raisonne d'abord en valeur (CHF immobilisés).
+                            </div>
+                        </div>
+
+                        {/* ---- Ligne 4 : que se passe-t-il si… ---- */}
+                        <div className="carte carte--or">
+                            <div className="carte__titre"><h3><Info size={15} /> Que se passe-t-il si… le stock mini est</h3></div>
+                            <div className="pile">
+                                <div className="encadre encadre--erreur">
+                                    <div className="encadre__titre"><ChevronDown size={14} /> … trop faible</div>
+                                    On commande <b>trop tard</b> : la consommation pendant le délai entame la sécurité, voire tombe à zéro. Conséquences : <b>ruptures à l'atelier</b>, réparations retardées, commandes urgentes coûteuses, clients mécontents.
+                                </div>
+                                <div className="encadre encadre--info">
+                                    <div className="encadre__titre"><ChevronUp size={14} /> … trop élevé</div>
+                                    On commande <b>trop tôt</b> : le stock moyen reste haut en permanence. Conséquences : <b>capital immobilisé</b>, frais de stockage, place occupée, rotation qui chute.
+                                </div>
+                            </div>
+                        </div>
+                        <div className="carte carte--noir">
+                            <div className="carte__titre"><h3><Info size={15} /> Que se passe-t-il si… le stock maxi est</h3></div>
+                            <div className="pile">
+                                <div className="encadre encadre--erreur">
+                                    <div className="encadre__titre"><ChevronDown size={14} /> … trop faible</div>
+                                    Le stock ne couvre pas la demande : <b>commandes trop fréquentes</b>, charge administrative, exposition permanente aux délais fournisseur, ruptures répétées.
+                                </div>
+                                <div className="encadre encadre--info">
+                                    <div className="encadre__titre"><ChevronUp size={14} /> … trop élevé</div>
+                                    La rotation tombe sous 1 : <b>capital fortement immobilisé</b>, coûts de stockage, risque d'<b>obsolescence</b> (surtout en fin de garantie de disponibilité), trésorerie tendue. Le cours le rappelle : une mauvaise gestion des stocks peut mettre en péril la survie de l'entreprise.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ---- Graphique commun ---- */}
+                    <div className="carte">
+                        <div className="carte__titre">
+                            <h2><TrendingUp size={16} /> Le graphique de gestion des stocks</h2>
+                            <span className={`badge ${coherent ? 'badge--normal' : 'badge--rupture'}`}>{coherent ? 'Paramètres cohérents' : 'Paramètres incohérents'}</span>
+                        </div>
+                        <p className="carte__aide">
+                            Deux cycles complets : le stock descend au rythme de la consommation, atteint le <b>point de commande</b> (stock mini), continue de baisser pendant le
+                            <b> délai d'approvisionnement</b> tandis que la commande est <b>en transit</b>, puis la livraison le ramène au <b>stock maxi</b>.
+                        </p>
+                        <GraphiqueGestion maxi={stockMaxi} mini={stockMini} securite={securite} conso={conso} delai={delai} />
+                        <LegendeGraphique />
+                    </div>
+                </div>
+            );
+        };
+
+        // ============================================================
+        // PAGE 3 — SIMULATION 6 MOIS
+        // ============================================================
+        const CelluleMois = ({ idx, label, conseil, delai, onAdd }) => {
+            const [sortieQty, setSortieQty] = useState(1);
+            const [cmdQty, setCmdQty] = useState(5);
+            const livraison = idx + delai <= 5 ? `livrée début ${MOIS[idx + delai]}` : 'livrée après la simulation';
+            return (
+                <div className="mois">
+                    <div className="mois__titre">{label}<small>mois {idx + 1}</small></div>
+                    <div className="mois__bloc">
+                        <input className="champ champ--centre" type="number" min="1" value={sortieQty} aria-label={`Quantité sortie ${label}`}
+                               onChange={e => setSortieQty(Math.max(1, parseInt(e.target.value) || 1))} />
+                        <button className="ehg-btn ehg-btn--danger ehg-btn--petit" onClick={() => onAdd('sortie', sortieQty)} title="Pièces posées ce mois-ci">
+                            <MinusCircle size={12} /> Sortie
+                        </button>
+                    </div>
+                    <div className="mois__bloc">
+                        <input className="champ champ--centre" type="number" min="1" value={cmdQty} aria-label={`Quantité commandée ${label}`}
+                               onChange={e => setCmdQty(Math.max(1, parseInt(e.target.value) || 1))} />
+                        <button className="ehg-btn ehg-btn--petit" onClick={() => onAdd('commande', cmdQty)} title={`Commande passée en ${label}, ${livraison}`}>
+                            <ShoppingCart size={12} /> Commander
+                        </button>
+                    </div>
+                    <div className="mois__conseil">
+                        {conseil > 0
+                            ? <button className="btn-lien" onClick={() => setCmdQty(conseil)} title="Reporter cette quantité dans le champ Commander">Pour remonter au maxi : ≈ {conseil} pièce{conseil > 1 ? 's' : ''}</button>
+                            : <span>Stock au maxi : ne pas commander</span>}
+                        <br /><span>{livraison}</span>
+                    </div>
+                </div>
+            );
+        };
+
+        const PageSimulation = ({ inventaire }) => {
+            const [selectedId, setSelectedId] = useState(inventaire[0].id);
+            const item = inventaire.find(i => i.id === selectedId) || inventaire[0];
+            const [stockInitial, setStockInitial] = useState(item.stock);
+            const [delai, setDelai] = useState(item.leadTime);
+            const [events, setEvents] = useState([]);   // { id, mois, type: 'sortie' | 'commande', qty, auto }
+
+            useEffect(() => { setStockInitial(item.stock); setDelai(item.leadTime); setEvents([]); }, [selectedId]);
+
+            const mois = useMemo(() => {
+                let stock = stockInitial;
+                const out = [];
+                for (let m = 0; m < 6; m++) {
+                    const debut = stock;
+                    const qLiv = events.filter(e => e.type === 'commande' && e.mois + delai === m).reduce((a, e) => a + e.qty, 0);
+                    stock += qLiv;
+                    const apres = stock;
+                    const qSor = events.filter(e => e.type === 'sortie' && e.mois === m).reduce((a, e) => a + e.qty, 0);
+                    const manque = Math.max(0, qSor - stock);
+                    stock = Math.max(0, stock - qSor);
+                    const qCmd = events.filter(e => e.type === 'commande' && e.mois === m).reduce((a, e) => a + e.qty, 0);
+                    const enCours = events.filter(e => e.type === 'commande' && e.mois <= m && e.mois + delai > m).reduce((a, e) => a + e.qty, 0);
+                    out.push({ m, debut, qLiv, apres, qSor, manque, fin: stock, qCmd, enCours });
+                }
+                return out;
+            }, [stockInitial, events, delai]);
+
+            const kpi = useMemo(() => {
+                const ruptures = mois.filter(d => d.fin === 0 || d.manque > 0).length;
+                const critiques = mois.filter(d => d.fin > 0 && d.fin <= item.safety).length;
+                const surstocks = mois.filter(d => d.apres > item.max).length;
+                const stockMoyen = mois.reduce((a, d) => a + d.fin, 0) / 6;
+                const servies = mois.reduce((a, d) => a + (d.qSor - d.manque), 0);
+                const nonServies = mois.reduce((a, d) => a + d.manque, 0);
+                const valeurMoy = stockMoyen * item.price;
+                const rotSim = valeurMoy > 0 ? (servies * item.price * 2) / valeurMoy : null;   // annualisée : 6 mois × 2
+                return { ruptures, critiques, surstocks, stockMoyen, valeurMoy, servies, nonServies, rotSim };
+            }, [mois, item]);
+
+            const regles = useMemo(() => {
+                const aSorties = mois.some(d => d.qSor > 0);
+                const moisRupture = mois.filter(d => d.fin === 0 || d.manque > 0).map(d => MOIS[d.m]);
+                const moisCritique = mois.filter(d => d.fin <= item.safety).map(d => MOIS[d.m]);
+                const moisSur = mois.filter(d => d.apres > item.max).map(d => MOIS[d.m]);
+                const moisSansCmd = mois.filter(d => d.fin <= item.min && d.enCours === 0).map(d => MOIS[d.m]);
+                return {
+                    aSorties,
+                    liste: [
+                        { ok: moisRupture.length === 0, lib: 'Aucune rupture', detail: moisRupture.length ? `Rupture en ${moisRupture.join(', ')}` : 'La demande a toujours été servie.' },
+                        { ok: moisCritique.length === 0, lib: 'Stock de sécurité préservé en fin de mois', detail: moisCritique.length ? `Sécurité entamée en ${moisCritique.join(', ')}` : 'Le stock de sécurité n\'a jamais été entamé.' },
+                        { ok: moisSur.length === 0, lib: 'Jamais au-dessus du stock maxi après livraison', detail: moisSur.length ? `Surstock en ${moisSur.join(', ')}` : 'Aucun surstock : le capital immobilisé reste maîtrisé.' },
+                        { ok: moisSansCmd.length === 0, lib: 'Commande déclenchée dès le point de commande', detail: moisSansCmd.length ? `Point de commande atteint sans commande en cours en ${moisSansCmd.join(', ')}` : 'À chaque passage sous le stock mini, une commande était en cours.' },
+                    ],
+                };
+            }, [mois, item]);
+
+            const ajouter = (m, type, qty) => { if (qty > 0) setEvents(prev => [...prev, { id: `${Date.now()}-${Math.random()}`, mois: m, type, qty }]); };
+            const supprimer = (id) => setEvents(prev => prev.filter(e => e.id !== id));
+            const preRemplir = () => {
+                const auto = [];
+                for (let m = 0; m < 6; m++) {
+                    const q = Math.round(item.conso * (m + 1)) - Math.round(item.conso * m);
+                    if (q > 0) auto.push({ id: `auto-${m}`, mois: m, type: 'sortie', qty: q, auto: true });
+                }
+                setEvents(prev => [...prev.filter(e => !e.auto), ...auto]);
+            };
+            const reinit = () => { setEvents([]); setStockInitial(item.stock); setDelai(item.leadTime); };
+            const conseil = (m) => Math.max(0, item.max - (mois[m].fin - Math.round(item.conso * (delai - 1))));
+
+            const score = regles.liste.filter(r => r.ok).length;
+
+            return (
+                <div className="contenu__int anim-fade">
+                    <p className="intro">
+                        <b>Mission.</b> Pilotez une référence pendant six mois : saisissez les sorties (pièces posées) et décidez <b>quand</b> commander et <b>combien</b>.
+                        Une commande passée au mois M est livrée au début du mois M + délai. Objectif : aucune rupture, sécurité préservée, jamais de surstock.
+                    </p>
+
+                    <div className="carte">
+                        <div className="carte__titre">
+                            <h2><Boxes size={16} /> Référence simulée</h2>
+                            <div className="ligne no-print">
+                                <button className="ehg-btn ehg-btn--secondaire ehg-btn--petit" onClick={preRemplir} title="Ajoute chaque mois la sortie correspondant à la consommation moyenne (prévision ÷ 12)">
+                                    <Sparkles size={13} /> Pré-remplir la consommation moyenne
+                                </button>
+                                <button className="ehg-btn ehg-btn--secondaire ehg-btn--petit" onClick={reinit}><RotateCcw size={13} /> Réinitialiser</button>
+                            </div>
+                        </div>
+                        <div className="grille grille--3">
+                            <div>
+                                <label className="lib" htmlFor="ref">Référence</label>
+                                <select id="ref" className="champ" value={selectedId} onChange={e => setSelectedId(e.target.value)}>
+                                    {inventaire.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
+                                </select>
+                                <div className="petit acier" style={{ marginTop: 6 }}>Consommation moyenne : <b>{fmt(item.conso, 2)} pièce(s)/mois</b> · prix {fmtCHF(item.price)}</div>
+                            </div>
+                            <div>
+                                <label className="lib" htmlFor="stock0">Stock au 1er janvier</label>
+                                <input id="stock0" type="number" min="0" className="champ champ--centre" value={stockInitial}
+                                       onChange={e => setStockInitial(Math.max(0, parseInt(e.target.value) || 0))} />
+                                <div className="petit acier" style={{ marginTop: 6 }}>Valeur initiale : {fmtCHF(stockInitial * item.price)}</div>
+                            </div>
+                            <div>
+                                <span className="lib">Délai fournisseur</span>
+                                <div className="segment">
+                                    {[1, 2].map(d => <button key={d} className={delai === d ? 'actif' : ''} onClick={() => setDelai(d)}>{d} mois</button>)}
+                                </div>
+                                <div className="statuts" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginTop: 10, gap: 6 }}>
+                                    <div className="statut"><div className="statut__lib">Sécurité</div><div className="statut__val erreur">{item.safety}</div></div>
+                                    <div className="statut"><div className="statut__lib">Mini</div><div className="statut__val or-fonce">{item.min}</div></div>
+                                    <div className="statut"><div className="statut__lib">Maxi</div><div className="statut__val ok">{item.max}</div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="carte">
+                        <div className="carte__titre"><h2><TrendingUp size={16} /> Évolution du stock sur six mois</h2></div>
+                        <GraphiqueSimulation mois={mois} item={item} events={events} delai={delai} />
+                        <div className="legende">
+                            <span><i className="rond" style={{ background: '#141414' }}>C</i>Commande passée</span>
+                            <span><i className="rond" style={{ background: '#2E6B4B' }}>L</i>Livraison reçue</span>
+                            <span><i className="pastille" style={{ background: 'rgba(58,58,58,.12)', borderColor: '#3A3A3A' }} />Surstock</span>
+                            <span><i className="pastille" style={{ background: 'rgba(46,107,75,.15)', borderColor: '#2E6B4B' }} />Zone normale</span>
+                            <span><i className="pastille" style={{ background: 'rgba(170,136,2,.2)', borderColor: '#AA8802' }} />Sous le point de commande</span>
+                            <span><i className="pastille" style={{ background: 'rgba(155,44,44,.15)', borderColor: '#9B2C2C' }} />Zone critique</span>
+                        </div>
+
+                        <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #EAEAEA' }}>
+                            <div className="carte__titre"><h3><Plus size={15} /> Décisions par mois</h3></div>
+                            <div className="grille grille--6" style={{ gap: 8 }}>
+                                {MOIS.map((label, idx) => (
+                                    <CelluleMois key={idx} idx={idx} label={label} delai={delai} conseil={conseil(idx)} onAdd={(type, qty) => ajouter(idx, type, qty)} />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grille grille--2">
+                        <div className="carte carte--or">
+                            <div className="carte__titre">
+                                <h2><Target size={16} /> Verdict de la mission</h2>
+                                {regles.aSorties && <span className={`badge ${score === 4 ? 'badge--normal' : (score >= 2 ? 'badge--bas' : 'badge--critique')}`}>{score} / 4 règles</span>}
+                            </div>
+                            {!regles.aSorties
+                                ? <div className="regle regle--attente"><Info size={16} /><span>En attente : saisissez des sorties mois par mois, ou pré-remplissez la consommation moyenne, puis placez vos commandes.</span></div>
+                                : <div className="pile" style={{ gap: 6 }}>
+                                    {regles.liste.map((r, i) => (
+                                        <div key={i} className={`regle ${r.ok ? 'regle--ok' : 'regle--ko'}`}>
+                                            {r.ok ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+                                            <span><b>{r.lib}</b><small>{r.detail}</small></span>
+                                        </div>
+                                    ))}
+                                </div>}
+                            <div className="grille grille--4" style={{ gap: 8, marginTop: 14 }}>
+                                <div className="kpi"><div className="kpi__lib">Stock moyen</div><div className="kpi__val">{fmt(kpi.stockMoyen, 1)}<small>pièces</small></div></div>
+                                <div className="kpi"><div className="kpi__lib">Capital immobilisé</div><div className="kpi__val" style={{ fontSize: 20 }}>{fmtCHF(kpi.valeurMoy)}</div><div className="kpi__note">moyenne fin de mois</div></div>
+                                <div className={`kpi ${kpi.nonServies > 0 ? 'kpi--erreur' : ''}`}><div className="kpi__lib">Pièces non servies</div><div className="kpi__val">{kpi.nonServies}</div></div>
+                                <div className="kpi"><div className="kpi__lib">Rotation annualisée</div><div className="kpi__val">{kpi.rotSim === null ? '—' : fmt(kpi.rotSim, 2)}</div><div className="kpi__note">sorties × 2 ÷ stock moyen</div></div>
+                            </div>
+                        </div>
+
+                        <div className="carte">
+                            <div className="carte__titre"><h2><ClipboardList size={16} /> Journal des mouvements</h2><span className="badge badge--neutre">{events.length} événement(s)</span></div>
+                            {events.length === 0
+                                ? <p className="petit acier">Aucun mouvement saisi. Les sorties et commandes apparaîtront ici ; chaque ligne peut être supprimée.</p>
+                                : <ul className="journal">
+                                    {[...events].sort((a, b) => a.mois - b.mois || (a.type > b.type ? 1 : -1)).map(e => (
+                                        <li key={e.id}>
+                                            <span className={`badge ${e.type === 'sortie' ? 'badge--critique' : 'badge--surstock'}`} style={{ minWidth: 92, textAlign: 'center' }}>{e.type === 'sortie' ? 'Sortie' : 'Commande'}</span>
+                                            <b>{MOIS[e.mois]}</b>
+                                            <span>{e.qty} pièce(s){e.auto ? ' — consommation moyenne' : ''}{e.type === 'commande' ? (e.mois + delai <= 5 ? ` → livrée début ${MOIS[e.mois + delai]}` : ' → livrée après juin') : ''}</span>
+                                            <button className="sup no-print" onClick={() => supprimer(e.id)} title="Supprimer" aria-label="Supprimer"><Trash2 size={14} /></button>
+                                        </li>
+                                    ))}
+                                </ul>}
+                        </div>
+                    </div>
+
+                    <div className="carte">
+                        <div className="carte__titre"><h2><ClipboardList size={16} /> Fiche de stock mensuelle</h2></div>
+                        <div className="defile">
+                            <table className="ehg-tableau ehg-tableau--compact ehg-tableau--mois" style={{ textAlign: 'center' }}>
+                                <thead>
+                                    <tr>
+                                        <th style={{ textAlign: 'left' }}>Indicateur</th>
+                                        {MOIS.map((mm, i) => <th key={i} className="td-c">{mm}<br /><span className="acier" style={{ fontWeight: 400, letterSpacing: 0 }}>M{i + 1}</span></th>)}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td style={{ textAlign: 'left' }}>Stock début de mois</td>{mois.map(d => <td key={d.m} className="mono">{d.debut}</td>)}</tr>
+                                    <tr><td style={{ textAlign: 'left' }} className="ok">+ Livraisons reçues</td>{mois.map(d => <td key={d.m} className={`mono ${d.qLiv ? 'ok' : 'acier'}`}>{d.qLiv ? `+${d.qLiv}` : '—'}</td>)}</tr>
+                                    <tr><td style={{ textAlign: 'left' }} className="erreur">− Sorties (pièces posées)</td>{mois.map(d => <td key={d.m} className={`mono ${d.qSor ? 'erreur' : 'acier'}`}>{d.qSor ? `−${d.qSor}` : '—'}{d.manque ? <small title="Demande non servie"> ({d.manque} non servie{d.manque > 1 ? 's' : ''})</small> : null}</td>)}</tr>
+                                    <tr><td style={{ textAlign: 'left' }}>Commandes passées</td>{mois.map(d => <td key={d.m} className={`mono ${d.qCmd ? '' : 'acier'}`}>{d.qCmd || '—'}</td>)}</tr>
+                                    <tr><td style={{ textAlign: 'left' }} className="or-fonce">Stock en transit (fin de mois)</td>{mois.map(d => <td key={d.m} className={`mono ${d.enCours ? 'or-fonce' : 'acier'}`}>{d.enCours || '—'}</td>)}</tr>
+                                    <tr className="total"><td style={{ textAlign: 'left' }}>Stock fin de mois</td>{mois.map(d => <td key={d.m}><Badge s={statut({ ...item, stock: d.fin })} /><div className="stock-val">{d.fin}</div></td>)}</tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ============================================================
+        // GRAPHIQUE DE SIMULATION (6 mois)
+        // ============================================================
+        const GraphiqueSimulation = ({ mois, item, events, delai }) => {
+            const W = 880, H = 430;
+            const m = { top: 76, right: 110, bottom: 60, left: 56 };
+            const plotW = W - m.left - m.right, plotH = H - m.top - m.bottom;
+            const maxVal = Math.max(...mois.map(d => Math.max(d.debut, d.apres, d.fin)), item.max, 10);
+            const yMax = maxVal * 1.15;
+            const xS = (i) => m.left + (i / 5) * plotW;
+            const yS = (v) => m.top + plotH - (v / yMax) * plotH;
+            const texte = '#3A3A3A', grille = '#EAEAEA', axe = '#898989';
+            const ticks = graduations(yMax);
+            const poly = mois.map((d, i) => `${xS(i)},${yS(d.fin)}`).join(' ');
+
+            const indic = MOIS.map((_, i) => ({
+                i,
+                cmd: events.filter(e => e.type === 'commande' && e.mois === i).reduce((a, e) => a + e.qty, 0),
+                liv: events.filter(e => e.type === 'commande' && e.mois + delai === i).reduce((a, e) => a + e.qty, 0),
+            }));
+            const xCmd = (i) => indic[i].liv > 0 ? xS(i) - 18 : xS(i);
+            const xLiv = (i) => indic[i].cmd > 0 ? xS(i) + 18 : xS(i);
+
+            return (
+                <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto', display: 'block' }} role="img" aria-label="Évolution du stock sur six mois">
+                    {/* Bandeau commandes / livraisons */}
+                    <text x={m.left} y={22} fontSize="10" fontWeight="600" fill={texte} letterSpacing="1">COMMANDES ET LIVRAISONS</text>
+                    {events.filter(e => e.type === 'commande' && e.mois + delai <= 5).map((e, k) => {
+                        const x1 = xCmd(e.mois) + 14, x2 = xLiv(e.mois + delai) - 14;
+                        return (
+                            <g key={k}>
+                                <line x1={x1} y1={44} x2={x2 - 4} y2={44} stroke="#898989" strokeWidth="1.2" strokeDasharray="3 2" />
+                                <polygon points={`${x2 - 5},41 ${x2},44 ${x2 - 5},47`} fill="#898989" />
+                            </g>
+                        );
+                    })}
+                    {indic.map(d => (
+                        <g key={d.i}>
+                            {d.cmd > 0 && (<g>
+                                <circle cx={xCmd(d.i)} cy={44} r="12" fill="#141414" />
+                                <text x={xCmd(d.i)} y={48} textAnchor="middle" fontSize="11" fontWeight="600" fill="#fff">C</text>
+                                <text x={xCmd(d.i)} y={68} textAnchor="middle" fontSize="10.5" fontWeight="600" fill="#141414">{d.cmd}</text>
+                            </g>)}
+                            {d.liv > 0 && (<g>
+                                <circle cx={xLiv(d.i)} cy={44} r="12" fill="#2E6B4B" />
+                                <text x={xLiv(d.i)} y={48} textAnchor="middle" fontSize="11" fontWeight="600" fill="#fff">L</text>
+                                <text x={xLiv(d.i)} y={68} textAnchor="middle" fontSize="10.5" fontWeight="600" fill="#2E6B4B">+{d.liv}</text>
+                            </g>)}
+                        </g>
+                    ))}
+
+                    {/* Zones */}
+                    <rect x={m.left} y={m.top} width={plotW} height={Math.max(0, yS(item.max) - m.top)} fill="#3A3A3A" fillOpacity="0.06" />
+                    <rect x={m.left} y={yS(item.max)} width={plotW} height={Math.max(0, yS(item.min) - yS(item.max))} fill="#2E6B4B" fillOpacity="0.08" />
+                    <rect x={m.left} y={yS(item.min)} width={plotW} height={Math.max(0, yS(item.safety) - yS(item.min))} fill="#AA8802" fillOpacity="0.12" />
+                    <rect x={m.left} y={yS(item.safety)} width={plotW} height={Math.max(0, yS(0) - yS(item.safety))} fill="#9B2C2C" fillOpacity="0.10" />
+
+                    {ticks.map((v, i) => <line key={i} x1={m.left} y1={yS(v)} x2={m.left + plotW} y2={yS(v)} stroke={grille} />)}
+                    {mois.map((d, i) => <line key={`v${i}`} x1={xS(i)} y1={m.top} x2={xS(i)} y2={m.top + plotH} stroke={grille} strokeDasharray="1 3" />)}
+                    <line x1={m.left} y1={m.top} x2={m.left} y2={m.top + plotH} stroke={axe} strokeWidth="1.2" />
+                    <line x1={m.left} y1={m.top + plotH} x2={m.left + plotW} y2={m.top + plotH} stroke={axe} strokeWidth="1.2" />
+                    {ticks.map((v, i) => <text key={i} x={m.left - 8} y={yS(v) + 4} textAnchor="end" fontSize="11" fill={texte}>{v}</text>)}
+
+                    {/* Seuils */}
+                    <line x1={m.left} y1={yS(item.max)} x2={m.left + plotW} y2={yS(item.max)} stroke="#2E6B4B" strokeWidth="1.5" strokeDasharray="6 3" />
+                    <line x1={m.left} y1={yS(item.min)} x2={m.left + plotW} y2={yS(item.min)} stroke="#AA8802" strokeWidth="1.5" strokeDasharray="6 3" />
+                    <line x1={m.left} y1={yS(item.safety)} x2={m.left + plotW} y2={yS(item.safety)} stroke="#9B2C2C" strokeWidth="1.5" strokeDasharray="6 3" />
+                    <text x={m.left + plotW + 8} y={yS(item.max) + 4} fontSize="10.5" fontWeight="600" fill="#2E6B4B">MAXI {item.max}</text>
+                    <text x={m.left + plotW + 8} y={yS(item.min) + 4} fontSize="10.5" fontWeight="600" fill="#7D6400">MINI {item.min}</text>
+                    <text x={m.left + plotW + 8} y={yS(item.safety) + 4} fontSize="10.5" fontWeight="600" fill="#9B2C2C">SÉC. {item.safety}</text>
+
+                    {/* Courbe */}
+                    <polyline fill="none" stroke="#141414" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" points={poly} />
+                    {mois.map((d, i) => (
+                        <g key={i}>
+                            <circle cx={xS(i)} cy={yS(d.fin)} r="6" fill={d.fin === 0 ? '#9B2C2C' : '#AA8802'} stroke="#fff" strokeWidth="2" />
+                            <text x={xS(i)} y={yS(d.fin) - 12} textAnchor="middle" fontSize="11" fontWeight="600" fill={texte}>{d.fin}</text>
+                        </g>
+                    ))}
+                    <text x={18} y={m.top + plotH / 2} textAnchor="middle" fontSize="10" fontWeight="600" fill={texte} letterSpacing="1"
+                          transform={`rotate(-90, 18, ${m.top + plotH / 2})`}>STOCK FIN DE MOIS</text>
+
+                    {/* Étiquettes mois */}
+                    {MOIS.map((label, i) => (
+                        <g key={`l${i}`}>
+                            <line x1={xS(i)} y1={m.top + plotH} x2={xS(i)} y2={m.top + plotH + 10} stroke={axe} />
+                            <rect x={xS(i) - 30} y={m.top + plotH + 12} width={60} height={34} rx={4} fill="#F6F6F6" stroke="#EAEAEA" />
+                            <text x={xS(i)} y={m.top + plotH + 28} textAnchor="middle" fontSize="12" fontWeight="600" fill="#141414">{label}</text>
+                            <text x={xS(i)} y={m.top + plotH + 41} textAnchor="middle" fontSize="9" fill="#898989">M{i + 1}</text>
+                        </g>
+                    ))}
+                </svg>
+            );
+        };
+
+        // ============================================================
+        // PAGE 4 — EXERCICES SEQ12 (auto-correction)
+        // ============================================================
+        const EXERCICES = [
+            {
+                id: 'ex1', titre: 'Exercice 1 — Réajuster le stock maxi après une année',
+                enonce: [
+                    'Prévision de vente : 50 unités/an. Prix de vente : 20.-. Rotation cible : 1,5.',
+                    'Calcul initial : CA = 1 000.- ; valeur du stock = 1 000 ÷ 1,5 = 666.66 ; stock maxi = 666.66 ÷ 20 = 33.33 → 34 unités.',
+                    'Après une année, seules 40 unités ont été vendues. Calculez le nouveau stock maxi (rotation cible inchangée).',
+                ],
+                champs: [
+                    { id: 'ca',   label: 'Nouveau chiffre d\'affaires', unite: 'CHF',                       attendu: 800,    tol: 0.5 },
+                    { id: 'val',  label: 'Nouvelle valeur du stock',    unite: 'CHF',                       attendu: 533.33, tol: 0.5 },
+                    { id: 'maxi', label: 'Nouveau stock maxi',          unite: 'unités (arrondi supérieur)', attendu: 27,     tol: 0 },
+                ],
+                corrige: ['CA = 40 × 20.- = 800.-', 'Valeur du stock = 800 ÷ 1,5 = 533.33', 'Stock maxi = 533.33 ÷ 20 = 26.67 → 27 unités'],
+            },
+            {
+                id: 'ex2', titre: 'Exercice 2 — Réajuster après trois mois',
+                enonce: [
+                    'Prévision de vente : 20 unités/an. Prix de vente : 30.-. Rotation cible : 1,5.',
+                    'Calcul initial : CA = 600.- ; valeur du stock = 600 ÷ 1,5 = 400.- ; stock maxi = 400 ÷ 30 = 13.33 → 14 unités.',
+                    'Après trois mois, 15 unités ont déjà été vendues. Calculez le nouveau stock maxi.',
+                ],
+                hypothese: 'Hypothèse : le rythme des trois premiers mois se maintient sur l\'année (× 4).',
+                champs: [
+                    { id: 'proj', label: 'Prévision annuelle réévaluée', unite: 'unités / an', attendu: 60,   tol: 0 },
+                    { id: 'ca',   label: 'Nouveau chiffre d\'affaires', unite: 'CHF',         attendu: 1800, tol: 0.5 },
+                    { id: 'val',  label: 'Nouvelle valeur du stock',    unite: 'CHF',         attendu: 1200, tol: 0.5 },
+                    { id: 'maxi', label: 'Nouveau stock maxi',          unite: 'unités',      attendu: 40,   tol: 0 },
+                ],
+                corrige: ['Prévision réévaluée = 15 × 4 = 60 unités/an', 'CA = 60 × 30.- = 1 800.-', 'Valeur du stock = 1 800 ÷ 1,5 = 1 200.-', 'Stock maxi = 1 200 ÷ 30 = 40 unités'],
+            },
+            {
+                id: 'ex3', titre: 'Exercice 3 — Demande mensuelle et variations de ± 10 %',
+                enonce: [
+                    'Demande moyenne : 35 unités/mois, avec des variations de ± 10 % d\'une année à l\'autre. Prix de vente : 3.-. Rotation cible : 1,5.',
+                    'Calculez la demande annuelle, puis, pour −10 % et +10 % : la demande, le chiffre d\'affaires, la valeur du stock et le stock maxi.',
+                ],
+                champs: [
+                    { id: 'an',   label: 'Demande annuelle',          unite: 'unités', attendu: 420,  tol: 0 },
+                    { id: 'm10',  label: 'Demande à −10 %',           unite: 'unités', attendu: 378,  tol: 0 },
+                    { id: 'p10',  label: 'Demande à +10 %',           unite: 'unités', attendu: 462,  tol: 0 },
+                    { id: 'cam',  label: 'CA à −10 %',                unite: 'CHF',    attendu: 1134, tol: 0.5 },
+                    { id: 'cap',  label: 'CA à +10 %',                unite: 'CHF',    attendu: 1386, tol: 0.5 },
+                    { id: 'valm', label: 'Valeur du stock à −10 %',   unite: 'CHF',    attendu: 756,  tol: 0.5 },
+                    { id: 'valp', label: 'Valeur du stock à +10 %',   unite: 'CHF',    attendu: 924,  tol: 0.5 },
+                    { id: 'maxm', label: 'Stock maxi à −10 %',        unite: 'unités', attendu: 252,  tol: 0 },
+                    { id: 'maxp', label: 'Stock maxi à +10 %',        unite: 'unités', attendu: 308,  tol: 0 },
+                ],
+                corrige: [
+                    'Demande annuelle = 35 × 12 = 420 unités',
+                    'Variations : 420 × 0,9 = 378 ; 420 × 1,1 = 462',
+                    'CA : 378 × 3 = 1 134.- ; 462 × 3 = 1 386.-',
+                    'Valeur du stock : 1 134 ÷ 1,5 = 756.- ; 1 386 ÷ 1,5 = 924.-',
+                    'Stock maxi : 756 ÷ 3 = 252 ; 924 ÷ 3 = 308 unités',
+                ],
+            },
+        ];
+
+        const Exercice = ({ exo }) => {
+            const [rep, setRep] = useState({});
+            const [verifie, setVerifie] = useState(false);
+            const [corrige, setCorrige] = useState(false);
+            const lire = (c) => { const v = parseFloat(String(rep[c.id] ?? '').replace(',', '.').replace(/\s|'/g, '')); return isNaN(v) ? null : v; };
+            const juste = (c) => { const v = lire(c); return v === null ? null : Math.abs(v - c.attendu) <= c.tol + 1e-9; };
+            const score = exo.champs.filter(c => juste(c) === true).length;
+            const total = exo.champs.length;
+
+            return (
+                <div className="carte carte--noir">
+                    <div className="carte__titre">
+                        <h2><GraduationCap size={16} /> {exo.titre}</h2>
+                        {verifie && <span className={`exo__score ${score === total ? 'ok' : (score > 0 ? 'or-fonce' : 'erreur')}`}>{score} / {total}</span>}
+                    </div>
+                    <div className="exo__enonce">
+                        {exo.enonce.map((l, i) => <p key={i} style={{ marginBottom: i === exo.enonce.length - 1 ? 0 : 4 }}>{l}</p>)}
+                        {exo.hypothese && <p className="petit italique" style={{ margin: '6px 0 0' }}>{exo.hypothese}</p>}
+                    </div>
+                    <div className="grille grille--3" style={{ marginTop: 14 }}>
+                        {exo.champs.map(c => {
+                            const j = verifie ? juste(c) : null;
+                            return (
+                                <div className="exo__champ" key={c.id}>
+                                    <label className="lib" htmlFor={`${exo.id}-${c.id}`}>{c.label}</label>
+                                    <input id={`${exo.id}-${c.id}`} type="text" inputMode="decimal" className={`champ champ--centre ${j === true ? 'champ--ok' : (j === false ? 'champ--erreur' : '')}`}
+                                           value={rep[c.id] ?? ''} placeholder="…"
+                                           onChange={e => { setRep({ ...rep, [c.id]: e.target.value }); setVerifie(false); }} />
+                                    <span className="exo__unite">{c.unite}{j === false && corrige ? <b className="erreur"> — attendu : {fmt(c.attendu, 2)}</b> : null}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="ligne no-print" style={{ marginTop: 14 }}>
+                        <button className="ehg-btn ehg-btn--or" onClick={() => setVerifie(true)}><Check size={14} /> Vérifier mes réponses</button>
+                        <button className="ehg-btn ehg-btn--secondaire" onClick={() => setCorrige(!corrige)}>{corrige ? 'Masquer la correction' : 'Afficher la correction'}</button>
+                        <span className="espace" />
+                        <button className="ehg-btn ehg-btn--secondaire ehg-btn--petit" onClick={() => { setRep({}); setVerifie(false); setCorrige(false); }}><RotateCcw size={13} /> Effacer</button>
+                    </div>
+                    {verifie && score === total && <div className="encadre encadre--ok" style={{ marginTop: 12 }}><b>Exercice réussi.</b> Le raisonnement en trois temps (CA → valeur du stock → nombre de pièces) est maîtrisé.</div>}
+                    {corrige && (
+                        <div className="corrige" style={{ marginTop: 12 }}>
+                            <b>Correction</b>
+                            <ol>{exo.corrige.map((l, i) => <li key={i}>{l}</li>)}</ol>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const PageExercices = ({ aller }) => (
+            <div className="contenu__int anim-fade">
+                <p className="intro">
+                    <b>Méthode.</b> Toujours le même enchaînement : <b>chiffre d'affaires</b> (prévision × prix) → <b>valeur du stock</b> (CA ÷ rotation cible) → <b>stock maxi</b> (valeur ÷ prix, arrondi à l'unité supérieure).
+                    Vous pouvez contrôler vos calculs avec les <button className="btn-lien" onClick={() => aller('calc')}>calculateurs</button>. Les décimales s'écrivent avec un point ou une virgule.
+                </p>
+                {EXERCICES.map(exo => <Exercice key={exo.id} exo={exo} />)}
+                <div className="encadre encadre--info">
+                    <div className="encadre__titre"><Lightbulb size={14} /> Rappel du cours</div>
+                    Les données des exercices reposent sur des hypothèses : dans la réalité, on surveille la demande réelle et les niveaux de stock (inventaires) pour vérifier qu'ils restent adaptés aux besoins de l'entreprise.
+                    Un taux de rotation élevé signifie que le stock s'écoule vite ; un taux faible signale un surplus de stock ou un problème de vente.
+                </div>
+            </div>
+        );
+
+        // ============================================================
+        // PAGE 5 — REPÈRES DU COURS
+        // ============================================================
+        const LOTS = [{ id: 'A', date: 'janvier' }, { id: 'B', date: 'mars' }, { id: 'C', date: 'mai' }, { id: 'D', date: 'juillet' }];
+        const DemoFifoLifo = () => {
+            const [mode, setMode] = useState('FIFO');
+            const [lots, setLots] = useState(LOTS);
+            const [journal, setJournal] = useState([]);
+            const prochain = lots.length ? (mode === 'FIFO' ? lots[0] : lots[lots.length - 1]) : null;
+            const prelever = () => {
+                if (!prochain) return;
+                setLots(mode === 'FIFO' ? lots.slice(1) : lots.slice(0, -1));
+                setJournal(j => [...j, `${mode} : on prélève le lot ${prochain.id}, reçu en ${prochain.date}`]);
+            };
+            const reinit = () => { setLots(LOTS); setJournal([]); };
+            return (
+                <div>
+                    <div className="ligne" style={{ marginBottom: 10 }}>
+                        <div className="segment">
+                            {['FIFO', 'LIFO'].map(x => <button key={x} className={mode === x ? 'actif' : ''} onClick={() => setMode(x)}>{x}</button>)}
+                        </div>
+                        <button className="ehg-btn ehg-btn--or ehg-btn--petit" onClick={prelever} disabled={!prochain}><MinusCircle size={12} /> Prélever une pièce</button>
+                        <button className="ehg-btn ehg-btn--secondaire ehg-btn--petit" onClick={reinit}><RotateCcw size={12} /> Remettre les 4 lots</button>
+                    </div>
+                    <div className="rayon">
+                        <span className="rayon__bord">Fond · anciens</span>
+                        {lots.length === 0 && <span className="petit acier" style={{ flex: 1, textAlign: 'center' }}>Casier vide — remettez les lots.</span>}
+                        {lots.map(l => (
+                            <div key={l.id} className={`lot ${prochain && prochain.id === l.id ? 'prochain' : ''}`}>
+                                <div className="lot__id">{l.id}</div>
+                                <div className="lot__date">reçu en {l.date}</div>
+                            </div>
+                        ))}
+                        <span className="rayon__bord">Avant · récents</span>
+                    </div>
+                    <p className="petit acier" style={{ margin: '8px 0 0' }}>
+                        {prochain ? <>Prochain prélèvement en <b>{mode}</b> : le lot <b>{prochain.id}</b> (reçu en {prochain.date}), surligné en or.</> : 'Tous les lots ont été prélevés.'}
+                        {journal.length > 0 && <> — {journal[journal.length - 1]}.</>}
+                    </p>
+                </div>
+            );
+        };
+
+        const PageCours = ({ aller }) => (
+            <div className="contenu__int anim-fade">
+                <p className="intro">
+                    <b>Objectif 5.6.6 — explique la gestion efficace d'un stock et de son flux.</b> Ce que vous devez savoir décrire : le rôle des stocks, les genres de stock,
+                    le graphique de gestion (maxi, mini, sécurité, transit, point de commande, délai), les principes FIFO / LIFO et les méthodes d'inventaire.
+                </p>
+
+                <div className="grille grille--2">
+                    <div className="carte carte--noir">
+                        <div className="carte__titre"><h2><Package size={16} /> Le rôle des stocks</h2></div>
+                        <p>Le stock d'un article, c'est la quantité maintenue en magasin à un moment donné, en prévision des demandes des utilisateurs. Il conditionne la capacité de l'entreprise à <b>tenir ses promesses</b> : délais et fiabilité.</p>
+                        <p>Il faut viser le <b>juste niveau de stock</b> : l'équilibre entre un service client fiable et un coût maîtrisé.</p>
+                        <div className="grille grille--2" style={{ gap: 10 }}>
+                            <div className="encadre encadre--erreur"><div className="encadre__titre">Trop peu</div>Ruptures, retards, clients insatisfaits, surcharge du CS (réclamations, replanifications, gestes commerciaux).</div>
+                            <div className="encadre encadre--info"><div className="encadre__titre">Trop</div>Argent immobilisé, coûts de stockage et de manutention, risque d'obsolescence.</div>
+                        </div>
+                        <div className="citation">« Avoir la pièce qu'il faut au bon moment ou pouvoir la faire fabriquer rapidement en quantité limitée, le tout à moindre coût. »</div>
+                        <p className="petit graphite" style={{ margin: 0 }}>Stocker ou non une pièce est un <b>choix stratégique</b> : la garantie de disponibilité des pièces de rechange est une promesse faite au client, et cette promesse a un coût.</p>
+                    </div>
+
+                    <div className="carte">
+                        <div className="carte__titre"><h2><Truck size={16} /> Garantie de disponibilité des pièces</h2></div>
+                        <p className="petit graphite">Durées communément pratiquées dans l'industrie horlogère, selon la gamme.</p>
+                        <table className="ehg-tableau ehg-tableau--compact">
+                            <thead><tr><th>Gamme</th><th className="td-r">Durée</th></tr></thead>
+                            <tbody>
+                                {[['Prestige', 'À vie'], ['Haut de gamme et luxe', '15 ans'], ['Moyenne gamme', '10 ans'], ['Mode', '5 ans'], ['Bas de gamme', '2 ans']].map(([g, d]) => (
+                                    <tr key={g}><td>{g}</td><td className="td-r serif" style={{ fontSize: 16 }}>{d}</td></tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        <p className="petit acier" style={{ margin: '10px 0 0' }}>Plus la garantie est longue, plus le stock de pièces anciennes (sans réapprovisionnement) pèse dans le capital immobilisé.</p>
+                    </div>
+                </div>
+
+                <div className="carte">
+                    <div className="carte__titre"><h2><Layers size={16} /> Les genres de stock</h2></div>
+                    <p className="petit graphite">Le stock peut être divisé en plusieurs magasins selon la destination, l'utilisation, la valeur ou d'autres critères.</p>
+                    <div className="grille grille--3" style={{ gap: 10 }}>
+                        {[
+                            ['Stock en transfert', 'Situation provisoire d\'éléments pas encore classés.'],
+                            ['Stock en cours de fabrication', 'Pièces en production, pas encore disponibles.'],
+                            ['Stock de travail', 'Pièces à disposition immédiate de l\'atelier.'],
+                            ['Stock de pièces ébauchées', 'Finition à la demande selon le besoin.'],
+                            ['Stock de réparations en attente', 'Pièces réservées pour une réparation en attente d\'acceptation du devis.'],
+                            ['Stock de pièces anciennes', 'Références sans réapprovisionnement possible : à gérer avec soin.'],
+                        ].map(([t, d]) => (
+                            <div key={t} className="encadre encadre--info"><div className="encadre__titre">{t}</div>{d}</div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="carte carte--or">
+                    <div className="carte__titre">
+                        <h2><TrendingUp size={16} /> Le graphique de gestion des stocks</h2>
+                        <button className="btn-lien no-print" onClick={() => aller('calc')}>Le manipuler dans les calculateurs →</button>
+                    </div>
+                    <p className="carte__aide">Exemple du cours : prévision 30 pièces/an, prix 2.-, rotation cible 1,5 → stock maxi 20 ; consommation 2,5 pièces/mois, délai 1 mois, sécurité 3 → stock mini 6.</p>
+                    <GraphiqueGestion maxi={20} mini={6} securite={3} conso={2.5} delai={1} />
+                    <LegendeGraphique />
+                    <dl className="def" style={{ marginTop: 16 }}>
+                        <dt>Stock maxi</dt><dd>Limite haute, calculée pour atteindre le taux de rotation visé (1 à 1,5 au SAV). Niveau retrouvé après chaque livraison.</dd>
+                        <dt>Stock mini · point de commande</dt><dd>Niveau qui déclenche la commande. Il couvre la consommation pendant le délai, plus la sécurité.</dd>
+                        <dt>Stock de sécurité</dt><dd>Marge conservée pour absorber un retard fournisseur ou un pic de demande. Elle ne doit être entamée qu'en cas d'imprévu.</dd>
+                        <dt>Stock en transit</dt><dd>Quantité commandée mais pas encore reçue. Indisponible à l'atelier, mais à prendre en compte : inutile de recommander si une commande est déjà en cours.</dd>
+                        <dt>Délai d'approvisionnement</dt><dd>Temps entre la commande et la livraison. Pendant ce délai, le stock continue de baisser au rythme de la consommation.</dd>
+                        <dt>Cycle</dt><dd>Livraison → descente régulière → point de commande → délai → livraison. Le tracé en dents de scie se répète tant que la consommation est stable.</dd>
+                    </dl>
+                </div>
+
+                <div className="carte">
+                    <div className="carte__titre"><h2><Boxes size={16} /> Principes de stockage FIFO et LIFO</h2></div>
+                    <div className="grille grille--2" style={{ marginBottom: 14 }}>
+                        <div className="encadre encadre--ok">
+                            <div className="encadre__titre">FIFO — premier entré, premier sorti</div>
+                            On prélève d'abord les pièces reçues le plus tôt. C'est le principe à privilégier pour tout ce qui vieillit : joints, huiles et graisses, piles, adhésifs, pièces à date limite. Il évite les stocks dormants et l'obsolescence.
+                        </div>
+                        <div className="encadre encadre--info">
+                            <div className="encadre__titre">LIFO — dernier entré, premier sorti</div>
+                            On prélève d'abord les pièces reçues le plus récemment, souvent parce qu'elles sont les plus accessibles. Acceptable seulement pour des pièces qui ne vieillissent pas et ne changent pas (visserie, pièces métalliques standard) ; sinon les lots anciens restent au fond et finissent périmés.
+                        </div>
+                    </div>
+                    <DemoFifoLifo />
+                    <p className="petit graphite" style={{ margin: '12px 0 0' }}>En pratique : casiers chargés par l'arrière et prélevés par l'avant, date de réception sur chaque lot, étiquette de lot conservée jusqu'à la pose.</p>
+                </div>
+
+                <div className="grille grille--2">
+                    <div className="carte carte--noir">
+                        <div className="carte__titre"><h2><ClipboardList size={16} /> Contrôle et inventaire</h2></div>
+                        <div className="pile" style={{ gap: 8 }}>
+                            <div className="encadre encadre--info"><div className="encadre__titre">Inventaire physique</div>Comptage complet de toutes les références à une date donnée, comparaison avec le stock théorique, correction des écarts. Le cours le prévoit <b>tous les six mois</b> si le département ne pratique pas l'inventaire tournant.</div>
+                            <div className="encadre encadre--info"><div className="encadre__titre">Inventaire tournant</div>Chaque semaine ou chaque mois, on compte une partie du stock à tour de rôle, sans arrêter l'activité ; sur l'année, tout le stock a été passé en revue. Priorité aux références de valeur ou à forte rotation.</div>
+                            <div className="encadre encadre--info"><div className="encadre__titre">Contrôles ponctuels</div>Vérification ciblée d'une référence, déclenchée par un écart (stock négatif, rupture inattendue), une réception ou un doute : on compte, on compare, on corrige et on cherche la cause.</div>
+                        </div>
+                        <ul style={{ marginTop: 12, fontSize: 13.5 }}>
+                            <li>Le stock est géré avec une <b>rigueur absolue</b>, à travers un système performant.</li>
+                            <li>Les pièces stockées sont <b>contrôlées et conformes</b>.</li>
+                            <li>Elles sont rangées pour être <b>identifiées et prélevées rapidement</b>.</li>
+                        </ul>
+                        <div className="citation" style={{ marginBottom: 0 }}>« Des stocks bien gérés immobilisent un minimum de capitaux et ne sont jamais en situation de rupture. »</div>
+                    </div>
+
+                    <div className="carte">
+                        <div className="carte__titre"><h2><BookOpen size={16} /> Vocabulaire</h2></div>
+                        <dl className="def">
+                            <dt>Niveau de stock</dt><dd>Quantité réellement disponible d'une référence à un moment donné (en pièces).</dd>
+                            <dt>Taux de rotation</dt><dd>Nombre de fois où le stock se renouvelle sur une période (souvent un an) : CA réalisé ÷ valeur moyenne du stock.</dd>
+                            <dt>Stock dormant</dt><dd>Stock qui tourne lentement et reste longtemps immobilisé.</dd>
+                            <dt>Rupture</dt><dd>Stock à zéro : la pièce demandée ne peut pas être servie.</dd>
+                            <dt>Surstock</dt><dd>Niveau supérieur au stock maxi : capital immobilisé au-delà du nécessaire.</dd>
+                            <dt>Réapprovisionnement</dt><dd>Commande passée au fournisseur pour remettre l'article à son niveau maxi.</dd>
+                            <dt>Pièces anciennes</dt><dd>Références qui ne sont plus réapprovisionnées : chaque pièce sortie est irremplaçable.</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // ============================================================
+        // STRUCTURE — entête, pied, application
+        // ============================================================
+        const Entete = ({ page, ouvrir }) => {
+            const p = PAGES.find(x => x.id === page) || PAGES[0];
+            return (
+                <header className="entete">
+                    <div className="entete__gauche">
+                        <button className="btn-ico btn-menu" onClick={ouvrir} aria-label="Ouvrir le menu"><Menu size={18} /></button>
+                        <div style={{ minWidth: 0 }}>
+                            <div className="entete__sur">{p.sur}</div>
+                            <h1>{p.titre}</h1>
+                        </div>
+                    </div>
+                    <div className="entete__actions">
+                        <button className="btn-ico" title="Imprimer cette page" aria-label="Imprimer" onClick={() => window.print()}><Printer size={17} /></button>
+                    </div>
+                </header>
+            );
+        };
+
+        const App = ({ pageInitiale = 'stock' }) => {
+            const [page, setPage] = useState(pageInitiale);
+            const [ouvert, setOuvert] = useState(false);
+            const [inventaire, setInventaire] = useState(INVENTAIRE_INITIAL);
+            const aller = (id) => { setPage(id); setOuvert(false); };
+
+            const rendu = () => {
+                switch (page) {
+                    case 'calc':  return <PageCalculateurs key="calc" />;
+                    case 'sim':   return <PageSimulation key="sim" inventaire={inventaire} />;
+                    case 'exos':  return <PageExercices key="exos" aller={aller} />;
+                    case 'cours': return <PageCours key="cours" aller={aller} />;
+                    default:      return <PageStock key="stock" inventaire={inventaire} setInventaire={setInventaire} aller={aller} />;
+                }
+            };
+
+            return (
+                <div className="app">
+                    <Sidebar page={page} setPage={setPage} ouvert={ouvert} fermer={() => setOuvert(false)} />
+                    <div className="main">
+                        <Entete page={page} ouvrir={() => setOuvert(true)} />
+                        <div className="contenu">{rendu()}</div>
+                        <footer className="pied">
+                            <span>École d'Horlogerie de Genève — CPH_HO_02 · CS : de l'accueil à la livraison</span>
+                            <span>Objectif évaluateur 5.6.6 — gestion d'un stock et de son flux · Application v4</span>
+                        </footer>
+                    </div>
+                </div>
+            );
+        };
+
+        createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
