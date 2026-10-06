@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=Playfair+Display:wght@400&display=swap">
 <!--
   Gestion SAV — Watch Repair Plus (entreprise fictive) · École d'Horlogerie de Genève, CPH-HO-02
-  Version 2.3 — octobre 2026 · fichier autonome : React 18 et html2canvas intégrés, aucune dépendance en ligne
+  Version 2.4 — octobre 2026 · fichier autonome : React 18 et html2canvas intégrés, aucune dépendance en ligne
   hormis les polices Google (polices de repli prévues).
   Les trois blocs JSON ci-dessous peuvent être modifiés sans toucher au code :
     - config-entreprise : coordonnées fictives, taux de TVA, taux horaire, durées de garantie ;
@@ -662,6 +662,14 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
   a{color:inherit;text-decoration:none}
 }
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+/* v2.4 — fichiers : un dossier (ouvrir / enregistrer) et groupe de dossiers (importer / exporter) */
+.btn-mini--accent{border-color:var(--texte);color:var(--texte);font-weight:600}
+.btn-mini--accent:hover{background:var(--inverse-fond);color:var(--inverse-texte);border-color:var(--inverse-fond)}
+.tdb-actions{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;align-items:center}
+.tdb-actions .actions+.actions{padding-left:1.2rem;border-left:1px solid var(--trait)}
+.liste-fichiers{padding-left:1.1rem;margin-top:0}
+.dialogue__corps{overflow-wrap:anywhere}
+@media (max-width:47.99rem){.tdb-actions .actions+.actions{padding-left:0;border-left:0}}
 
 </style>
 <script type="application/json" id="config-entreprise">
@@ -8977,6 +8985,7 @@ Error generating stack: `+u.message+`
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "m7 10 5 5 5-5" }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M12 15V3" })
     ] }),
+    ouvrir: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2" }),
     importer: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "m17 8-5-5-5 5" }),
@@ -9069,10 +9078,11 @@ Error generating stack: `+u.message+`
   var LIB_STATUT_OP = Object.fromEntries(STATUTS_OPERATION.map(([k, l]) => [k, l]));
   var LIB_VOIE = Object.fromEntries(VOIES);
   var rangStatut = (d) => (STATUTS[d.statut] || STATUTS.nouveau).rang;
-  function nomFichierMarkdown(d) {
+  function nomFichierDossier(d, ext) {
     const nom = String(d.client.nom || "client").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
-    return `${d.id}_${nom || "client"}.md`;
+    return `${d.id}_${nom || "client"}.${ext}`;
   }
+  var nomFichierMarkdown = (d) => nomFichierDossier(d, "md");
   function dossierEnMarkdown(d, ent, version = "") {
     const L = [];
     const texte = (x) => String(x != null ? x : "").trim();
@@ -9437,6 +9447,24 @@ Error generating stack: `+u.message+`
       }
       if (!ouvert && d.open) d.close();
     }, [ouvert]);
+    const refCorps = (0, import_react2.useRef)(null);
+    (0, import_react2.useEffect)(() => {
+      const c = refCorps.current;
+      if (!c) return void 0;
+      const maj = () => {
+        if (c.scrollHeight > c.clientHeight + 1 || c.scrollWidth > c.clientWidth + 1) c.setAttribute("tabindex", "0");
+        else c.removeAttribute("tabindex");
+      };
+      maj();
+      const ro = typeof ResizeObserver === "function" ? new ResizeObserver(maj) : null;
+      if (ro) {
+        ro.observe(c);
+        [...c.children].forEach((x) => ro.observe(x));
+      }
+      return () => {
+        if (ro) ro.disconnect();
+      };
+    }, [ouvert, children]);
     (0, import_react2.useEffect)(() => {
       const d = ref.current;
       if (!d) return void 0;
@@ -9461,7 +9489,7 @@ Error generating stack: `+u.message+`
             /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h2", { id: idT, children: titre }),
             /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(BoutonIcone, { icone: "x", label: "Fermer", onClick: onFermer })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "dialogue__corps", children }),
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { ref: refCorps, className: "dialogue__corps", role: "region", "aria-labelledby": idT, children }),
           pied && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "dialogue__pied", children: pied })
         ] })
       }
@@ -9730,7 +9758,7 @@ Error generating stack: `+u.message+`
   var import_react3 = __toESM(require_react(), 1);
   var import_jsx_runtime3 = __toESM(require_jsx_runtime(), 1);
   var sansAccents = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-  function TableauDeBord({ dossiers, auj, ouvrir, creer, supprimer, importer, exporterTout, ent }) {
+  function TableauDeBord({ dossiers, auj, ouvrir, creer, supprimer, importer, exporter, ouvrirFichier, ent }) {
     const [q, setQ] = (0, import_react3.useState)("");
     const [filtre, setFiltre] = (0, import_react3.useState)("ouverts");
     const [tri, setTri] = (0, import_react3.useState)("depot");
@@ -9781,15 +9809,20 @@ Error generating stack: `+u.message+`
             " au total"
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "actions", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("input", { ref: refImport, type: "file", accept: ".json,application/json", hidden: true, onChange: (e) => {
-            const f = e.target.files[0];
-            e.target.value = "";
-            if (f) importer(f);
-          } }),
-          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Bouton, { variante: "sec", icone: "importer", onClick: () => refImport.current.click(), children: "Importer" }),
-          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Bouton, { variante: "sec", icone: "telecharger", onClick: exporterTout, children: "Exporter tout" }),
-          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Bouton, { icone: "plus", onClick: creer, children: "Nouveau dossier" })
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "tdb-actions", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "actions", role: "group", "aria-label": "Groupe de dossiers", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("input", { ref: refImport, type: "file", accept: ".json,application/json", multiple: true, hidden: true, onChange: (e) => {
+              const f = [...e.target.files];
+              e.target.value = "";
+              if (f.length) importer(f);
+            } }),
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Bouton, { variante: "sec", icone: "importer", onClick: () => refImport.current.click(), title: "Un ou plusieurs fichiers .json : dossiers enregistrés ou exports de groupe", children: "Importer des dossiers" }),
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Bouton, { variante: "sec", icone: "telecharger", onClick: () => exporter(liste.map((d) => d.id)), title: "Enregistrer plusieurs dossiers dans un seul fichier .json", children: "Exporter des dossiers" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "actions", role: "group", "aria-label": "Un dossier", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Bouton, { variante: "sec", icone: "ouvrir", onClick: ouvrirFichier, title: "Ouvrir un dossier enregistré (fichier .json)", children: "Ouvrir un dossier" }),
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Bouton, { icone: "plus", onClick: creer, children: "Nouveau dossier" })
+          ] })
         ] })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "kpis", children: [
@@ -10247,11 +10280,11 @@ Error generating stack: `+u.message+`
       if (etat === "fait") texte = /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_jsx_runtime5.Fragment, { children: [
         "Étape validée",
         dateValidation ? ` le ${dateValidation}` : "",
-        ". Les modifications sont enregistrées automatiquement."
+        ". Les modifications sont sauvegardées automatiquement."
       ] });
       else if (etat === "a_venir") texte = "Validez d’abord les étapes précédentes.";
       else if (etat === "sans_objet") texte = "Étape sans objet pour ce dossier.";
-      else texte = "Les saisies sont enregistrées automatiquement sur cet appareil.";
+      else texte = "Les saisies sont sauvegardées automatiquement sur cet appareil.";
     }
     return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(BarreActions, { info: texte, children: [
       children,
@@ -11649,7 +11682,7 @@ Error generating stack: `+u.message+`
 
   // src/app.jsx
   var import_jsx_runtime13 = __toESM(require_jsx_runtime(), 1);
-  var VERSION = "2.3 — octobre 2026";
+  var VERSION = "2.4 — octobre 2026";
   function lireJSON(id) {
     const el = document.getElementById(id);
     if (!el) return { valeur: null, erreur: `Bloc « ${id} » absent du fichier.` };
@@ -11922,34 +11955,130 @@ Error generating stack: `+u.message+`
       if (route.id === id) aller(null);
       toast(`Dossier ${id} supprimé.`, { action: { libelle: "Annuler", fn: () => setDossiers((ds) => ds.some((x) => x.id === id) ? ds : [...ds.slice(0, i), d, ...ds.slice(i)]) } });
     }, [dossiers, confirmer, route.id, aller, toast]);
-    const exporterTout = (0, import_react13.useCallback)(() => {
-      telecharger(`dossiers-SAV-${auj}.json`, JSON.stringify({ application: "Gestion SAV — EHG", version: 2, exporteLe: maintenantISO(), dossiers }, null, 1));
-      toast(`${dossiers.length} dossier(s) exporté(s).`);
-    }, [dossiers, auj, toast]);
-    const exporterDossier = (0, import_react13.useCallback)(() => {
-      telecharger(`${courant.id}.json`, JSON.stringify(courant, null, 1));
-      toast(`Dossier ${courant.id} enregistré au format JSON.`);
+    const refOuvrir = (0, import_react13.useRef)(null);
+    const choisirFichierDossier = (0, import_react13.useCallback)(() => {
+      if (refOuvrir.current) refOuvrir.current.click();
+    }, []);
+    const exporterGroupe = (0, import_react13.useCallback)((liste) => {
+      if (!liste.length) {
+        toast("Aucun dossier à exporter.", { erreur: true });
+        return;
+      }
+      const n = liste.length;
+      telecharger(`Dossiers-SAV_${auj}_${n}-dossier${n > 1 ? "s" : ""}.json`, JSON.stringify({ application: "Gestion SAV — EHG", version: 2, exporteLe: maintenantISO(), dossiers: liste }, null, 1));
+      toast(`${n} dossier${n > 1 ? "s" : ""} exporté${n > 1 ? "s" : ""} dans un seul fichier.`);
+    }, [auj, toast]);
+    const exporterTout = (0, import_react13.useCallback)(() => exporterGroupe(dossiers), [dossiers, exporterGroupe]);
+    const demanderExport = (0, import_react13.useCallback)((ids) => {
+      setDlg({ type: "export", ids, choix: ids.length && ids.length < dossiers.length ? "affiches" : "tous" });
+    }, [dossiers]);
+    const appliquerExport = () => {
+      const { ids, choix } = dlg;
+      exporterGroupe(choix === "affiches" ? dossiers.filter((d) => ids.includes(d.id)) : dossiers);
+      setDlg(null);
+    };
+    const enregistrerDossier = (0, import_react13.useCallback)(() => {
+      const nom = nomFichierDossier(courant, "json");
+      telecharger(nom, JSON.stringify(courant, null, 1));
+      toast(`Dossier ${courant.id} enregistré : ${nom}`);
     }, [courant, toast]);
     const exporterMarkdown = (0, import_react13.useCallback)(() => {
       telecharger(nomFichierMarkdown(courant), dossierEnMarkdown(courant, ENT, VERSION), "text/markdown;charset=utf-8");
       toast(`Dossier ${courant.id} enregistré au format Markdown.`);
     }, [courant, toast]);
-    const importer = (0, import_react13.useCallback)(async (fichier) => {
-      try {
-        const nouveaux = importerDossiers(JSON.parse(await lireFichierTexte(fichier)));
-        if (!nouveaux.length) throw new Error("Aucun dossier trouvé.");
-        setDlg({ type: "import", nouveaux, nom: fichier.name });
-      } catch (e) {
-        toast(`Import impossible : ${e.message}`, { erreur: true, duree: 7e3 });
+    const lireLots = async (fichiers) => {
+      const lots = [];
+      for (const f of fichiers) {
+        try {
+          lots.push({ nom: f.name, dossiers: importerDossiers(JSON.parse(await lireFichierTexte(f))) });
+        } catch (e) {
+          lots.push({ nom: f.name, dossiers: [], erreur: e instanceof SyntaxError ? "fichier illisible" : e.message.replace(/\.$/, "") });
+        }
       }
-    }, [toast]);
-    const appliquerImport = (mode) => {
-      const { nouveaux } = dlg;
-      if (mode === "remplacer") setDossiers(nouveaux);
-      else setDossiers((ds) => [...nouveaux, ...ds.filter((d) => !nouveaux.some((n) => n.id === d.id))]);
+      return lots;
+    };
+    const bilanImport = (lots) => {
+      const ici = new Set(dossiers.map((d) => d.id));
+      const vus = /* @__PURE__ */ new Set();
+      let n = 0;
+      let existants = 0;
+      let internes = 0;
+      for (const l of lots) for (const d of l.dossiers) {
+        n += 1;
+        if (vus.has(d.id)) internes += 1;
+        else if (ici.has(d.id)) existants += 1;
+        vus.add(d.id);
+      }
+      return { n, existants, internes };
+    };
+    const ouvrirFichier = (0, import_react13.useCallback)(async (f) => {
+      const [lot] = await lireLots([f]);
+      if (lot.erreur || !lot.dossiers.length) {
+        toast(`Ouverture impossible : ${lot.erreur || "aucun dossier dans ce fichier"}.`, { erreur: true, duree: 7e3 });
+        return;
+      }
+      if (lot.dossiers.length > 1) {
+        const b = bilanImport([lot]);
+        setDlg({ type: "import", lots: [lot], mode: b.internes ? "copie" : "maj", depuisOuvrir: true });
+        return;
+      }
+      const d = lot.dossiers[0];
+      if (dossiers.some((x) => x.id === d.id)) {
+        setDlg({ type: "ouvrir", d, nom: f.name });
+        return;
+      }
+      poserDossier(d, f.name, "nouveau");
+    }, [dossiers, toast]);
+    const poserDossier = (d0, nomFichier, mode) => {
+      let d = d0;
+      if (mode === "copie") d = journaliser({ ...d0, id: prochainNumero(dossiers, (/* @__PURE__ */ new Date()).getFullYear()) }, `Copie du dossier ${d0.id} : nouveau numéro attribué.`);
+      d = journaliser(d, `Dossier ouvert depuis le fichier « ${nomFichier} ».`);
+      setDossiers((ds) => mode === "remplacer" ? ds.map((x) => x.id === d.id ? d : x) : [d, ...ds]);
       setDlg(null);
-      toast(`${nouveaux.length} dossier(s) importé(s).`);
-      if (nouveaux.length === 1) aller(nouveaux[0].id);
+      aller(d.id);
+      toast(mode === "copie" ? `Dossier ouvert en copie sous le numéro ${d.id}.` : `Dossier ${d.id} ouvert.`);
+    };
+    const importer = (0, import_react13.useCallback)(async (fichiers) => {
+      const lots = await lireLots(fichiers);
+      const b = bilanImport(lots);
+      if (!b.n) {
+        toast(`Import impossible : ${lots.map((l) => `${l.nom} (${l.erreur || "aucun dossier"})`).join(" ; ")}.`, { erreur: true, duree: 8e3 });
+        return;
+      }
+      setDlg({ type: "import", lots, mode: b.internes ? "copie" : "maj" });
+    }, [toast, dossiers]);
+    const appliquerImport = (toutRemplacer) => {
+      const { lots, mode } = dlg;
+      const annee = (/* @__PURE__ */ new Date()).getFullYear();
+      let restants = toutRemplacer ? [] : [...dossiers];
+      const entres = [];
+      let renumerotes = 0;
+      let misAJour = 0;
+      for (const l of lots) {
+        for (const d0 of l.dossiers) {
+          let d = journaliser(d0, `Dossier importé depuis le fichier « ${l.nom} ».`);
+          const iEntre = entres.findIndex((x) => x.id === d.id);
+          const iIci = restants.findIndex((x) => x.id === d.id);
+          if ((iEntre >= 0 || iIci >= 0) && mode === "copie") {
+            const origine = d.id;
+            d = journaliser({ ...d, id: prochainNumero([...entres, ...restants], annee) }, `Nouveau numéro attribué à l’import (numéro d’origine : ${origine}).`);
+            renumerotes += 1;
+            entres.push(d);
+          } else if (iEntre >= 0) {
+            entres[iEntre] = d;
+            misAJour += 1;
+          } else if (iIci >= 0) {
+            restants = restants.filter((x) => x.id !== d.id);
+            entres.push(d);
+            misAJour += 1;
+          } else entres.push(d);
+        }
+      }
+      setDossiers([...entres, ...restants]);
+      setDlg(null);
+      const n = entres.length;
+      toast(`${n} dossier${n > 1 ? "s" : ""} importé${n > 1 ? "s" : ""}${renumerotes ? ` · ${renumerotes} avec un nouveau numéro` : ""}${misAJour ? ` · ${misAJour} mis à jour` : ""}.`);
+      if (n === 1) aller(entres[0].id);
     };
     const rouvrir = () => {
       const e = etapeRouvrir;
@@ -12015,7 +12144,7 @@ Error generating stack: `+u.message+`
       })()
     };
     let page;
-    if (!courant) page = /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(TableauDeBord, { dossiers, auj, ouvrir: (id) => aller(id), creer, supprimer, importer, exporterTout, ent: ENT });
+    if (!courant) page = /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(TableauDeBord, { dossiers, auj, ouvrir: (id) => aller(id), creer, supprimer, importer, exporter: demanderExport, ouvrirFichier: choisirFichierDossier, ent: ENT });
     else if (vue === "accueil") page = /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(PageAccueil, { ...props });
     else if (vue === "reception") page = /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(PageReception, { ...props });
     else if (vue === "diagnostic") page = /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(PageDiagnostic, { ...props });
@@ -12054,17 +12183,26 @@ Error generating stack: `+u.message+`
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: "btn-rond", onClick: () => suiv && aller(suiv.id, route.etape || void 0), disabled: !suiv, "aria-label": suiv ? `Dossier suivant : ${suiv.id}` : "Pas de dossier suivant", children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: "chevronD" }) })
         ] }) }),
         /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "outils", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: `enreg ${enreg}`, title: "Enregistrement automatique sur cet appareil", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: `enreg ${enreg}`, title: "Sauvegarde automatique dans ce navigateur, sur cet appareil", children: [
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("i", { "aria-hidden": "true" }),
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "enreg__txt", children: enreg === "ok" ? "Enregistré" : enreg === "erreur" ? "Non enregistré" : "Enregistrement…" })
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "enreg__txt", children: enreg === "ok" ? "Sauvegardé" : enreg === "erreur" ? "Non sauvegardé" : "Sauvegarde…" })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("a", { className: "btn-mini cache-mobile", href: "index.html", title: "Retour à l’accueil du module", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: "accueil" }),
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "cache-tablette", children: "Accueil" })
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("input", { ref: refOuvrir, type: "file", accept: ".json,application/json", hidden: true, onChange: (e) => {
+            const f = e.target.files[0];
+            e.target.value = "";
+            if (f) ouvrirFichier(f);
+          } }),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("button", { type: "button", className: courant ? "btn-mini cache-mobile" : "btn-mini", onClick: choisirFichierDossier, "aria-label": "Ouvrir un dossier (fichier .json)", title: "Ouvrir un dossier enregistré (fichier .json)", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: "ouvrir" }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "cache-tablette", children: "Ouvrir un dossier" })
+          ] }),
+          courant && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("button", { type: "button", className: "btn-mini btn-mini--accent", onClick: enregistrerDossier, "aria-label": `Enregistrer le dossier ${courant.id} (fichier .json)`, title: "Enregistrer ce dossier dans un fichier .json, à rouvrir avec « Ouvrir un dossier »", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: "sauver" }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "cache-tablette", children: "Enregistrer le dossier" })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: "btn-mini cache-mobile", onClick: capture, "aria-label": "Capture d’écran de la page (image PNG)", title: "Capture d’écran de la page", children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: "capture" }) }),
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: "btn-mini btn-mini--aa", "aria-pressed": prefs.lisible, onClick: () => setPrefs({ ...prefs, lisible: !prefs.lisible }), title: "Mode lisibilité : texte plus grand et plus espacé", children: "Aa" }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: "btn-mini", onClick: () => setPrefs({ ...prefs, theme: themeSuivant }), "aria-label": `Thème ${libTheme[prefs.theme]} (changer pour ${libTheme[themeSuivant]})`, title: `Thème : ${libTheme[prefs.theme]}`, children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: prefs.theme === "dark" ? "lune" : prefs.theme === "light" ? "soleil" : "contraste" }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: courant ? "btn-mini cache-mobile" : "btn-mini", onClick: () => setPrefs({ ...prefs, theme: themeSuivant }), "aria-label": `Thème ${libTheme[prefs.theme]} (changer pour ${libTheme[themeSuivant]})`, title: `Thème : ${libTheme[prefs.theme]}`, children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: prefs.theme === "dark" ? "lune" : prefs.theme === "light" ? "soleil" : "contraste" }) }),
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: "btn-mini", onClick: () => setDlg("reglages"), "aria-haspopup": "dialog", "aria-label": "Réglages, données et informations", children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: "reglages" }) })
         ] })
       ] }) }),
@@ -12119,8 +12257,8 @@ Error generating stack: `+u.message+`
                   courant.journal.length,
                   ")"
                 ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { petit: true, variante: "discret", icone: "sauver", onClick: enregistrerDossier, title: "Fichier à rouvrir avec « Ouvrir un dossier » (photos et signature comprises)", children: "Enregistrer le dossier (.json)" }),
                 /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { petit: true, variante: "discret", icone: "rapport", onClick: exporterMarkdown, title: "Fichier texte lisible, avec tous les champs du dossier", children: "Enregistrer en Markdown (.md)" }),
-                /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { petit: true, variante: "discret", icone: "sauver", onClick: exporterDossier, title: "Fichier à réimporter dans l’application (photos et signature comprises)", children: "Enregistrer en JSON (.json)" }),
                 /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { petit: true, variante: "discret", icone: "retour", onClick: () => {
                   setEtapeRouvrir("");
                   setDlg("rouvrir");
@@ -12179,29 +12317,134 @@ Error generating stack: `+u.message+`
       /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
         Dialogue,
         {
+          ouvert: dlg && dlg.type === "ouvrir",
+          onFermer: () => setDlg(null),
+          titre: "Ce dossier existe déjà",
+          pied: dlg && dlg.type === "ouvrir" && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(import_jsx_runtime13.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { variante: "sec", onClick: () => setDlg(null), children: "Annuler" }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { variante: "sec", onClick: () => poserDossier(dlg.d, dlg.nom, "copie"), children: "Ouvrir en copie" }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { onClick: () => poserDossier(dlg.d, dlg.nom, "remplacer"), children: "Remplacer et ouvrir" })
+          ] }),
+          children: dlg && dlg.type === "ouvrir" && (() => {
+            const ici = dossiers.find((x) => x.id === dlg.d.id);
+            const resume = (d) => `${d.client.nom || "client non renseigné"} · ${nomMontre(d)} · ${libelleStatut(d)}${d.journal && d.journal.length ? ` · modifié le ${fmtDateHeure(d.journal[d.journal.length - 1].d)}` : ""}`;
+            return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(import_jsx_runtime13.Fragment, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("p", { children: [
+                "Le dossier ",
+                /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("b", { children: dlg.d.id }),
+                " du fichier « ",
+                dlg.nom,
+                " » existe déjà sur cet appareil."
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("ul", { style: { paddingLeft: "1.1rem" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("li", { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("b", { children: "Sur cet appareil :" }),
+                  " ",
+                  ici ? resume(ici) : "—"
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("li", { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("b", { children: "Dans le fichier :" }),
+                  " ",
+                  resume(dlg.d)
+                ] })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "note", children: "« Remplacer et ouvrir » remplace le dossier de cet appareil par celui du fichier. « Ouvrir en copie » garde les deux : le dossier du fichier reçoit un nouveau numéro." })
+            ] });
+          })()
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
+        Dialogue,
+        {
           ouvert: dlg && dlg.type === "import",
           onFermer: () => setDlg(null),
           titre: "Importer des dossiers",
+          large: true,
           pied: dlg && dlg.type === "import" && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(import_jsx_runtime13.Fragment, { children: [
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { variante: "sec", onClick: () => setDlg(null), children: "Annuler" }),
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { variante: "danger", onClick: () => appliquerImport("remplacer"), children: "Remplacer tous les dossiers" }),
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { onClick: () => appliquerImport("fusion"), children: "Ajouter / mettre à jour" })
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { variante: "danger", onClick: () => appliquerImport(true), children: "Remplacer tous les dossiers" }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { onClick: () => appliquerImport(false), children: "Importer" })
           ] }),
-          children: dlg && dlg.type === "import" && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(import_jsx_runtime13.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("p", { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("b", { children: dlg.nouveaux.length }),
-              " dossier(s) trouvé(s) dans « ",
-              dlg.nom,
-              " »."
-            ] }),
-            (() => {
-              const c = dlg.nouveaux.filter((n) => dossiers.some((d) => d.id === n.id)).length;
-              return c ? /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(Encadre, { ton: "or", children: [
-                c,
-                " dossier(s) portent un numéro déjà présent : « Ajouter / mettre à jour » les remplace par la version importée."
-              ] }) : null;
-            })(),
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "note", children: "Les fichiers de l’ancienne version de l’application sont convertis automatiquement." })
+          children: dlg && dlg.type === "import" && (() => {
+            const b = bilanImport(dlg.lots);
+            const conflits = b.existants + b.internes;
+            return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(import_jsx_runtime13.Fragment, { children: [
+              dlg.depuisOuvrir && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(Encadre, { ton: "or", children: [
+                "Ce fichier contient ",
+                b.n,
+                " dossiers : c’est un export de groupe. Importez-les, puis ouvrez le dossier voulu dans le tableau de bord."
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("p", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("b", { children: b.n }),
+                " dossier",
+                b.n > 1 ? "s" : "",
+                " trouvé",
+                b.n > 1 ? "s" : "",
+                " ",
+                dlg.lots.length > 1 ? /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(import_jsx_runtime13.Fragment, { children: [
+                  "dans ",
+                  /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("b", { children: dlg.lots.length }),
+                  " fichiers."
+                ] }) : /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(import_jsx_runtime13.Fragment, { children: [
+                  "dans « ",
+                  dlg.lots[0].nom,
+                  " »."
+                ] })
+              ] }),
+              dlg.lots.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("ul", { className: "note liste-fichiers", children: dlg.lots.map((l, i) => /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("li", { children: [
+                l.nom,
+                " : ",
+                l.erreur ? `ignoré (${l.erreur})` : `${l.dossiers.length} dossier${l.dossiers.length > 1 ? "s" : ""}`
+              ] }, i)) }),
+              conflits > 0 && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(import_jsx_runtime13.Fragment, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(Encadre, { ton: "or", children: [
+                  conflits,
+                  " dossier",
+                  conflits > 1 ? "s portent" : " porte",
+                  " un numéro déjà utilisé",
+                  b.internes ? " : sur cet appareil ou dans un autre fichier importé" : " sur cet appareil",
+                  ".",
+                  b.internes > 0 && " Plusieurs fichiers ont le même numéro, par exemple les dossiers de plusieurs élèves : choisissez « Garder chaque dossier »."
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
+                  Segment,
+                  {
+                    label: "Numéro déjà utilisé",
+                    obligatoire: true,
+                    valeur: dlg.mode,
+                    onChange: (v) => setDlg({ ...dlg, mode: v }),
+                    options: [["copie", "Garder chaque dossier : nouveau numéro"], ["maj", "Mettre à jour le dossier existant"]]
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "note", children: "« Remplacer tous les dossiers » efface d’abord les dossiers de cet appareil. Les fichiers de l’ancienne version de l’application sont convertis automatiquement." })
+            ] });
+          })()
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
+        Dialogue,
+        {
+          ouvert: dlg && dlg.type === "export",
+          onFermer: () => setDlg(null),
+          titre: "Exporter des dossiers",
+          pied: dlg && dlg.type === "export" && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(import_jsx_runtime13.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { variante: "sec", onClick: () => setDlg(null), children: "Annuler" }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { icone: "telecharger", onClick: appliquerExport, children: "Exporter" })
+          ] }),
+          children: dlg && dlg.type === "export" && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(import_jsx_runtime13.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { children: "Les dossiers choisis sont enregistrés dans un seul fichier .json, à importer avec « Importer des dossiers »." }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
+              Segment,
+              {
+                label: "Dossiers à exporter",
+                obligatoire: true,
+                valeur: dlg.choix,
+                onChange: (v) => setDlg({ ...dlg, choix: v }),
+                options: [["affiches", `Dossiers affichés dans la liste (${dlg.ids.length})`], ["tous", `Tous les dossiers (${dossiers.length})`]]
+              }
+            ),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "note", children: "La liste affichée dépend du filtre et de la recherche du tableau de bord." })
           ] })
         }
       ),
@@ -12216,16 +12459,26 @@ Error generating stack: `+u.message+`
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("section", { children: [
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("h3", { children: "Données" }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { children: "Les dossiers et les photos sont enregistrés automatiquement dans ce navigateur, sur cet appareil uniquement. Exportez-les pour les sauvegarder ou les transmettre." }),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { children: "Les dossiers et les photos sont sauvegardés automatiquement dans ce navigateur, sur cet appareil uniquement. Enregistrez-les dans un fichier pour les garder ou les transmettre." }),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("ul", { style: { paddingLeft: "1.1rem" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("li", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("b", { children: "Un dossier" }),
+              " : « Enregistrer le dossier » crée un fichier .json ; « Ouvrir un dossier » le rouvre."
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("li", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("b", { children: "Un groupe de dossiers" }),
+              " : « Exporter des dossiers » crée un seul fichier .json ; « Importer des dossiers » accepte un ou plusieurs fichiers."
+            ] })
+          ] }),
           /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "actions", children: [
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { variante: "sec", icone: "telecharger", onClick: exporterTout, children: "Exporter tous les dossiers" }),
             /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("label", { className: "btn btn--sec", style: { cursor: "pointer" }, children: [
               /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: "importer" }),
-              "Importer un fichier",
-              /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("input", { type: "file", accept: ".json,application/json", hidden: true, onChange: (e) => {
-                const f = e.target.files[0];
+              "Importer des dossiers",
+              /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("input", { type: "file", accept: ".json,application/json", multiple: true, hidden: true, onChange: (e) => {
+                const f = [...e.target.files];
                 e.target.value = "";
-                if (f) {
+                if (f.length) {
                   setDlg(null);
                   importer(f);
                 }
@@ -12252,11 +12505,7 @@ Error generating stack: `+u.message+`
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Demande du client : demande principale, demandes secondaires, problème vécu (oui / non). QQOQCP : « Pourquoi ? » porte sur l’enjeu pour le client, pas sur la cause technique, qui relève du diagnostic." }),
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Champs renseignés : teinte bleu pâle ; le jaune or reste réservé aux alertes et aux étapes en cours." })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "note", children: "Document élaboré avec l’assistance d’outils d’intelligence artificielle." }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { children: /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("a", { className: "btn btn--sec", href: "index.html", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: "accueil" }),
-            "Retour à l’accueil du module"
-          ] }) })
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "note", children: "Document élaboré avec l’assistance d’outils d’intelligence artificielle." })
         ] })
       ] })
     ] });
