@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=Playfair+Display:wght@400&display=swap">
 <!--
   Gestion SAV — Watch Repair Plus (entreprise fictive) · École d'Horlogerie de Genève, CPH-HO-02
-  Version 2.4 — octobre 2026 · fichier autonome : React 18 et html2canvas intégrés, aucune dépendance en ligne
+  Version 2.6 — octobre 2026 · fichier autonome : React 18 et html2canvas intégrés, aucune dépendance en ligne
   hormis les polices Google (polices de repli prévues).
   Les trois blocs JSON ci-dessous peuvent être modifiés sans toucher au code :
     - config-entreprise : coordonnées fictives, taux de TVA, taux horaire, durées de garantie ;
@@ -126,8 +126,8 @@ svg.ico{width:1.2rem;height:1.2rem;flex:0 0 auto;stroke:currentColor;fill:none;s
 .logo b{font-weight:400;color:var(--or)}
 .module{font-family:var(--f-titre);font-size:.66rem;letter-spacing:.12em;text-transform:var(--maj);color:var(--texte-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tete__dossier{flex:1;display:flex;align-items:center;justify-content:center;gap:.4rem;min-width:0}
-.tete__id{display:flex;flex-direction:column;align-items:center;min-width:0;padding:0 .3rem}
-.tete__id b{font-family:var(--f-mono);font-weight:600;font-size:.95rem;white-space:nowrap}
+.tete__id{display:flex;flex-direction:column;align-items:center;min-width:0;max-width:100%;padding:0 .3rem}
+.tete__id b{font-family:var(--f-mono);font-weight:600;font-size:.95rem;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .tete__id span{font-size:.78rem;color:var(--texte-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:18rem}
 .outils{display:flex;gap:.4rem;align-items:center;margin-left:auto}
 .btn-mini{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;background:none;border:1px solid var(--trait);color:var(--texte-2);border-radius:var(--r);padding:.35rem .65rem;font-family:var(--f-titre);font-size:.74rem;letter-spacing:.06em;text-transform:var(--maj);line-height:1.2;min-height:2.5rem;min-width:2.5rem;text-decoration:none;white-space:nowrap}
@@ -279,7 +279,7 @@ select.saisie{padding-right:2rem}
 .segment--mini button{min-height:2rem;padding:.2rem .55rem;font-size:.8rem}
 
 /* ---------- tableaux ---------- */
-.tableau-conteneur{overflow-x:auto;border:1px solid var(--trait);border-radius:var(--r-lg);background:var(--carte)}
+.tableau-conteneur{position:relative;overflow-x:auto;border:1px solid var(--trait);border-radius:var(--r-lg);background:var(--carte)}
 .tableau{width:100%;border-collapse:collapse;font-size:.92rem}
 .tableau caption{text-align:left;font-family:var(--f-titre);padding:.7rem .9rem .3rem;color:var(--texte-2)}
 .tableau th,.tableau td{padding:.55rem .75rem;text-align:left;vertical-align:middle;border-bottom:1px solid var(--trait)}
@@ -670,6 +670,20 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
 .liste-fichiers{padding-left:1.1rem;margin-top:0}
 .dialogue__corps{overflow-wrap:anywhere}
 @media (max-width:47.99rem){.tdb-actions .actions+.actions{padding-left:0;border-left:0}}
+
+/* extension de fichier toujours en minuscules, même dans les boutons en capitales */
+.ext{text-transform:none;letter-spacing:.02em}
+@media (max-width:80rem){.tdb-actions .actions+.actions{padding-left:0;border-left:0}}
+@media (max-width:90rem){.tete__in--dossier .enreg__txt{display:none}}
+/* v2.6 — constat : défauts esthétiques et défauts fonctionnels */
+.doc-sous{margin:.7rem 0 .3rem}
+.liste-doc{margin:.2rem 0 .6rem;padding-left:1.2rem}
+.fonctionnels .liste-simple{margin-top:0}
+/* v2.6 — boutons de fichier de l’en-tête : libellé visible dès 60rem, masqué visuellement (mais lu) en dessous */
+@media (max-width:60rem){.btn-mini{position:relative}.lib-mini{position:absolute;left:0;top:0;width:1px;height:1px;padding:0;margin:0;overflow:hidden;clip:rect(0,0,0,0);white-space:normal;border:0}}
+/* en-tête d’un dossier sur écran moyen : boutons de fichier en icônes (libellé lu par les lecteurs d’écran, infobulle au survol) */
+@media (max-width:79rem){.tete__in--dossier .btn-mini{position:relative}.tete__in--dossier .lib-mini{position:absolute;left:0;top:0;width:1px;height:1px;padding:0;margin:0;overflow:hidden;clip:rect(0,0,0,0);white-space:normal;border:0}}
+@media (max-width:60rem){.tete__in--dossier .marque{display:none}}
 
 </style>
 <script type="application/json" id="config-entreprise">
@@ -1511,20 +1525,13 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
     },
     {
      "uid": "d2",
-     "zone": "poussoirs",
-     "type": "Grippé / dur",
-     "intensite": 3,
-     "precision": "poussoirs du chronographe bloqués"
-    },
-    {
-     "uid": "d3",
      "zone": "cadran",
      "type": "Taché / jauni",
      "intensite": 2,
      "precision": "patine d’origine à conserver"
     },
     {
-     "uid": "d4",
+     "uid": "d3",
      "zone": "bracelet",
      "type": "Usé",
      "intensite": 3,
@@ -1532,7 +1539,13 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
     }
    ],
    "sansDefaut": false,
-   "observations": "Montre « dans son jus », jamais restaurée. Boîtier en or jaune terni, sans choc majeur. Poussoirs grippés. Patine du cadran à conserver. Bracelet en cuir d’époque usé."
+   "observations": "Montre « dans son jus », jamais restaurée. Boîtier en or jaune terni, sans choc majeur. Poussoirs grippés. Patine du cadran à conserver. Bracelet en cuir d’époque usé.",
+   "defautsFonctionnels": [
+    {
+     "uid": "f4",
+     "description": "Poussoirs du chronographe grippés : bloqués."
+    }
+   ]
   },
   "diagnostic": {
    "inspection": {
@@ -2547,27 +2560,20 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
     },
     {
      "uid": "d10",
-     "zone": "lunette",
-     "type": "Rotation dure / grippée",
-     "intensite": 3,
-     "precision": ""
-    },
-    {
-     "uid": "d11",
      "zone": "carrure",
      "type": "Rayures fines",
      "intensite": 2,
      "precision": ""
     },
     {
-     "uid": "d12",
+     "uid": "d11",
      "zone": "fond",
      "type": "Oxydation / corrosion",
      "intensite": 2,
      "precision": "traces d’humidité anciennes, face intérieure"
     },
     {
-     "uid": "d13",
+     "uid": "d12",
      "zone": "bracelet",
      "type": "Rayures fines",
      "intensite": 2,
@@ -2575,7 +2581,13 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
     }
    ],
    "sansDefaut": false,
-   "observations": "Traces d’humidité anciennes sous le fond. Verre plexi rayé. Lunette dure. Cadran et aiguilles d’origine avec patine du tritium : à conserver."
+   "observations": "Traces d’humidité anciennes sous le fond. Verre plexi rayé. Lunette dure. Cadran et aiguilles d’origine avec patine du tritium : à conserver.",
+   "defautsFonctionnels": [
+    {
+     "uid": "f13",
+     "description": "Lunette tournante : rotation dure."
+    }
+   ]
   },
   "diagnostic": {
    "inspection": {
@@ -2917,20 +2929,13 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
     },
     {
      "uid": "d1f",
-     "zone": "poussoirs",
-     "type": "Grippé / dur",
-     "intensite": 3,
-     "precision": "poussoirs durs"
-    },
-    {
-     "uid": "d1g",
      "zone": "carrure",
      "type": "Rayures fines",
      "intensite": 2,
      "precision": ""
     },
     {
-     "uid": "d1h",
+     "uid": "d1g",
      "zone": "bracelet",
      "type": "Usé",
      "intensite": 3,
@@ -2938,7 +2943,13 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
     }
    ],
    "sansDefaut": false,
-   "observations": "Verre Hesalite fendu. Poussoirs durs. Cadran avec luminescent ancien (tritium) à conserver."
+   "observations": "Verre Hesalite fendu. Poussoirs durs. Cadran avec luminescent ancien (tritium) à conserver.",
+   "defautsFonctionnels": [
+    {
+     "uid": "f1h",
+     "description": "Poussoirs du chronographe durs à actionner."
+    }
+   ]
   },
   "diagnostic": {
    "inspection": {
@@ -3259,20 +3270,13 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
    "defauts": [
     {
      "uid": "d1q",
-     "zone": "lunette",
-     "type": "Rotation dure / grippée",
-     "intensite": 4,
-     "precision": "lunette tournante intérieure grippée"
-    },
-    {
-     "uid": "d1r",
      "zone": "carrure",
      "type": "Rayures fines",
      "intensite": 2,
      "precision": ""
     },
     {
-     "uid": "d1s",
+     "uid": "d1r",
      "zone": "fond",
      "type": "Oxydation / corrosion",
      "intensite": 2,
@@ -3280,7 +3284,13 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
     }
    ],
    "sansDefaut": false,
-   "observations": "Lunette tournante intérieure grippée. Traces d’oxydation légères sous le fond. Joint de fond durci."
+   "observations": "Lunette tournante intérieure grippée. Traces d’oxydation légères sous le fond. Joint de fond durci.",
+   "defautsFonctionnels": [
+    {
+     "uid": "f1s",
+     "description": "Lunette tournante intérieure grippée."
+    }
+   ]
   },
   "diagnostic": {
    "inspection": {
@@ -4109,20 +4119,13 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
     },
     {
      "uid": "d2n",
-     "zone": "poussoirs",
-     "type": "Grippé / dur",
-     "intensite": 3,
-     "precision": "fonctionnement irrégulier"
-    },
-    {
-     "uid": "d2o",
      "zone": "glace",
      "type": "Poussières sous la glace",
      "intensite": 2,
      "precision": "anciennes projections"
     },
     {
-     "uid": "d2p",
+     "uid": "d2o",
      "zone": "carrure",
      "type": "Rayures fines",
      "intensite": 2,
@@ -4130,7 +4133,13 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
     }
    ],
    "sansDefaut": false,
-   "observations": "Luminescent ancien instable (risque de particules). Poussoirs irréguliers. Poussière et anciennes projections sous le verre."
+   "observations": "Luminescent ancien instable (risque de particules). Poussoirs irréguliers. Poussière et anciennes projections sous le verre.",
+   "defautsFonctionnels": [
+    {
+     "uid": "f2p",
+     "description": "Poussoirs : fonctionnement irrégulier."
+    }
+   ]
   },
   "diagnostic": {
    "inspection": {
@@ -4392,20 +4401,13 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
    "defauts": [
     {
      "uid": "d2y",
-     "zone": "lunette",
-     "type": "Rotation trop libre (cliquet)",
-     "intensite": 3,
-     "precision": ""
-    },
-    {
-     "uid": "d2z",
      "zone": "carrure",
      "type": "Rayures fines",
      "intensite": 2,
      "precision": ""
     },
     {
-     "uid": "d30",
+     "uid": "d2z",
      "zone": "fond",
      "type": "Oxydation / corrosion",
      "intensite": 2,
@@ -4413,7 +4415,13 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
     }
    ],
    "sansDefaut": false,
-   "observations": "Lunette trop libre (cliquet). Légère oxydation sous le fond."
+   "observations": "Lunette trop libre (cliquet). Légère oxydation sous le fond.",
+   "defautsFonctionnels": [
+    {
+     "uid": "f30",
+     "description": "Lunette tournante trop libre : le cliquet ne la retient plus."
+    }
+   ]
   },
   "diagnostic": {
    "inspection": {
@@ -5635,20 +5643,13 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
    "defauts": [
     {
      "uid": "d46",
-     "zone": "glace",
-     "type": "Buée / humidité",
-     "intensite": 2,
-     "precision": "léger voile sous la glace, sans corrosion visible"
-    },
-    {
-     "uid": "d47",
      "zone": "carrure",
      "type": "Rayures fines",
      "intensite": 1,
      "precision": ""
     },
     {
-     "uid": "d48",
+     "uid": "d47",
      "zone": "bracelet",
      "type": "Rayures fines",
      "intensite": 2,
@@ -5656,7 +5657,13 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
     }
    ],
    "sansDefaut": false,
-   "observations": "Léger voile sous le verre après une forte humidité, sans corrosion visible."
+   "observations": "Léger voile sous le verre après une forte humidité, sans corrosion visible.",
+   "defautsFonctionnels": [
+    {
+     "uid": "f48",
+     "description": "Léger voile de buée sous la glace, sans corrosion visible."
+    }
+   ]
   },
   "diagnostic": {
    "inspection": {
@@ -6831,17 +6838,16 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
      "type": "Endommagé",
      "intensite": 4,
      "precision": "cuir fendu"
-    },
-    {
-     "uid": "d50",
-     "zone": "fermoir",
-     "type": "Desserré / jeu",
-     "intensite": 2,
-     "precision": "boucle légèrement desserrée"
     }
    ],
    "sansDefaut": false,
-   "observations": "Bracelet en cuir fendu, usure avancée. Boucle légèrement desserrée."
+   "observations": "Bracelet en cuir fendu, usure avancée. Boucle légèrement desserrée.",
+   "defautsFonctionnels": [
+    {
+     "uid": "f50",
+     "description": "Boucle légèrement desserrée : jeu à la fermeture."
+    }
+   ]
   },
   "diagnostic": {
    "inspection": {
@@ -7995,14 +8001,25 @@ Error generating stack: `+u.message+`
   var METAL = ["Rayures fines", "Rayures profondes", "Chocs / bosses", "Usure (arêtes émoussées)", "Oxydation / corrosion", "Déformation", "Traces d’outil", "Encrassement", "Endommagé / cassé"];
   var TYPES_DEFAUT = {
     metal: METAL,
-    lunette: [...METAL, "Rotation dure / grippée", "Rotation trop libre (cliquet)"],
-    commande: [...METAL, "Grippé / dur", "Jeu excessif", "Manquant"],
-    glace: ["Rayures fines", "Rayures profondes", "Éclat", "Fêlure", "Buée / humidité", "Poussières sous la glace", "Cassée"],
+    lunette: METAL,
+    commande: METAL,
+    glace: ["Rayures fines", "Rayures profondes", "Éclat", "Fêlure", "Poussières sous la glace", "Cassée"],
     cadran: ["Rayé", "Oxydé", "Zapon (vernis) altéré", "Taché / jauni", "Cheveu / fêlure (émail)", "Index ou applique décollé", "Matière luminescente altérée", "Endommagé"],
     aiguilles: ["Oxydées", "Tordues", "Matière luminescente altérée", "Décolorées", "Endommagées"],
-    bracelet: ["Rayures fines", "Rayures profondes", "Usé", "Maillons détendus (jeu)", "Taché", "Endommagé", "Cassé / décousu"],
-    fermoir: ["Rayures fines", "Rayures profondes", "Usé", "Desserré / jeu", "Fermeture défectueuse", "Déformé", "Cassé"]
+    bracelet: ["Rayures fines", "Rayures profondes", "Usé", "Taché", "Endommagé", "Cassé / décousu"],
+    fermoir: ["Rayures fines", "Rayures profondes", "Usé", "Déformé", "Cassé"]
   };
+  var TYPES_FONCTIONNELS_ANCIENS = [
+    "Rotation dure / grippée",
+    "Rotation trop libre (cliquet)",
+    "Grippé / dur",
+    "Jeu excessif",
+    "Manquant",
+    "Buée / humidité",
+    "Maillons détendus (jeu)",
+    "Desserré / jeu",
+    "Fermeture défectueuse"
+  ];
   var ZONES_HABILLAGE = [
     { id: "boite", libelle: "Boîte (ensemble)", groupe: "Boîte", famille: "metal" },
     { id: "carrure", libelle: "Carrure", groupe: "Boîte", famille: "metal" },
@@ -8024,7 +8041,7 @@ Error generating stack: `+u.message+`
     { niveau: 2, libelle: "Léger", critere: "Visible à l’œil nu en observant de près." },
     { niveau: 3, libelle: "Moyen", critere: "Visible à l’œil nu, à distance de lecture." },
     { niveau: 4, libelle: "Important", critere: "Très visible : l’aspect est nettement dégradé." },
-    { niveau: 5, libelle: "Très important", critere: "Composant déformé, cassé ou fonction compromise." }
+    { niveau: 5, libelle: "Très important", critere: "Composant déformé ou cassé." }
   ];
   var CONSTAT_V2 = {
     boite: { "Rayures fines": ["boite", "Rayures fines"], "Rayures profondes": ["boite", "Rayures profondes"], Chocs: ["boite", "Chocs / bosses"], "Endommagée": ["boite", "Endommagé / cassé"], "Déformée": ["boite", "Déformation"] },
@@ -8249,7 +8266,7 @@ Error generating stack: `+u.message+`
       problemeSignale: "",
       probleme: "",
       qqoqcp: { qui: "", quoi: "", ou: "", quand: "", comment: "", pourquoi: "" },
-      reception: { elements: {}, autreElement: "", docsVerifies: false, defauts: [], sansDefaut: false, observations: "" },
+      reception: { elements: {}, autreElement: "", docsVerifies: false, defauts: [], sansDefaut: false, defautsFonctionnels: [], sansDefautFonctionnel: false, observations: "" },
       diagnostic: { inspection: {}, mesures: {}, marcheQuartz: "", texte: "", mouvement: [], lieu: "interne", priseEnCharge: "", delaiSemaines: "", visa: "" },
       lignes: [],
       devis: { remarques: "" },
@@ -8263,6 +8280,7 @@ Error generating stack: `+u.message+`
     };
   }
   var defautVide = (zone = "") => ({ uid: uid(), zone, type: "", intensite: null, precision: "" });
+  var defautFonctionnelVide = () => ({ uid: uid(), description: "" });
   function defautsDepuisConstatV2(constat) {
     const defauts = [];
     let ras = 0;
@@ -8286,11 +8304,20 @@ Error generating stack: `+u.message+`
     const n = fusion(dossierVide(d.id, ""), d);
     if (!Array.isArray(brut.defauts) && brut.constat) Object.assign(n.reception, defautsDepuisConstatV2(brut.constat));
     delete n.reception.constat;
-    n.reception.defauts = (n.reception.defauts || []).map((x) => {
-      const i = Number(x.intensite);
-      return { ...defautVide(""), ...x, intensite: Number.isInteger(i) && i >= 1 && i <= 5 ? i : null };
-    });
+    n.reception.defautsFonctionnels = (Array.isArray(n.reception.defautsFonctionnels) ? n.reception.defautsFonctionnels : []).map((x) => typeof x === "string" ? { uid: uid(), description: x } : { ...defautFonctionnelVide(), ...x });
+    const esthetiques = [];
+    for (const x of n.reception.defauts || []) {
+      if (TYPES_FONCTIONNELS_ANCIENS.includes(x.type)) {
+        const p = String(x.precision || "").trim();
+        n.reception.defautsFonctionnels.push({ uid: uid(), description: `${libelleZone(x.zone)} : ${x.type.toLowerCase()}${p ? ` (${p})` : ""}.` });
+      } else {
+        const i = Number(x.intensite);
+        esthetiques.push({ ...defautVide(""), ...x, intensite: Number.isInteger(i) && i >= 1 && i <= 5 ? i : null });
+      }
+    }
+    n.reception.defauts = esthetiques;
     if (n.reception.defauts.length) n.reception.sansDefaut = false;
+    if (n.reception.defautsFonctionnels.length) n.reception.sansDefautFonctionnel = false;
     n.demandesSecondaires = (Array.isArray(n.demandesSecondaires) ? n.demandesSecondaires : []).map((x) => typeof x === "string" ? { uid: uid(), texte: x } : { uid: uid(), texte: "", ...x });
     if (!["oui", "non"].includes(d.problemeSignale)) n.problemeSignale = String(n.probleme || "").trim() ? "oui" : "";
     n.schema = 4;
@@ -8532,11 +8559,15 @@ Error generating stack: `+u.message+`
     }
     if (etape === "reception") {
       const df = d.reception.defauts || [];
-      if (!df.length && !d.reception.sansDefaut) b.push("Constat de l’habillage : ajoutez les défauts visibles ou cochez « Aucun défaut visible »");
+      if (!df.length && !d.reception.sansDefaut) b.push("Défauts esthétiques : ajoutez les défauts visibles ou cochez « Aucun défaut esthétique visible »");
+      const fn = d.reception.defautsFonctionnels || [];
+      if (!fn.length && !d.reception.sansDefautFonctionnel) b.push("Défauts fonctionnels ou techniques : décrivez-les ou cochez « Aucun défaut fonctionnel constaté »");
+      const fnVides = fn.filter((x) => !String(x.description || "").trim()).length;
+      if (fnVides) b.push(`${fnVides} défaut(s) fonctionnel(s) sans description`);
       const sansZone = df.filter((x) => !x.zone || !x.type).length;
-      if (sansZone) b.push(`${sansZone} défaut(s) sans composant ou sans type`);
+      if (sansZone) b.push(`${sansZone} défaut(s) esthétique(s) sans composant ou sans type`);
       const sansIntensite = df.filter((x) => !x.intensite).length;
-      if (sansIntensite) b.push(`${sansIntensite} défaut(s) sans intensité (échelle de 1 à 5)`);
+      if (sansIntensite) b.push(`${sansIntensite} défaut(s) esthétique(s) sans intensité (échelle de 1 à 5)`);
       const aPreciser = df.filter((x) => x.type === AUTRE_DEFAUT && !String(x.precision || "").trim()).length;
       if (aPreciser) a.push(`${aPreciser} défaut « autre » sans précision`);
       const ph = avancementPhotos(d, "reception");
@@ -9196,7 +9227,7 @@ Error generating stack: `+u.message+`
     ELEMENTS_REMIS.forEach((e) => L.push(coche((d.reception.elements || {})[e.id], e.libelle)));
     champ("Autre élément remis", d.reception.autreElement);
     champ("Documents remis vérifiés", d.reception.docsVerifies ? "oui" : "non");
-    titre(3, "Constat de l’habillage");
+    titre(3, "Défauts esthétiques (intensité de 1 à 5)");
     const df = d.reception.defauts || [];
     if (df.length) {
       tableau(["N°", "Composant", "Défaut", "Intensité (1 à 5)", "Précision"], df.map((x, i) => [
@@ -9206,7 +9237,13 @@ Error generating stack: `+u.message+`
         x.intensite ? `${x.intensite}/5 · ${echelle[x.intensite - 1].libelle}` : "à évaluer",
         x.precision
       ]));
-    } else L.push(d.reception.sansDefaut ? "Aucun défaut visible sur l’habillage." : "Constat non renseigné.", "");
+    } else L.push(d.reception.sansDefaut ? "Aucun défaut esthétique visible." : "Non renseigné.", "");
+    titre(3, "Défauts fonctionnels ou techniques");
+    const fn = d.reception.defautsFonctionnels || [];
+    if (fn.length) {
+      fn.forEach((x, i) => L.push(`${i + 1}. ${String(x.description || "").trim() || "(description vide)"}`));
+      L.push("");
+    } else L.push(d.reception.sansDefautFonctionnel ? "Aucun défaut fonctionnel constaté." : "Non renseigné.", "");
     champ("Observations", d.reception.observations);
     photos("reception");
     const dg = d.diagnostic;
@@ -9816,11 +9853,20 @@ Error generating stack: `+u.message+`
               e.target.value = "";
               if (f.length) importer(f);
             } }),
-            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Bouton, { variante: "sec", icone: "importer", onClick: () => refImport.current.click(), title: "Un ou plusieurs fichiers .json : dossiers enregistrés ou exports de groupe", children: "Importer des dossiers" }),
-            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Bouton, { variante: "sec", icone: "telecharger", onClick: () => exporter(liste.map((d) => d.id)), title: "Enregistrer plusieurs dossiers dans un seul fichier .json", children: "Exporter des dossiers" })
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Bouton, { variante: "sec", icone: "importer", onClick: () => refImport.current.click(), title: "Un ou plusieurs fichiers .json : dossiers enregistrés ou exports de groupe", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("span", { children: [
+              "Importer des dossiers ",
+              /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "ext", children: "(.json)" })
+            ] }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Bouton, { variante: "sec", icone: "telecharger", onClick: () => exporter(liste.map((d) => d.id)), title: "Enregistrer plusieurs dossiers dans un seul fichier .json", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("span", { children: [
+              "Exporter des dossiers ",
+              /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "ext", children: "(.json)" })
+            ] }) })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "actions", role: "group", "aria-label": "Un dossier", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Bouton, { variante: "sec", icone: "ouvrir", onClick: ouvrirFichier, title: "Ouvrir un dossier enregistré (fichier .json)", children: "Ouvrir un dossier" }),
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Bouton, { variante: "sec", icone: "ouvrir", onClick: ouvrirFichier, title: "Ouvrir un dossier enregistré (fichier .json)", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("span", { children: [
+              "Ouvrir un dossier ",
+              /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "ext", children: "(.json)" })
+            ] }) }),
             /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Bouton, { icone: "plus", onClick: creer, children: "Nouveau dossier" })
           ] })
         ] })
@@ -10163,8 +10209,8 @@ Error generating stack: `+u.message+`
     return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "constat", children: [
       /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "constat__schema", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(SchemaHabillage, { defauts, echelle, onChoisir: ajouter }) }),
       /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "constat__liste", children: [
-        defauts.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Case, { coche: reception.sansDefaut, onChange: (v) => set(["reception", "sansDefaut"], v), children: "Aucun défaut visible sur l’habillage" }),
-        defauts.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("ol", { className: "liste-lignes defauts", "aria-label": "Défauts constatés", children: defauts.map((x, i) => /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("li", { className: "ligne", children: [
+        defauts.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Case, { coche: reception.sansDefaut, onChange: (v) => set(["reception", "sansDefaut"], v), children: "Aucun défaut esthétique visible" }),
+        defauts.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("ol", { className: "liste-lignes defauts", "aria-label": "Défauts esthétiques constatés", children: defauts.map((x, i) => /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("li", { className: "ligne", children: [
           /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "ligne__haut", children: [
             /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("span", { className: "defaut__n", "aria-hidden": "true", children: i + 1 }),
             /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
@@ -10208,7 +10254,7 @@ Error generating stack: `+u.message+`
           ] })
         ] }, x.uid)) }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "actions", style: { marginTop: ".6rem" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Bouton, { petit: true, variante: "sec", icone: "plus", onClick: () => ajouter(""), children: "Ajouter un défaut" }),
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Bouton, { petit: true, variante: "sec", icone: "plus", onClick: () => ajouter(""), children: "Ajouter un défaut esthétique" }),
           /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("span", { className: "note", children: "ou cliquez sur un composant du schéma." })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("details", { className: "plan-info", style: { marginTop: ".8rem" }, children: [
@@ -10225,10 +10271,41 @@ Error generating stack: `+u.message+`
       ] })
     ] });
   }
+  function DefautsFonctionnels({ reception, set }) {
+    const liste = reception.defautsFonctionnels || [];
+    const majListe = (l) => set(["reception", "defautsFonctionnels"], l);
+    const ajouter = () => {
+      const n = defautFonctionnelVide();
+      majListe([...liste, n]);
+      if (reception.sansDefautFonctionnel) set(["reception", "sansDefautFonctionnel"], false);
+      setTimeout(() => {
+        const el = document.getElementById(`fonctionnel-${n.uid}`);
+        if (el) el.focus();
+      }, 50);
+    };
+    return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "fonctionnels", children: [
+      liste.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Case, { coche: reception.sansDefautFonctionnel, onChange: (v) => set(["reception", "sansDefautFonctionnel"], v), children: "Aucun défaut fonctionnel constaté" }),
+      liste.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("ol", { className: "liste-simple", "aria-label": "Défauts fonctionnels ou techniques constatés", children: liste.map((x, i) => /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("li", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("span", { className: "liste-simple__n", "aria-hidden": "true", children: i + 1 }),
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+          Saisie,
+          {
+            id: `fonctionnel-${x.uid}`,
+            valeur: x.description,
+            onChange: (v) => majListe(liste.map((y) => y.uid === x.uid ? { ...y, description: v } : y)),
+            "aria-label": `Défaut fonctionnel ${i + 1} : description`,
+            placeholder: "Description du défaut constaté"
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(BoutonIcone, { icone: "poubelle", danger: true, label: `Supprimer le défaut fonctionnel ${i + 1}`, onClick: () => majListe(liste.filter((y) => y.uid !== x.uid)) })
+      ] }, x.uid)) }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "actions", style: { marginTop: ".6rem" }, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Bouton, { petit: true, variante: "sec", icone: "plus", onClick: ajouter, children: "Ajouter un défaut fonctionnel" }) })
+    ] });
+  }
   function TableDefauts({ reception, ent }) {
     const echelle = echelleDe(ent);
     const df = defautsTries(reception.defauts);
-    if (!df.length) return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: reception.sansDefaut ? "Aucun défaut visible sur l’habillage à la réception." : "Constat non renseigné." });
+    if (!df.length) return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: reception.sansDefaut ? "Aucun défaut esthétique visible à la réception." : "Constat non renseigné." });
     return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("table", { className: "tableau tableau--defauts", children: [
       /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("thead", { children: /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("tr", { children: [
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("th", { scope: "col", children: "Composant" }),
@@ -10243,6 +10320,11 @@ Error generating stack: `+u.message+`
         /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("td", { children: x.precision || "" })
       ] }, x.uid)) })
     ] });
+  }
+  function ListeDefautsFonctionnels({ reception }) {
+    const fn = (reception.defautsFonctionnels || []).filter((x) => String(x.description || "").trim());
+    if (!fn.length) return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: reception.sansDefautFonctionnel ? "Aucun défaut fonctionnel constaté à la réception." : "Aucun défaut fonctionnel noté à la réception." });
+    return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("ul", { className: "liste-doc", children: fn.map((x) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("li", { children: x.description }, x.uid)) });
   }
 
   // src/pages/commun.jsx
@@ -10451,14 +10533,24 @@ Error generating stack: `+u.message+`
           /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Case, { coche: r.docsVerifies, onChange: (v) => set(["reception", "docsVerifies"], v), children: "J’ai vérifié les documents remis." })
         ] })
       ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+        Carte,
+        {
+          titre: "Défauts esthétiques",
+          sousTitre: "Avant toute intervention, localisez chaque défaut visible de l’habillage. Notez son intensité de 1 à 5.",
+          actions: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Badge, { ton: (r.defauts || []).length ? "alerte" : r.sansDefaut ? "ok" : "neutre", children: (r.defauts || []).length ? `${r.defauts.length} défaut${r.defauts.length > 1 ? "s" : ""}` : r.sansDefaut ? "Aucun défaut" : "À renseigner" }),
+          children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ConstatHabillage, { reception: r, set, ent })
+        }
+      ),
       /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(
         Carte,
         {
-          titre: "Constat de l’habillage",
-          sousTitre: "Avant toute intervention : localisez chaque défaut visible sur le composant concerné et évaluez son intensité de 1 à 5.",
-          actions: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Badge, { ton: (r.defauts || []).length ? "alerte" : r.sansDefaut ? "ok" : "neutre", children: (r.defauts || []).length ? `${r.defauts.length} défaut${r.defauts.length > 1 ? "s" : ""}` : r.sansDefaut ? "Aucun défaut" : "À renseigner" }),
+          titre: "Défauts fonctionnels ou techniques",
+          sousTitre: "Décrivez chaque défaut de fonctionnement constaté à la réception. Ces défauts se décrivent, sans note de 1 à 5.",
+          actions: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Badge, { ton: (r.defautsFonctionnels || []).length ? "alerte" : r.sansDefautFonctionnel ? "ok" : "neutre", children: (r.defautsFonctionnels || []).length ? `${r.defautsFonctionnels.length} défaut${r.defautsFonctionnels.length > 1 ? "s" : ""}` : r.sansDefautFonctionnel ? "Aucun défaut" : "À renseigner" }),
           children: [
-            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ConstatHabillage, { reception: r, set, ent }),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "note", style: { marginTop: 0 }, children: "Exemples : montre arrêtée, couronne bloquée, date qui ne change plus, bruit anormal." }),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(DefautsFonctionnels, { reception: r, set }),
             /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Champ, { label: "Observations", aide: "Remarques générales sur l’état de la montre à son arrivée.", className: "constat__obs", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Zone, { valeur: r.observations, onChange: (v) => set(["reception", "observations"], v), rows: 3 }) })
           ]
         }
@@ -10816,8 +10908,14 @@ Error generating stack: `+u.message+`
         joints.length ? joints.join(", ") : "aucun",
         "."
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h2", { children: "État de l’habillage à la réception" }),
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h2", { children: "État de la montre à la réception" }),
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("p", { className: "doc-sous", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("b", { children: "Défauts esthétiques" }),
+        " (intensité de 1 à 5)"
+      ] }),
       /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(TableDefauts, { reception: d.reception, ent }),
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("p", { className: "doc-sous", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("b", { children: "Défauts fonctionnels ou techniques" }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(ListeDefautsFonctionnels, { reception: d.reception }),
       /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h2", { children: "Constat et travaux envisagés" }),
       /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("p", { children: d.diagnostic.texte || "—" }),
       pec && pec.id !== "payant" && /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("p", { className: "note", children: [
@@ -10946,8 +11044,14 @@ Error generating stack: `+u.message+`
         " ",
         d.problemeSignale === "oui" ? d.probleme || "—" : d.problemeSignale === "non" ? "aucun (demande sans dysfonctionnement)." : "—"
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h3", { className: "doc-h3", children: "Constat de l’habillage" }),
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h3", { className: "doc-h3", children: "Constat à la réception" }),
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("p", { className: "doc-sous", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("b", { children: "Défauts esthétiques" }),
+        " (intensité de 1 à 5)"
+      ] }),
       /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(TableDefauts, { reception: d.reception, ent }),
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("p", { className: "doc-sous", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("b", { children: "Défauts fonctionnels ou techniques" }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(ListeDefautsFonctionnels, { reception: d.reception }),
       d.reception.observations && /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("p", { children: [
         /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("b", { children: "Observations :" }),
         " ",
@@ -11682,7 +11786,7 @@ Error generating stack: `+u.message+`
 
   // src/app.jsx
   var import_jsx_runtime13 = __toESM(require_jsx_runtime(), 1);
-  var VERSION = "2.4 — octobre 2026";
+  var VERSION = "2.6 — octobre 2026";
   function lireJSON(id) {
     const el = document.getElementById(id);
     if (!el) return { valeur: null, erreur: `Bloc « ${id} » absent du fichier.` };
@@ -12192,16 +12296,29 @@ Error generating stack: `+u.message+`
             e.target.value = "";
             if (f) ouvrirFichier(f);
           } }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("button", { type: "button", className: courant ? "btn-mini cache-mobile" : "btn-mini", onClick: choisirFichierDossier, "aria-label": "Ouvrir un dossier (fichier .json)", title: "Ouvrir un dossier enregistré (fichier .json)", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("button", { type: "button", className: courant ? "btn-mini cache-mobile" : "btn-mini", onClick: choisirFichierDossier, title: "Ouvrir un dossier enregistré dans un fichier .json", children: [
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: "ouvrir" }),
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "cache-tablette", children: "Ouvrir un dossier" })
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: "lib-mini", children: [
+              "Ouvrir ",
+              /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "ext", children: "(.json)" })
+            ] })
           ] }),
-          courant && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("button", { type: "button", className: "btn-mini btn-mini--accent", onClick: enregistrerDossier, "aria-label": `Enregistrer le dossier ${courant.id} (fichier .json)`, title: "Enregistrer ce dossier dans un fichier .json, à rouvrir avec « Ouvrir un dossier »", children: [
+          courant && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("button", { type: "button", className: "btn-mini btn-mini--accent", onClick: enregistrerDossier, title: `Enregistrer le dossier ${courant.id} dans un fichier .json, à rouvrir avec le bouton « Ouvrir (.json) »`, children: [
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: "sauver" }),
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "cache-tablette", children: "Enregistrer le dossier" })
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: "lib-mini", children: [
+              "Enregistrer ",
+              /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "ext", children: "(.json)" })
+            ] })
+          ] }),
+          courant && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("button", { type: "button", className: "btn-mini btn-mini--accent", onClick: exporterMarkdown, title: `Enregistrer le dossier ${courant.id} en Markdown (.md) : fichier texte lisible avec tous les champs`, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: "rapport" }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: "lib-mini", children: [
+              "Enregistrer ",
+              /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "ext", children: "(.md)" })
+            ] })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: "btn-mini cache-mobile", onClick: capture, "aria-label": "Capture d’écran de la page (image PNG)", title: "Capture d’écran de la page", children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: "capture" }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: "btn-mini btn-mini--aa", "aria-pressed": prefs.lisible, onClick: () => setPrefs({ ...prefs, lisible: !prefs.lisible }), title: "Mode lisibilité : texte plus grand et plus espacé", children: "Aa" }),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: courant ? "btn-mini btn-mini--aa cache-mobile" : "btn-mini btn-mini--aa", "aria-pressed": prefs.lisible, onClick: () => setPrefs({ ...prefs, lisible: !prefs.lisible }), title: "Mode lisibilité : texte plus grand et plus espacé", children: "Aa" }),
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: courant ? "btn-mini cache-mobile" : "btn-mini", onClick: () => setPrefs({ ...prefs, theme: themeSuivant }), "aria-label": `Thème ${libTheme[prefs.theme]} (changer pour ${libTheme[themeSuivant]})`, title: `Thème : ${libTheme[prefs.theme]}`, children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: prefs.theme === "dark" ? "lune" : prefs.theme === "light" ? "soleil" : "contraste" }) }),
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: "btn-mini", onClick: () => setDlg("reglages"), "aria-haspopup": "dialog", "aria-label": "Réglages, données et informations", children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: "reglages" }) })
         ] })
@@ -12257,8 +12374,6 @@ Error generating stack: `+u.message+`
                   courant.journal.length,
                   ")"
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { petit: true, variante: "discret", icone: "sauver", onClick: enregistrerDossier, title: "Fichier à rouvrir avec « Ouvrir un dossier » (photos et signature comprises)", children: "Enregistrer le dossier (.json)" }),
-                /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { petit: true, variante: "discret", icone: "rapport", onClick: exporterMarkdown, title: "Fichier texte lisible, avec tous les champs du dossier", children: "Enregistrer en Markdown (.md)" }),
                 /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { petit: true, variante: "discret", icone: "retour", onClick: () => {
                   setEtapeRouvrir("");
                   setDlg("rouvrir");
@@ -12471,10 +12586,16 @@ Error generating stack: `+u.message+`
             ] })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "actions", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { variante: "sec", icone: "telecharger", onClick: exporterTout, children: "Exporter tous les dossiers" }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Bouton, { variante: "sec", icone: "telecharger", onClick: exporterTout, children: /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { children: [
+              "Exporter tous les dossiers ",
+              /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "ext", children: "(.json)" })
+            ] }) }),
             /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("label", { className: "btn btn--sec", style: { cursor: "pointer" }, children: [
               /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icone, { nom: "importer" }),
-              "Importer des dossiers",
+              /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { children: [
+                "Importer des dossiers ",
+                /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "ext", children: "(.json)" })
+              ] }),
               /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("input", { type: "file", accept: ".json,application/json", multiple: true, hidden: true, onChange: (e) => {
                 const f = [...e.target.files];
                 e.target.value = "";
@@ -12500,7 +12621,7 @@ Error generating stack: `+u.message+`
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "TVA : taux normal de 8,1 % en vigueur depuis le 1er janvier 2024 ; format du numéro « CHE-123.456.789 TVA » (Administration fédérale des contributions, estv.admin.ch, consulté le 29.09.2026)." }),
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Positions de mesure : ISO 3158 (position verticale désignée par l’heure placée en haut) ; Witschi Electronic AG, « Méthodes de contrôle des montres mécaniques » (version du 27.10.2025, witschi.com)." }),
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Plan de prise de vue : tableau « Photos SAV » du module CPH-HO-14." }),
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Constat de l’habillage : composants selon Horopedia, article « Habillage » (horopedia.org/fr/habillage, consulté le 01.10.2026) ; types de défauts d’après la fiche de devis interne du support de cours. L’échelle d’intensité de 1 à 5 est une convention de l’entreprise fictive, pas une norme." }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Constat à la réception : défauts esthétiques notés de 1 à 5, défauts fonctionnels ou techniques décrits sans échelle. Défauts esthétiques : composants selon Horopedia, article « Habillage » (horopedia.org/fr/habillage, consulté le 01.10.2026) ; types de défauts d’après la fiche de devis interne du support de cours. L’échelle d’intensité de 1 à 5 est une convention de l’entreprise fictive, pas une norme." }),
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Synoptique de la réparation : ordre logique d’après le corrigé de la SEQ 10 « Opérations SAV » (travaux en parallèle sur le mouvement et sur l’habillage)." }),
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Demande du client : demande principale, demandes secondaires, problème vécu (oui / non). QQOQCP : « Pourquoi ? » porte sur l’enjeu pour le client, pas sur la cause technique, qui relève du diagnostic." }),
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Champs renseignés : teinte bleu pâle ; le jaune or reste réservé aux alertes et aux étapes en cours." })
