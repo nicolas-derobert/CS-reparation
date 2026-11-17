@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=Playfair+Display:wght@400&display=swap">
 <!--
   Gestion SAV — Watch Repair Plus (entreprise fictive) · École d'Horlogerie de Genève, CPH-HO-02
-  Version 2.11 — novembre 2026 · fichier autonome : React 18 et html2canvas intégrés, aucune dépendance en ligne
+  Version 2.16 — novembre 2026 · fichier autonome : React 18 et html2canvas intégrés, aucune dépendance en ligne
   hormis les polices Google (polices de repli prévues).
   Les trois blocs JSON ci-dessous peuvent être modifiés sans toucher au code :
     - config-entreprise : coordonnées fictives, taux de TVA, taux horaire, durées de garantie ;
@@ -170,6 +170,7 @@ svg.ico{width:1.2rem;height:1.2rem;flex:0 0 auto;stroke:currentColor;fill:none;s
 .nav__lien[data-etat="a_venir"] .pastille{color:var(--texte-3)}
 .nav__lien small{display:block;font-family:var(--f-texte);font-size:.76rem;color:var(--texte-3);letter-spacing:0}
 .nav__lien[aria-current="page"] small{color:var(--bleu-texte)}
+.nav__lien[aria-current="page"][data-etat="sans_objet"]{color:var(--texte-2)}
 .fiche-mini{margin:1.2rem .3rem 0;padding:.8rem .9rem;border:1px solid var(--trait);border-radius:var(--r-lg);background:var(--fond-2);font-size:.85rem;color:var(--texte-2)}
 .fiche-mini b{display:block;color:var(--texte);font-weight:600}
 .fiche-mini p{margin:0 0 .35rem}
@@ -447,6 +448,68 @@ button.kpi[aria-pressed="true"]{border-color:var(--bleu);box-shadow:inset 0 0 0 
 .rappel__liste{padding:.5rem .8rem;border:1px solid var(--trait);border-radius:var(--r);background:var(--fond-2)}
 .rappel__liste p,.rappel__liste ul{margin:0}
 .rappel__note{margin:0 0 .7rem}
+.rappel__tete .actions{gap:.4rem}
+.bascule-mode{display:inline-flex;border:1px solid var(--trait-fort);border-radius:999px;padding:2px;background:var(--carte)}
+.bascule-mode__btn{display:inline-flex;align-items:center;gap:.35rem;border:0;background:none;border-radius:999px;padding:.4rem .85rem;font-family:var(--f-titre);font-size:.78rem;letter-spacing:.06em;text-transform:var(--maj);color:var(--texte-2);cursor:pointer;min-height:2.2rem}
+.bascule-mode__btn:hover{color:var(--bleu-texte);background:var(--bleu-pale)}
+.bascule-mode__btn[aria-pressed="true"]{background:var(--bleu);color:var(--sur-bleu)}
+.bascule-mode__btn .ico{width:1rem;height:1rem}
+.vue-bandeau{margin:0 0 1rem;padding:.55rem .85rem;border-left:3px solid var(--bleu);background:var(--bleu-pale);color:var(--bleu-texte);font-size:.9rem;border-radius:0 var(--r) var(--r) 0}
+.vue-colonnes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 1.1rem}
+.vue-dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem 1.4rem;margin:0}
+.vue-dl--1{grid-template-columns:1fr;gap:.55rem}
+.vue-dl__l{min-width:0}
+.vue-dl__l--large{grid-column:1/-1}
+.vue-dl dt{font-family:var(--f-titre);font-size:.72rem;letter-spacing:.08em;text-transform:var(--maj);color:var(--texte-3);margin:0 0 .1rem}
+.vue-dl dd{margin:0;font-size:1rem;color:var(--texte);overflow-wrap:anywhere;white-space:pre-line}
+.vue-dl dd[data-vide],.vue-vide{font-style:italic;color:var(--texte-3)}
+.vue-dl--1 .vue-dl__l{display:grid;grid-template-columns:minmax(9rem,13rem) 1fr;gap:.2rem 1rem;align-items:baseline;padding-bottom:.45rem;border-bottom:1px solid var(--trait)}
+.vue-dl--1 .vue-dl__l:last-child{border-bottom:0;padding-bottom:0}
+.vue-dl--1 dt{margin:0}
+.vue-sous{margin:1rem 0 .3rem;font-family:var(--f-titre);font-size:.74rem;letter-spacing:.08em;text-transform:var(--maj);color:var(--texte-2)}
+.vue-bloc .vue-sous:first-child{margin-top:0}
+.vue-texte{margin:0;white-space:pre-line;line-height:1.55;max-width:60rem}
+.vue-bloc .tableau-conteneur+.vue-dl,.vue-bloc .vue-dl+.vue-groupe{margin-top:1rem}
+.vue-liste{margin:0;padding-left:1.1rem;line-height:1.6}
+.vue-controles{list-style:none;margin:0;padding:0;display:grid;gap:.25rem}
+.vue-controles li{display:flex;justify-content:space-between;gap:.4rem 1rem;flex-wrap:wrap;padding:.35rem .6rem;border-radius:var(--r);background:var(--fond-2);font-size:.92rem}
+.vue-controles li b{font-weight:600;white-space:nowrap}
+.vue-controles li[data-etat="ok"] b{color:var(--ok)}
+.vue-controles li[data-etat="nok"]{background:var(--ko-pale)}
+.vue-controles li[data-etat="nok"] b{color:var(--ko)}
+.vue-controles li[data-etat="na"] b,.vue-controles li[data-etat="vide"] b{color:var(--texte-3);font-weight:500}
+.vue-signature{max-width:22rem;width:100%;border:1px solid var(--trait);border-radius:var(--r);background:#FFFFFF}
+.vue-decision{margin-bottom:1rem}
+.page--vue .synthese__bloc{padding-top:1rem}
+.page--vue .synthese__bloc:first-child{padding-top:0}
+@media (max-width:47.99rem){
+  .vue-colonnes,.vue-dl{grid-template-columns:1fr}
+  .vue-dl--1 .vue-dl__l{grid-template-columns:1fr}
+}
+.synthese__acces{margin:0 0 .9rem}
+.fiche-acces{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem .8rem;margin:0 0 1rem;padding:.55rem .85rem;border:1px solid var(--trait);border-radius:var(--r);background:var(--fond-2);font-size:.92rem}
+.exo-justif{margin-top:1rem;max-width:52rem}
+.exo h3{margin:1.1rem 0 .4rem;font-size:1rem;font-weight:600}
+.exo h3:first-child{margin-top:0}
+.exo p{margin:0 0 .4rem}
+.exo__etapes{margin:0;padding-left:1.4rem;display:grid;gap:.3rem}
+.exo__liste{margin:0;padding-left:1.2rem;display:grid;gap:.25rem}
+.exo__mesures th[scope=row]{text-align:left;font-weight:600}
+.synthese__bloc{padding:1rem 0;border-top:1px solid var(--trait)}
+.synthese__bloc:first-child{padding-top:0;border-top:0}
+.synthese__tete{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem .7rem;margin:0 0 .6rem}
+.synthese__tete h3{margin:0;font-size:1.1rem;font-weight:500;flex:1 1 auto}
+.synthese__reste{flex:1 1 100%;margin:0;font-size:.88rem;color:var(--or-texte)}
+.synthese h4{margin:1rem 0 .45rem;font-size:.98rem;font-weight:600}
+.synthese__sous{margin:.7rem 0 .3rem;font-size:.86rem;font-weight:600;color:var(--texte-2)}
+.synthese__dl{display:grid;grid-template-columns:minmax(12rem,1fr) 2fr;gap:.3rem 1rem;margin:.6rem 0 0;font-size:.9rem}
+.synthese__dl dt{margin:0;color:var(--texte-2)}
+.synthese__dl dd{margin:0;white-space:pre-line}
+.synthese__dl dd[data-vide]{font-style:italic;color:var(--texte-3)}
+@media (max-width:47.99rem){
+  .synthese__dl{grid-template-columns:1fr;gap:.1rem}
+  .synthese__dl dd{margin-bottom:.45rem}
+}
 .doc-h3{font-size:.92rem;font-weight:600;margin:.8rem 0 .3rem}
 .tableau--defauts td{vertical-align:top}
 
@@ -1100,6 +1163,30 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
    "famille": "pmvt",
    "libelle": "Platine",
    "prix": 200
+  },
+  {
+   "id": "pm_sautoir",
+   "famille": "pmvt",
+   "libelle": "Ressort de sautoir de quantième",
+   "prix": 25
+  },
+  {
+   "id": "pm_tige",
+   "famille": "pmvt",
+   "libelle": "Tige de remontoir",
+   "prix": 30
+  },
+  {
+   "id": "pm_ressort_bar",
+   "famille": "pmvt",
+   "libelle": "Ressort de barillet",
+   "prix": 40
+  },
+  {
+   "id": "pm_levier_chrono",
+   "famille": "pmvt",
+   "libelle": "Levier de commande de chronographe",
+   "prix": 60
   },
   {
    "id": "pm_autre1",
@@ -8874,6 +8961,888 @@ dialog.dialogue::backdrop{background:rgba(20,20,20,.55)}
     "t": "Réception validée : état de la montre constaté."
    }
   ]
+ },
+ {
+  "schema": 4,
+  "refus": false,
+  "diagnostic": {
+   "inspection": {},
+   "mesures": {},
+   "marcheQuartz": "",
+   "texte": "",
+   "mouvement": [],
+   "priseEnCharge": "",
+   "delaiSemaines": "",
+   "visa": ""
+  },
+  "lignes": [],
+  "devis": {
+   "remarques": "",
+   "choix": ""
+  },
+  "atelier": {
+   "operations": [],
+   "notes": "",
+   "approvisionnements": []
+  },
+  "controle": {
+   "resultats": {},
+   "mesures": {},
+   "reserveMarche": "",
+   "marcheQuartz": "",
+   "remarques": ""
+  },
+  "rapport": {
+   "complement": ""
+  },
+  "facture": {
+   "fraisPort": "",
+   "remise": ""
+  },
+  "livraison": {
+   "rendus": {},
+   "sortie": {},
+   "signature": null,
+   "remisA": ""
+  },
+  "photos": [],
+  "client": {
+   "numero": "CL-5501",
+   "nom": "Mme Favre",
+   "adresse": "Chemin des Crêts 14",
+   "npa": "1218",
+   "ville": "Le Grand-Saconnex",
+   "telephone": "022 000 00 51",
+   "email": "",
+   "reference": ""
+  },
+  "montre": {
+   "marque": "Manufacture Aubert",
+   "modele": "Classique automatique",
+   "reference": "MA-2010",
+   "serie": "MA-25-004512",
+   "type": "automatique",
+   "calibre": "",
+   "mouvementNo": "",
+   "cadran": "Argenté, index appliqués",
+   "bracelet": "Cuir brun",
+   "boucle": "Boucle ardillon"
+  },
+  "dates": {
+   "vente": "2025-08-20",
+   "derniereReparation": "",
+   "production": "",
+   "depot": "2026-11-10",
+   "restitutionPrevue": "",
+   "devis": "",
+   "decision": "",
+   "finReparation": "",
+   "controle": "",
+   "rapport": "",
+   "facture": "",
+   "livraison": ""
+  },
+  "demande": "Réparer la montre : elle s’arrête pendant la nuit.",
+  "demandesSecondaires": [
+   {
+    "uid": "s111a",
+    "texte": "Remplacer le bracelet en cuir, usé."
+   }
+  ],
+  "problemeSignale": "oui",
+  "probleme": "Le matin, la montre est arrêtée. Je la porte pourtant toute la journée.",
+  "qqoqcp": {
+   "qui": "Mme Favre, qui porte la montre tous les jours.",
+   "quoi": "La montre s’arrête pendant la nuit.",
+   "ou": "Au poignet, puis posée sur la table de nuit.",
+   "quand": "Depuis environ un mois, presque chaque nuit.",
+   "comment": "La montre fait un bruit de frottement quand Mme Favre bouge le bras.",
+   "pourquoi": "Mme Favre doit remettre la montre à l’heure chaque matin."
+  },
+  "reception": {
+   "elements": {
+    "boite": true,
+    "facture": true,
+    "carteGarantie": true
+   },
+   "autreElement": "",
+   "docsVerifies": true,
+   "defauts": [
+    {
+     "uid": "d111a",
+     "zone": "bracelet",
+     "type": "Usé",
+     "intensite": 3,
+     "precision": "cuir craquelé aux trous de l’ardillon"
+    },
+    {
+     "uid": "d111b",
+     "zone": "fond",
+     "type": "Rayures fines",
+     "intensite": 1,
+     "precision": ""
+    }
+   ],
+   "sansDefaut": false,
+   "defautsFonctionnels": [
+    {
+     "uid": "f111a",
+     "description": "Montre arrêtée à la réception."
+    },
+    {
+     "uid": "f111b",
+     "description": "Bruit de frottement à l’agitation (essai au comptoir)."
+    }
+   ],
+   "sansDefautFonctionnel": false,
+   "observations": "Montre achetée le 20.08.2025 chez un détaillant agréé. Facture et carte de garantie présentées. La cliente ne signale aucun choc."
+  },
+  "id": "RS-2026-111",
+  "statut": "receptionne",
+  "creeLe": "2026-11-10T08:10:00.000Z",
+  "journal": [
+   {
+    "d": "2026-11-10T08:10:00.000Z",
+    "t": "Dossier créé. Accueil validé : demande du client enregistrée."
+   },
+   {
+    "d": "2026-11-10T08:35:00.000Z",
+    "t": "Réception validée : état de la montre constaté."
+   }
+  ]
+ },
+ {
+  "schema": 4,
+  "refus": false,
+  "diagnostic": {
+   "inspection": {},
+   "mesures": {},
+   "marcheQuartz": "",
+   "texte": "",
+   "mouvement": [],
+   "priseEnCharge": "",
+   "delaiSemaines": "",
+   "visa": ""
+  },
+  "lignes": [],
+  "devis": {
+   "remarques": "",
+   "choix": ""
+  },
+  "atelier": {
+   "operations": [],
+   "notes": "",
+   "approvisionnements": []
+  },
+  "controle": {
+   "resultats": {},
+   "mesures": {},
+   "reserveMarche": "",
+   "marcheQuartz": "",
+   "remarques": ""
+  },
+  "rapport": {
+   "complement": ""
+  },
+  "facture": {
+   "fraisPort": "",
+   "remise": ""
+  },
+  "livraison": {
+   "rendus": {},
+   "sortie": {},
+   "signature": null,
+   "remisA": ""
+  },
+  "photos": [],
+  "client": {
+   "numero": "CL-5502",
+   "nom": "M. Rey",
+   "adresse": "Rue de Carouge 61",
+   "npa": "1205",
+   "ville": "Genève",
+   "telephone": "022 000 00 52",
+   "email": "",
+   "reference": ""
+  },
+  "montre": {
+   "marque": "Manufacture Aubert",
+   "modele": "Sport quartz",
+   "reference": "MA-3300",
+   "serie": "MA-22-008841",
+   "type": "quartz",
+   "calibre": "",
+   "mouvementNo": "",
+   "cadran": "Bleu, date à 3 h",
+   "bracelet": "Acier",
+   "boucle": "Boucle déployante"
+  },
+  "dates": {
+   "vente": "2022-03-14",
+   "derniereReparation": "",
+   "production": "",
+   "depot": "2026-11-10",
+   "restitutionPrevue": "",
+   "devis": "",
+   "decision": "",
+   "finReparation": "",
+   "controle": "",
+   "rapport": "",
+   "facture": "",
+   "livraison": ""
+  },
+  "demande": "Remplacer la pile : la montre est arrêtée.",
+  "demandesSecondaires": [
+   {
+    "uid": "s112a",
+    "texte": "Contrôler l’étanchéité : le client nage avec sa montre."
+   }
+  ],
+  "problemeSignale": "oui",
+  "probleme": "La montre s’est arrêtée il y a une semaine.",
+  "qqoqcp": {
+   "qui": "M. Rey.",
+   "quoi": "La montre ne fonctionne plus.",
+   "ou": "",
+   "quand": "Depuis une semaine.",
+   "comment": "",
+   "pourquoi": "M. Rey porte la montre pour nager à la piscine."
+  },
+  "reception": {
+   "elements": {},
+   "autreElement": "",
+   "docsVerifies": true,
+   "defauts": [
+    {
+     "uid": "d112a",
+     "zone": "glace",
+     "type": "Rayures fines",
+     "intensite": 2,
+     "precision": "côté 6 h"
+    },
+    {
+     "uid": "d112b",
+     "zone": "lunette",
+     "type": "Rayures fines",
+     "intensite": 2,
+     "precision": ""
+    },
+    {
+     "uid": "d112c",
+     "zone": "bracelet",
+     "type": "Rayures fines",
+     "intensite": 1,
+     "precision": "maillons centraux"
+    }
+   ],
+   "sansDefaut": false,
+   "defautsFonctionnels": [
+    {
+     "uid": "f112a",
+     "description": "Montre arrêtée à la réception."
+    }
+   ],
+   "sansDefautFonctionnel": false,
+   "observations": "Montre achetée en mars 2022 selon le client. Aucun justificatif présenté. Pile jamais remplacée selon le client."
+  },
+  "id": "RS-2026-112",
+  "statut": "receptionne",
+  "creeLe": "2026-11-10T09:30:00.000Z",
+  "journal": [
+   {
+    "d": "2026-11-10T09:30:00.000Z",
+    "t": "Dossier créé. Accueil validé : demande du client enregistrée."
+   },
+   {
+    "d": "2026-11-10T10:-5:00.000Z",
+    "t": "Réception validée : état de la montre constaté."
+   }
+  ]
+ },
+ {
+  "schema": 4,
+  "refus": false,
+  "diagnostic": {
+   "inspection": {},
+   "mesures": {},
+   "marcheQuartz": "",
+   "texte": "",
+   "mouvement": [],
+   "priseEnCharge": "",
+   "delaiSemaines": "",
+   "visa": ""
+  },
+  "lignes": [],
+  "devis": {
+   "remarques": "",
+   "choix": ""
+  },
+  "atelier": {
+   "operations": [],
+   "notes": "",
+   "approvisionnements": []
+  },
+  "controle": {
+   "resultats": {},
+   "mesures": {},
+   "reserveMarche": "",
+   "marcheQuartz": "",
+   "remarques": ""
+  },
+  "rapport": {
+   "complement": ""
+  },
+  "facture": {
+   "fraisPort": "",
+   "remise": ""
+  },
+  "livraison": {
+   "rendus": {},
+   "sortie": {},
+   "signature": null,
+   "remisA": ""
+  },
+  "photos": [],
+  "client": {
+   "numero": "CL-5503",
+   "nom": "M. Dubois",
+   "adresse": "Route de Malagnou 9",
+   "npa": "1208",
+   "ville": "Genève",
+   "telephone": "022 000 00 53",
+   "email": "",
+   "reference": ""
+  },
+  "montre": {
+   "marque": "Manufacture Aubert",
+   "modele": "Plongée automatique",
+   "reference": "MA-5300",
+   "serie": "MA-21-006120",
+   "type": "automatique",
+   "calibre": "",
+   "mouvementNo": "",
+   "cadran": "Noir, index luminescents, date à 3 h",
+   "bracelet": "Acier",
+   "boucle": "Boucle déployante"
+  },
+  "dates": {
+   "vente": "2021-05-10",
+   "derniereReparation": "2025-09-15",
+   "production": "",
+   "depot": "2026-11-11",
+   "restitutionPrevue": "",
+   "devis": "",
+   "decision": "",
+   "finReparation": "",
+   "controle": "",
+   "rapport": "",
+   "facture": "",
+   "livraison": ""
+  },
+  "demande": "Réparer la montre : de la buée est apparue sous la glace.",
+  "demandesSecondaires": [],
+  "problemeSignale": "oui",
+  "probleme": "Après une baignade dans le lac, de la buée est apparue sous la glace.",
+  "qqoqcp": {
+   "qui": "M. Dubois.",
+   "quoi": "De la buée sous la glace.",
+   "ou": "Côté 3 h, près de la couronne.",
+   "quand": "Depuis une baignade, il y a trois jours.",
+   "comment": "Couronne vissée avant la baignade, selon le client.",
+   "pourquoi": "M. Dubois craint une oxydation du mouvement."
+  },
+  "reception": {
+   "elements": {
+    "boite": true
+   },
+   "autreElement": "",
+   "docsVerifies": true,
+   "defauts": [
+    {
+     "uid": "d113a",
+     "zone": "lunette",
+     "type": "Rayures fines",
+     "intensite": 2,
+     "precision": "côté 9 h"
+    },
+    {
+     "uid": "d113b",
+     "zone": "fermoir",
+     "type": "Usé",
+     "intensite": 2,
+     "precision": ""
+    }
+   ],
+   "sansDefaut": false,
+   "defautsFonctionnels": [
+    {
+     "uid": "f113a",
+     "description": "Buée sous la glace, côté 3 h."
+    },
+    {
+     "uid": "f113b",
+     "description": "Couronne vissée à la réception."
+    }
+   ],
+   "sansDefautFonctionnel": false,
+   "observations": "Révision complète faite par Watch Repair Plus. Montre restituée le 15.09.2025 (dossier archivé). Montre déposée trois jours après la baignade."
+  },
+  "id": "RS-2026-113",
+  "statut": "receptionne",
+  "creeLe": "2026-11-11T10:05:00.000Z",
+  "journal": [
+   {
+    "d": "2026-11-11T10:05:00.000Z",
+    "t": "Dossier créé. Accueil validé : demande du client enregistrée."
+   },
+   {
+    "d": "2026-11-11T10:30:00.000Z",
+    "t": "Réception validée : état de la montre constaté."
+   }
+  ]
+ },
+ {
+  "schema": 4,
+  "refus": false,
+  "diagnostic": {
+   "inspection": {},
+   "mesures": {},
+   "marcheQuartz": "",
+   "texte": "",
+   "mouvement": [],
+   "priseEnCharge": "",
+   "delaiSemaines": "",
+   "visa": ""
+  },
+  "lignes": [],
+  "devis": {
+   "remarques": "",
+   "choix": ""
+  },
+  "atelier": {
+   "operations": [],
+   "notes": "",
+   "approvisionnements": []
+  },
+  "controle": {
+   "resultats": {},
+   "mesures": {},
+   "reserveMarche": "",
+   "marcheQuartz": "",
+   "remarques": ""
+  },
+  "rapport": {
+   "complement": ""
+  },
+  "facture": {
+   "fraisPort": "",
+   "remise": ""
+  },
+  "livraison": {
+   "rendus": {},
+   "sortie": {},
+   "signature": null,
+   "remisA": ""
+  },
+  "photos": [],
+  "client": {
+   "numero": "CL-5504",
+   "nom": "Mme Girard",
+   "adresse": "Avenue de Champel 40",
+   "npa": "1206",
+   "ville": "Genève",
+   "telephone": "022 000 00 54",
+   "email": "",
+   "reference": ""
+  },
+  "montre": {
+   "marque": "Manufacture Aubert",
+   "modele": "Héritage à remontage manuel",
+   "reference": "MA-1950",
+   "serie": "MA-98-000731",
+   "type": "manuel",
+   "calibre": "",
+   "mouvementNo": "",
+   "cadran": "Crème, chiffres arabes",
+   "bracelet": "Cuir noir",
+   "boucle": "Boucle ardillon"
+  },
+  "dates": {
+   "vente": "1998-12-24",
+   "derniereReparation": "",
+   "production": "",
+   "depot": "2026-11-11",
+   "restitutionPrevue": "",
+   "devis": "",
+   "decision": "",
+   "finReparation": "",
+   "controle": "",
+   "rapport": "",
+   "facture": "",
+   "livraison": ""
+  },
+  "demande": "Réviser la montre : elle avance beaucoup.",
+  "demandesSecondaires": [
+   {
+    "uid": "s114a",
+    "texte": "Remplacer le bracelet en cuir."
+   },
+   {
+    "uid": "s114b",
+    "texte": "Rendre l’aspect du boîtier plus propre."
+   }
+  ],
+  "problemeSignale": "oui",
+  "probleme": "La montre avance d’environ 5 minutes par jour.",
+  "qqoqcp": {
+   "qui": "Mme Girard, qui a reçu la montre de sa mère.",
+   "quoi": "La montre avance d’environ 5 minutes par jour.",
+   "ou": "",
+   "quand": "Depuis l’été 2026.",
+   "comment": "Mme Girard pose la montre chaque soir sur sa tablette numérique.",
+   "pourquoi": "Mme Girard veut porter la montre tous les jours."
+  },
+  "reception": {
+   "elements": {
+    "ecrin": true
+   },
+   "autreElement": "",
+   "docsVerifies": true,
+   "defauts": [
+    {
+     "uid": "d114a",
+     "zone": "cadran",
+     "type": "Taché / jauni",
+     "intensite": 2,
+     "precision": "autour de 6 h"
+    },
+    {
+     "uid": "d114b",
+     "zone": "carrure",
+     "type": "Rayures fines",
+     "intensite": 2,
+     "precision": ""
+    },
+    {
+     "uid": "d114c",
+     "zone": "fond",
+     "type": "Rayures fines",
+     "intensite": 2,
+     "precision": ""
+    },
+    {
+     "uid": "d114d",
+     "zone": "bracelet",
+     "type": "Usé",
+     "intensite": 4,
+     "precision": "cuir fendu à l’attache 12 h"
+    }
+   ],
+   "sansDefaut": false,
+   "defautsFonctionnels": [
+    {
+     "uid": "f114a",
+     "description": "Avance d’environ 5 minutes par jour (selon la cliente)."
+    }
+   ],
+   "sansDefautFonctionnel": false,
+   "observations": "Montre reçue en cadeau en décembre 1998. Jamais révisée selon la cliente. Écrin d’origine remis."
+  },
+  "id": "RS-2026-114",
+  "statut": "receptionne",
+  "creeLe": "2026-11-11T11:20:00.000Z",
+  "journal": [
+   {
+    "d": "2026-11-11T11:20:00.000Z",
+    "t": "Dossier créé. Accueil validé : demande du client enregistrée."
+   },
+   {
+    "d": "2026-11-11T11:45:00.000Z",
+    "t": "Réception validée : état de la montre constaté."
+   }
+  ]
+ },
+ {
+  "schema": 4,
+  "refus": false,
+  "diagnostic": {
+   "inspection": {},
+   "mesures": {},
+   "marcheQuartz": "",
+   "texte": "",
+   "mouvement": [],
+   "priseEnCharge": "",
+   "delaiSemaines": "",
+   "visa": ""
+  },
+  "lignes": [],
+  "devis": {
+   "remarques": "",
+   "choix": ""
+  },
+  "atelier": {
+   "operations": [],
+   "notes": "",
+   "approvisionnements": []
+  },
+  "controle": {
+   "resultats": {},
+   "mesures": {},
+   "reserveMarche": "",
+   "marcheQuartz": "",
+   "remarques": ""
+  },
+  "rapport": {
+   "complement": ""
+  },
+  "facture": {
+   "fraisPort": "",
+   "remise": ""
+  },
+  "livraison": {
+   "rendus": {},
+   "sortie": {},
+   "signature": null,
+   "remisA": ""
+  },
+  "photos": [],
+  "client": {
+   "numero": "CL-5505",
+   "nom": "M. Keller",
+   "adresse": "Rue de Lausanne 77",
+   "npa": "1202",
+   "ville": "Genève",
+   "telephone": "022 000 00 55",
+   "email": "",
+   "reference": ""
+  },
+  "montre": {
+   "marque": "Manufacture Aubert",
+   "modele": "Chronographe automatique",
+   "reference": "MA-4120",
+   "serie": "MA-25-001988",
+   "type": "automatique",
+   "calibre": "",
+   "mouvementNo": "",
+   "cadran": "Noir, compteurs argentés",
+   "bracelet": "Acier",
+   "boucle": "Boucle déployante"
+  },
+  "dates": {
+   "vente": "2025-01-10",
+   "derniereReparation": "",
+   "production": "",
+   "depot": "2026-11-12",
+   "restitutionPrevue": "",
+   "devis": "",
+   "decision": "",
+   "finReparation": "",
+   "controle": "",
+   "rapport": "",
+   "facture": "",
+   "livraison": ""
+  },
+  "demande": "Réparer le chronographe : il ne démarre plus.",
+  "demandesSecondaires": [],
+  "problemeSignale": "oui",
+  "probleme": "Le chronographe ne démarre plus. Je ne sais pas pourquoi.",
+  "qqoqcp": {
+   "qui": "M. Keller.",
+   "quoi": "Le chronographe ne démarre plus.",
+   "ou": "Poussoir à 2 h.",
+   "quand": "Depuis environ deux semaines.",
+   "comment": "Le poussoir reste enfoncé.",
+   "pourquoi": "M. Keller utilise le chronographe chaque jour pour son travail."
+  },
+  "reception": {
+   "elements": {
+    "boite": true,
+    "carteGarantie": true
+   },
+   "autreElement": "",
+   "docsVerifies": true,
+   "defauts": [
+    {
+     "uid": "d115a",
+     "zone": "carrure",
+     "type": "Chocs / bosses",
+     "intensite": 4,
+     "precision": "côté 2 h, près du poussoir"
+    },
+    {
+     "uid": "d115b",
+     "zone": "glace",
+     "type": "Éclat",
+     "intensite": 3,
+     "precision": "bord de la glace à 2 h"
+    },
+    {
+     "uid": "d115c",
+     "zone": "poussoirs",
+     "type": "Déformation",
+     "intensite": 4,
+     "precision": "poussoir à 2 h"
+    }
+   ],
+   "sansDefaut": false,
+   "defautsFonctionnels": [
+    {
+     "uid": "f115a",
+     "description": "Poussoir à 2 h bloqué en position enfoncée."
+    },
+    {
+     "uid": "f115b",
+     "description": "Chronographe : ne démarre pas."
+    }
+   ],
+   "sansDefautFonctionnel": false,
+   "observations": "Montre achetée le 10.01.2025. Carte de garantie présentée. Le client ne mentionne aucun choc."
+  },
+  "id": "RS-2026-115",
+  "statut": "receptionne",
+  "creeLe": "2026-11-12T08:45:00.000Z",
+  "journal": [
+   {
+    "d": "2026-11-12T08:45:00.000Z",
+    "t": "Dossier créé. Accueil validé : demande du client enregistrée."
+   },
+   {
+    "d": "2026-11-12T09:10:00.000Z",
+    "t": "Réception validée : état de la montre constaté."
+   }
+  ]
+ },
+ {
+  "schema": 4,
+  "refus": false,
+  "diagnostic": {
+   "inspection": {},
+   "mesures": {},
+   "marcheQuartz": "",
+   "texte": "",
+   "mouvement": [],
+   "priseEnCharge": "",
+   "delaiSemaines": "",
+   "visa": ""
+  },
+  "lignes": [],
+  "devis": {
+   "remarques": "",
+   "choix": ""
+  },
+  "atelier": {
+   "operations": [],
+   "notes": "",
+   "approvisionnements": []
+  },
+  "controle": {
+   "resultats": {},
+   "mesures": {},
+   "reserveMarche": "",
+   "marcheQuartz": "",
+   "remarques": ""
+  },
+  "rapport": {
+   "complement": ""
+  },
+  "facture": {
+   "fraisPort": "",
+   "remise": ""
+  },
+  "livraison": {
+   "rendus": {},
+   "sortie": {},
+   "signature": null,
+   "remisA": ""
+  },
+  "photos": [],
+  "client": {
+   "numero": "CL-5506",
+   "nom": "Mme Bernasconi",
+   "adresse": "Quai Gustave-Ador 28",
+   "npa": "1207",
+   "ville": "Genève",
+   "telephone": "022 000 00 56",
+   "email": "",
+   "reference": ""
+  },
+  "montre": {
+   "marque": "Manufacture Aubert",
+   "modele": "Lady automatique",
+   "reference": "MA-2205",
+   "serie": "MA-24-003317",
+   "type": "automatique",
+   "calibre": "",
+   "mouvementNo": "",
+   "cadran": "Nacre, date à 6 h",
+   "bracelet": "Acier",
+   "boucle": "Boucle déployante"
+  },
+  "dates": {
+   "vente": "2024-09-02",
+   "derniereReparation": "",
+   "production": "",
+   "depot": "2026-11-12",
+   "restitutionPrevue": "",
+   "devis": "",
+   "decision": "",
+   "finReparation": "",
+   "controle": "",
+   "rapport": "",
+   "facture": "",
+   "livraison": ""
+  },
+  "demande": "Réparer la date : elle ne change plus.",
+  "demandesSecondaires": [],
+  "problemeSignale": "oui",
+  "probleme": "La date reste bloquée. Je dois la corriger chaque matin.",
+  "qqoqcp": {
+   "qui": "Mme Bernasconi, cliente de Watch Repair Plus depuis 2015 (troisième montre achetée).",
+   "quoi": "La date ne change plus à minuit.",
+   "ou": "Guichet de la date à 6 h.",
+   "quand": "Depuis environ trois semaines.",
+   "comment": "La date reste sur le même jour.",
+   "pourquoi": "Mme Bernasconi doit corriger la date chaque matin."
+  },
+  "reception": {
+   "elements": {
+    "boite": true,
+    "facture": true
+   },
+   "autreElement": "",
+   "docsVerifies": true,
+   "defauts": [
+    {
+     "uid": "d116a",
+     "zone": "bracelet",
+     "type": "Rayures fines",
+     "intensite": 1,
+     "precision": "fermoir et maillons du bas"
+    }
+   ],
+   "sansDefaut": false,
+   "defautsFonctionnels": [
+    {
+     "uid": "f116a",
+     "description": "Date : ne change pas à minuit (essai au comptoir)."
+    }
+   ],
+   "sansDefautFonctionnel": false,
+   "observations": "Montre achetée le 02.09.2024 chez Watch Repair Plus. Facture présentée. La cliente porte la montre avec soin et ne signale aucun choc."
+  },
+  "id": "RS-2026-116",
+  "statut": "receptionne",
+  "creeLe": "2026-11-12T13:30:00.000Z",
+  "journal": [
+   {
+    "d": "2026-11-12T13:30:00.000Z",
+    "t": "Dossier créé. Accueil validé : demande du client enregistrée."
+   },
+   {
+    "d": "2026-11-12T14:-5:00.000Z",
+    "t": "Réception validée : état de la montre constaté."
+   }
+  ]
  }
 ]
 </script>
@@ -9438,7 +10407,7 @@ Error generating stack: `+u.message+`
     n.lignes = (n.lignes || []).map((l) => ({ uid: uid(), ref: null, libelle: "", categorie: "forfait", pu: 0, qte: 1, statut: "obligatoire", gratuit: false, accepte: null, origine: "diagnostic", accord: null, remplace: false, ...l }));
     if (!["", "obligatoire", "options", "refus"].includes(n.devis.choix)) n.devis.choix = "";
     n.atelier.operations = (n.atelier.operations || []).map((o, i) => ({ uid: uid(), num: (i + 1) * 10, departement: DEPARTEMENTS[0], description: "", tempsStd: "", tempsReel: "", statut: "a_faire", ...o }));
-    n.diagnostic.mouvementComposants = (Array.isArray(n.diagnostic.mouvementComposants) ? n.diagnostic.mouvementComposants : []).filter((x) => x && typeof x === "object").map((x) => ({ uid: uid(), composant: "", constat: "", precision: "", ...x }));
+    n.diagnostic.mouvementComposants = (Array.isArray(n.diagnostic.mouvementComposants) ? n.diagnostic.mouvementComposants : []).filter((x) => x && typeof x === "object").map((x) => ({ uid: uid(), partie: "mouvement", zone: "", composant: "", constat: "", precision: "", ...x }));
     if (typeof n.diagnostic.mouvementTexte !== "string") n.diagnostic.mouvementTexte = "";
     delete n.diagnostic.lieu;
     if (!n.diagnostic.inspection.esthetique && ((STATUTS[n.statut] || {}).rang || 0) >= 3) n.diagnostic.inspection.esthetique = "confirme";
@@ -9608,7 +10577,7 @@ Error generating stack: `+u.message+`
     const texte = !!String(dg.texte || "").trim();
     const constat = (dg.mouvement || []).length > 0;
     const defautMvt = (dg.mouvement || []).some((v) => v !== RAS);
-    const composantMvt = (dg.mouvementComposants || []).some((x) => x.composant);
+    const composantMvt = (dg.mouvementComposants || []).some((x) => x.composant && x.partie !== "habillage");
     const props = lignesProposees(d);
     const oblig = props.some((l) => l.statut !== "optionnel");
     const lignesOk = props.length > 0 && props.every((l) => String(l.libelle || "").trim()) && !props.some((l) => !l.gratuit && montantLigne(l) === 0 && l.ref !== "srv_etanche_na");
@@ -9746,12 +10715,13 @@ Error generating stack: `+u.message+`
       if (estMecanique(d) && !statsMesures(d.diagnostic.mesures)) a.push("Aucune mesure de marche à réception");
       const mvt = d.diagnostic.mouvement || [];
       const mc = d.diagnostic.mouvementComposants || [];
-      if (mvt.some((v) => v !== RAS) && !mc.some((x) => x.composant)) a.push("Mouvement : composant concerné non indiqué");
-      if (mvt.includes(RAS) && mc.some((x) => x.constat)) a.push("Mouvement : « Aucun défaut » coché alors que des composants sont signalés");
+      const mcMvt = mc.filter((x) => x.partie !== "habillage");
+      if (mvt.some((v) => v !== RAS) && !mcMvt.some((x) => x.composant)) a.push("Mouvement : composant concerné non indiqué");
+      if (mvt.includes(RAS) && mcMvt.some((x) => x.constat)) a.push("Mouvement : « Aucun défaut » coché alors que des composants du mouvement sont signalés");
       const sansComposant = mc.filter((x) => !x.composant).length;
-      if (sansComposant) a.push(`${sansComposant} ligne(s) du mouvement sans composant`);
+      if (sansComposant) a.push(`${sansComposant} ligne(s) de composant concerné sans composant`);
       const autresSansPrecision = mc.filter((x) => (x.composant === AUTRE_COMPOSANT || x.constat === AUTRE_DEFAUT) && !String(x.precision || "").trim()).length;
-      if (autresSansPrecision) a.push(`${autresSansPrecision} ligne(s) « autre » du mouvement sans précision`);
+      if (autresSansPrecision) a.push(`${autresSansPrecision} ligne(s) « autre » sans précision (composants concernés)`);
       if (!nombre(d.diagnostic.delaiSemaines)) a.push("Délai de réparation non estimé");
       const sug = suggestionPriseEnCharge(d, ent);
       if (sug.pc && d.diagnostic.priseEnCharge && sug.pc !== d.diagnostic.priseEnCharge && d.diagnostic.priseEnCharge !== "goodwill") a.push(`Prise en charge différente de la proposition (${PEC_PAR_ID[sug.pc].libelle})`);
@@ -10219,6 +11189,10 @@ Error generating stack: `+u.message+`
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx: "12", cy: "12", r: "10" }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M12 6v6l4 2" })
     ] }),
+    oeil: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx: "12", cy: "12", r: "3" })
+    ] }),
     stylo: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M12 20h9" }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" })
@@ -10436,13 +11410,14 @@ Error generating stack: `+u.message+`
     champ("Mouvement — esthétique générale", (dg.mouvement || []).join(", "));
     const mcMd = (dg.mouvementComposants || []).filter((x) => x.composant || x.constat || x.precision);
     if (mcMd.length) {
-      L.push("", "Composants du mouvement concernés :", "");
-      tableau(["N°", "Composant", "Constat", "Précision"], mcMd.map((x, i) => [String(i + 1), x.composant, x.constat, x.precision]));
+      L.push("", "Composants concernés (mouvement et habillage) :", "");
+      tableau(["N°", "Partie", "Composant", "Constat", "Précision"], mcMd.map((x, i) => [String(i + 1), x.partie === "habillage" ? "Habillage" : "Mouvement", x.composant, x.constat, x.precision]));
     }
     champ("Description de l’état du mouvement", dg.mouvementTexte);
     photos("diagnostic");
     titre(3, "C. Prise en charge");
     champ("Prise en charge", (PEC_PAR_ID[dg.priseEnCharge] || {}).libelle);
+    if (String(dg.justificationPec || "").trim()) champ("Justification", dg.justificationPec);
     titre(3, "D. Travaux et pièces");
     tabLignes(lignesProposees(d), false);
     const t = totauxDevis(d, ent);
@@ -10784,7 +11759,7 @@ Error generating stack: `+u.message+`
     const sRef = reference ? statsMesures(reference) : null;
     const maj = (pid, champ, v) => onChange(setIn(mesures || {}, [pid, champ], v));
     return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "tableau-conteneur", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("table", { className: "tableau mesures", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "tableau-conteneur", tabIndex: lectureSeule ? 0 : void 0, role: lectureSeule ? "region" : void 0, "aria-label": lectureSeule ? legende : void 0, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("table", { className: "tableau mesures", children: [
         /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("caption", { className: "visuellement-cache", children: legende }),
         /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("thead", { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("tr", { children: [
           /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("th", { scope: "col", children: "Position" }),
@@ -11405,7 +12380,7 @@ Error generating stack: `+u.message+`
     ] });
   }
   var GROUPES = [...new Set(ZONES_HABILLAGE.map((z) => z.groupe))];
-  function ConstatHabillage({ reception, set, ent }) {
+  function ConstatHabillage({ reception, set, ent, ajoutAuDemarrage }) {
     const echelle = echelleDe(ent);
     const defauts = reception.defauts || [];
     const [zoneSel, setZoneSel] = (0, import_react4.useState)("");
@@ -11429,6 +12404,9 @@ Error generating stack: `+u.message+`
       if (reception.sansDefaut) set(["reception", "sansDefaut"], false);
       setAFocaliser({ uid: n.uid, champ: zone ? "type" : "zone" });
     };
+    (0, import_react4.useEffect)(() => {
+      if (ajoutAuDemarrage) ajouter();
+    }, []);
     const choisir = (z) => {
       const premier = defauts.find((x) => x.zone === z);
       if (!premier) {
@@ -11583,8 +12561,17 @@ Error generating stack: `+u.message+`
   var import_react5 = __toESM(require_react(), 1);
   var import_jsx_runtime5 = __toESM(require_jsx_runtime(), 1);
   var LIB_ETAT2 = { fait: "validée", courant: "à réaliser", a_venir: "pas encore atteinte", sans_objet: "sans objet" };
+  var CtxModeEtape = (0, import_react5.createContext)(null);
+  function BasculeMode({ mode, setMode }) {
+    const opts = [["edition", "Édition", "stylo"], ["affichage", "Affichage", "oeil"]];
+    return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { className: "bascule-mode", role: "group", "aria-label": "Mode de la page", children: opts.map(([id, lib, ico]) => /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("button", { type: "button", className: "bascule-mode__btn", "aria-pressed": mode === id, onClick: () => setMode(id), children: [
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Icone, { nom: ico }),
+      lib
+    ] }, id)) });
+  }
   function EnteteEtape({ etape, etat, d, outils }) {
     const e = ETAPE_PAR_ID[etape];
+    const ctxMode = (0, import_react5.useContext)(CtxModeEtape);
     const prochaine = STATUTS[d.statut] && STATUTS[d.statut].prochaine;
     return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_jsx_runtime5.Fragment, { children: [
       /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "etape-tete", children: [
@@ -11599,9 +12586,12 @@ Error generating stack: `+u.message+`
           /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("h1", { children: e.titre }),
           /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("p", { children: e.objectif })
         ] }),
-        outils && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { className: "etape-tete__outils", children: outils })
+        (outils || ctxMode) && /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "etape-tete__outils", children: [
+          ctxMode && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(BasculeMode, { mode: ctxMode.mode, setMode: ctxMode.setMode }),
+          outils
+        ] })
       ] }),
-      etat === "a_venir" && prochaine && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Encadre, { ton: "or", titre: "Étape pas encore atteinte", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("p", { children: [
+      ctxMode && ctxMode.mode === "affichage" ? null : etat === "a_venir" && prochaine && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Encadre, { ton: "or", titre: "Étape pas encore atteinte", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("p", { children: [
         "Le dossier en est à l’étape « ",
         ETAPE_PAR_ID[prochaine].titre,
         " ». Vous pouvez consulter et préparer cette page, mais pas la valider."
@@ -11841,14 +12831,24 @@ Error generating stack: `+u.message+`
     const lignes = dg.mouvementComposants || [];
     const groupes = composantsPour(d.montre.type);
     const connus = new Set(groupes.flatMap((g) => g.items));
+    const groupesHab = GROUPES.map((g) => ({ groupe: g, zones: ZONES_HABILLAGE.filter((z) => z.groupe === g) }));
     const setL = (l) => set(["diagnostic", "mouvementComposants"], l);
     const maj = (id, patch) => {
       setL(lignes.map((x) => x.uid === id ? { ...x, ...patch } : x));
+      const ligne = { ...lignes.find((x) => x.uid === id), ...patch };
       const mvt = dg.mouvement || [];
-      if (patch.constat && CONSTAT_MOUVEMENT.includes(patch.constat) && !mvt.includes(patch.constat)) set(["diagnostic", "mouvement"], [...mvt.filter((v) => v !== RAS), patch.constat]);
+      if (ligne.partie !== "habillage" && patch.constat && CONSTAT_MOUVEMENT.includes(patch.constat) && !mvt.includes(patch.constat)) set(["diagnostic", "mouvement"], [...mvt.filter((v) => v !== RAS), patch.constat]);
+    };
+    const valeurComposant = (x) => x.partie === "habillage" ? `h|${x.zone}` : x.composant ? `m|${x.composant}` : "";
+    const constatsDe = (x) => x.partie === "habillage" ? typesDefaut(x.zone) : [...CONSTAT_MOUVEMENT, AUTRE_DEFAUT];
+    const choisirComposant = (x, v) => {
+      if (!v) return maj(x.uid, { partie: "mouvement", zone: "", composant: "", constat: "" });
+      const [p, c] = [v.slice(0, 1), v.slice(2)];
+      const n = p === "h" ? { partie: "habillage", zone: c, composant: libelleZone(c) } : { partie: "mouvement", zone: "", composant: c };
+      maj(x.uid, { ...n, constat: constatsDe(n).includes(x.constat) ? x.constat : "" });
     };
     const ajouter = () => {
-      const n = { uid: uid(), composant: "", constat: "", precision: "" };
+      const n = { uid: uid(), partie: "mouvement", zone: "", composant: "", constat: "", precision: "" };
       setL([...lignes, n]);
       setTimeout(() => {
         const el = document.getElementById(`mvt-${n.uid}`);
@@ -11857,22 +12857,98 @@ Error generating stack: `+u.message+`
     };
     const autre = (x) => x.composant === AUTRE_COMPOSANT || x.constat === AUTRE_DEFAUT;
     return (0, import_jsx_runtime7.jsxs)("div", { className: "mvt", children: [
-      (0, import_jsx_runtime7.jsx)("h4", { className: "mvt__titre", children: "Composants du mouvement concernés" }),
-      lignes.length ? (0, import_jsx_runtime7.jsx)("ul", { className: "liste-lignes mvt__liste", "aria-label": "Composants du mouvement concernés", children: lignes.map((x, i) => (0, import_jsx_runtime7.jsxs)("li", { className: "ligne", children: [
+      (0, import_jsx_runtime7.jsx)("h4", { className: "mvt__titre", children: "Composants concernés (mouvement et habillage)" }),
+      (0, import_jsx_runtime7.jsx)("p", { className: "note", style: { margin: "0 0 .45rem" }, children: "Choisissez un composant du mouvement ou de l’habillage, puis son constat." }),
+      lignes.length ? (0, import_jsx_runtime7.jsx)("ul", { className: "liste-lignes mvt__liste", "aria-label": "Composants concernés", children: lignes.map((x, i) => (0, import_jsx_runtime7.jsxs)("li", { className: "ligne", children: [
         (0, import_jsx_runtime7.jsxs)("div", { className: "ligne__haut", children: [
           (0, import_jsx_runtime7.jsx)("span", { className: "mvt__num", "aria-hidden": "true", children: i + 1 }),
-          (0, import_jsx_runtime7.jsxs)("select", { id: `mvt-${x.uid}`, className: "saisie saisie--compacte mvt__composant", value: x.composant, "data-rempli": rempli(x.composant), "aria-label": `Composant ${i + 1}`, onChange: (e) => maj(x.uid, { composant: e.target.value }), children: [
+          (0, import_jsx_runtime7.jsxs)("select", { id: `mvt-${x.uid}`, className: "saisie saisie--compacte mvt__composant", value: valeurComposant(x), "data-rempli": rempli(x.composant), "data-partie": x.partie, "aria-label": `Composant ${i + 1}`, onChange: (e) => choisirComposant(x, e.target.value), children: [
             (0, import_jsx_runtime7.jsx)("option", { value: "", children: "Choisir le composant" }),
-            groupes.map((g) => (0, import_jsx_runtime7.jsx)("optgroup", { label: g.groupe, children: g.items.map((c) => (0, import_jsx_runtime7.jsx)("option", { value: c, children: c }, c)) }, g.groupe)),
-            x.composant && !connus.has(x.composant) && (0, import_jsx_runtime7.jsx)("option", { value: x.composant, children: x.composant })
+            groupes.map((g) => (0, import_jsx_runtime7.jsx)("optgroup", { label: `Mouvement — ${g.groupe}`, children: g.items.map((c) => (0, import_jsx_runtime7.jsx)("option", { value: `m|${c}`, children: c }, c)) }, g.groupe)),
+            groupesHab.map((g) => (0, import_jsx_runtime7.jsx)("optgroup", { label: `Habillage — ${g.groupe}`, children: g.zones.map((z) => (0, import_jsx_runtime7.jsx)("option", { value: `h|${z.id}`, children: z.libelle }, z.id)) }, `h-${g.groupe}`)),
+            x.partie !== "habillage" && x.composant && !connus.has(x.composant) && (0, import_jsx_runtime7.jsx)("option", { value: `m|${x.composant}`, children: x.composant })
           ] }),
-          (0, import_jsx_runtime7.jsx)(Liste, { className: "saisie--compacte mvt__constat", valeur: x.constat, vide: "Choisir le constat", options: [...CONSTAT_MOUVEMENT, AUTRE_DEFAUT], onChange: (v) => maj(x.uid, { constat: v }), "aria-label": `Constat, composant ${i + 1}` }),
+          (0, import_jsx_runtime7.jsx)(Liste, { className: "saisie--compacte mvt__constat", valeur: x.constat, vide: "Choisir le constat", options: constatsDe(x), onChange: (v) => maj(x.uid, { constat: v }), "aria-label": `Constat, composant ${i + 1}` }),
           (0, import_jsx_runtime7.jsx)(BoutonIcone, { icone: "poubelle", danger: true, label: `Supprimer le composant ${i + 1}${x.composant ? ` « ${x.composant} »` : ""}`, onClick: () => setL(lignes.filter((y) => y.uid !== x.uid)) })
         ] }),
         (0, import_jsx_runtime7.jsx)("div", { className: "ligne__bas", children: (0, import_jsx_runtime7.jsx)(Saisie, { className: "saisie--compacte mvt__precision", valeur: x.precision, onChange: (v) => maj(x.uid, { precision: v }), "aria-label": `Précision, composant ${i + 1}`, placeholder: autre(x) ? "Précision obligatoire : nommez le composant ou le constat" : "Précision : emplacement, aspect" }) })
       ] }, x.uid)) }) : (0, import_jsx_runtime7.jsx)("p", { className: "vide", children: "Aucun composant signalé." }),
       (0, import_jsx_runtime7.jsx)("div", { className: "actions", style: { marginTop: ".6rem" }, children: (0, import_jsx_runtime7.jsx)(Bouton, { petit: true, variante: "sec", icone: "plus", onClick: ajouter, children: "Ajouter un composant concerné" }) }),
       (0, import_jsx_runtime7.jsx)("div", { className: "grille grille--1", style: { marginTop: "1rem" }, children: (0, import_jsx_runtime7.jsx)(Champ, { label: "Description de l’état du mouvement", aide: "Décrivez l’aspect du mouvement observé à l’ouverture de la montre.", children: (0, import_jsx_runtime7.jsx)(Zone, { valeur: dg.mouvementTexte, onChange: (v) => set(["diagnostic", "mouvementTexte"], v), rows: 3 }) }) })
+    ] });
+  }
+  function SyntheseDiagnostic({ d, ent, sous, onOuvrir }) {
+    const dg = d.diagnostic;
+    const meca = estMecanique(d);
+    const s = statsMesures(dg.mesures);
+    const sug = suggestionPriseEnCharge(d, ent);
+    const pc = dg.priseEnCharge;
+    const res = (i) => (i.choix.find((c) => c[0] === dg.inspection[i.id]) || [])[1];
+    const esth = INSPECTION.filter((i) => i.famille === "esthetique");
+    const fonc = INSPECTION.filter((i) => i.famille !== "esthetique");
+    const mc = (dg.mouvementComposants || []).filter((x) => x.composant || x.constat || x.precision);
+    const marche = meca ? s ? [
+      Number.isFinite(s.marcheMoy) ? `marche moyenne ${fmtSigne(s.marcheMoy)} s/j` : "",
+      Number.isFinite(s.ecart) ? `écart max. − min. ${fmtNombre(s.ecart)} s/j` : "",
+      Number.isFinite(s.ampMoy) ? `amplitude moyenne ${fmtNombre(s.ampMoy, 0)}°` : ""
+    ].filter(Boolean).join(" · ") : "aucune mesure" : String(dg.marcheQuartz != null ? dg.marcheQuartz : "").trim() ? `${dg.marcheQuartz} s/j` : "non mesurée";
+    const ligne = (dt, dd) => (0, import_jsx_runtime7.jsxs)(import_react7.default.Fragment, { children: [
+      (0, import_jsx_runtime7.jsx)("dt", { children: dt }),
+      (0, import_jsx_runtime7.jsx)("dd", { "data-vide": dd ? void 0 : "oui", children: dd || "Non renseigné" })
+    ] }, dt);
+    const tete = (id) => {
+      const x = sous.find((y) => y.id === id);
+      return (0, import_jsx_runtime7.jsxs)("div", { className: "synthese__tete", children: [
+        (0, import_jsx_runtime7.jsx)("h3", { children: `${id}. ${x.titre}` }),
+        (0, import_jsx_runtime7.jsx)("span", { className: cx("badge", x.etat === "complete" ? "badge--ok" : x.etat === "en_cours" ? "badge--alerte" : ""), children: `${LIB_SOUS_ETAPE[x.etat]} · ${x.faits} / ${x.total}` }),
+        onOuvrir && (0, import_jsx_runtime7.jsx)(Bouton, { petit: true, variante: "sec", onClick: () => onOuvrir(id), "aria-label": `Ouvrir la sous-étape ${id}. ${x.titre}`, children: `Ouvrir ${id}` }),
+        x.reste.length > 0 && (0, import_jsx_runtime7.jsx)("p", { className: "synthese__reste", children: `À compléter : ${x.reste.join(", ")}.` })
+      ] });
+    };
+    return (0, import_jsx_runtime7.jsxs)("div", { className: "synthese", children: [
+      (0, import_jsx_runtime7.jsxs)("section", { className: "synthese__bloc", children: [
+        tete("A"),
+        (0, import_jsx_runtime7.jsx)("h4", { children: "A1. Inspection initiale esthétique" }),
+        (0, import_jsx_runtime7.jsx)("div", { className: (d.reception.defauts || []).length ? "tableau-conteneur" : "", children: (0, import_jsx_runtime7.jsx)(TableDefauts, { reception: d.reception, ent, intensite: true }) }),
+        (0, import_jsx_runtime7.jsx)("dl", { className: "synthese__dl", children: esth.map((i) => ligne(i.libelle, res(i))) }),
+        (0, import_jsx_runtime7.jsx)("h4", { children: "A2. Inspection initiale fonctionnelle" }),
+        (0, import_jsx_runtime7.jsx)("p", { className: "synthese__sous", children: "Défauts fonctionnels de la réception" }),
+        (0, import_jsx_runtime7.jsx)(ListeDefautsFonctionnels, { reception: d.reception }),
+        (0, import_jsx_runtime7.jsx)("dl", { className: "synthese__dl", children: [...fonc.map((i) => ligne(i.libelle, res(i))), ligne(meca ? "Mesures de marche à réception" : "Marche du mouvement quartz", marche)] })
+      ] }),
+      (0, import_jsx_runtime7.jsxs)("section", { className: "synthese__bloc", children: [
+        tete("B"),
+        (0, import_jsx_runtime7.jsxs)("dl", { className: "synthese__dl", children: [
+          ligne("Diagnostic CS", String(dg.texte || "").trim()),
+          ligne("Mouvement — esthétique générale", (dg.mouvement || []).join(", ")),
+          ligne("Description de l’état du mouvement", String(dg.mouvementTexte || "").trim())
+        ] }),
+        (0, import_jsx_runtime7.jsx)("p", { className: "synthese__sous", children: "Composants concernés" }),
+        mc.length ? (0, import_jsx_runtime7.jsx)("div", { className: "tableau-conteneur", children: (0, import_jsx_runtime7.jsxs)("table", { className: "tableau tableau--cartes tableau--rappel", children: [
+          (0, import_jsx_runtime7.jsx)("thead", { children: (0, import_jsx_runtime7.jsxs)("tr", { children: [
+            (0, import_jsx_runtime7.jsx)("th", { scope: "col", children: "Partie" }),
+            (0, import_jsx_runtime7.jsx)("th", { scope: "col", children: "Composant" }),
+            (0, import_jsx_runtime7.jsx)("th", { scope: "col", children: "Constat" }),
+            (0, import_jsx_runtime7.jsx)("th", { scope: "col", children: "Précision" })
+          ] }) }),
+          (0, import_jsx_runtime7.jsx)("tbody", { children: mc.map((x) => (0, import_jsx_runtime7.jsxs)("tr", { children: [
+            (0, import_jsx_runtime7.jsx)("td", { className: "plein", "data-l": "Partie", children: x.partie === "habillage" ? "Habillage" : "Mouvement" }),
+            (0, import_jsx_runtime7.jsx)("td", { className: "plein rappel__composant", children: x.composant || "—" }),
+            (0, import_jsx_runtime7.jsx)("td", { className: "plein", "data-l": "Constat", children: x.constat || "—" }),
+            (0, import_jsx_runtime7.jsx)("td", { className: "plein", "data-l": x.precision ? "Précision" : void 0, children: x.precision || "" })
+          ] }, x.uid)) })
+        ] }) }) : (0, import_jsx_runtime7.jsx)("p", { children: "Aucun composant signalé." })
+      ] }),
+      (0, import_jsx_runtime7.jsxs)("section", { className: "synthese__bloc", children: [
+        tete("C"),
+        (0, import_jsx_runtime7.jsxs)("dl", { className: "synthese__dl", children: [
+          ligne("Prise en charge retenue", (PEC_PAR_ID[pc] || {}).libelle),
+          ligne("Justification", String(dg.justificationPec || "").trim()),
+          ligne("Proposition de l’application", sug.pc ? PEC_PAR_ID[sug.pc].libelle : ""),
+          ligne("Devis", pc ? devisRequis(d) ? "nécessaire" : "non nécessaire" : "")
+        ] }),
+        pc && (0, import_jsx_runtime7.jsx)("p", { className: "note", children: TEXTE_PEC[pc] })
+      ] })
     ] });
   }
   var LIB_SOUS_ETAPE = { a_faire: "À faire", en_cours: "En cours", complete: "Complète" };
@@ -11987,16 +13063,17 @@ Error generating stack: `+u.message+`
     const ajouter = (ligne) => setLignes([...props, { uid: uid(), ref: null, qte: 1, statut: "obligatoire", gratuit: estGarantie(pc), accepte: null, origine: "diagnostic", accord: null, remplace: false, ...ligne }]);
     const payantsSousGarantie = estGarantie(pc) && props.some((l) => l.statut === "obligatoire" && !l.gratuit);
     const requis = devisRequis(d);
-    const [modif, setModif] = (0, import_react7.useState)({ id: d.id, esthetique: null, fonctionnel: false });
-    const enModif = modif.id === d.id ? modif : { id: d.id, esthetique: null, fonctionnel: false };
-    const basculerEsthetique = () => {
+    const [modif, setModif] = (0, import_react7.useState)({ id: d.id, esthetique: null, fonctionnel: false, ajout: false });
+    const enModif = modif.id === d.id ? modif : { id: d.id, esthetique: null, fonctionnel: false, ajout: false };
+    const [synthese, setSynthese] = (0, import_react7.useState)(false);
+    const basculerEsthetique = (ajout) => {
       const instantane = JSON.stringify(d.reception.defauts || []);
       if (enModif.esthetique === null) {
-        setModif({ ...enModif, esthetique: instantane });
+        setModif({ ...enModif, esthetique: instantane, ajout: ajout === true });
         return;
       }
       if (enModif.esthetique !== instantane) set(["diagnostic", "inspection", "esthetique"], "modifie");
-      setModif({ ...enModif, esthetique: null });
+      setModif({ ...enModif, esthetique: null, ajout: false });
     };
     const controle = (i) => /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "controle", "data-etat": dg.inspection[i.id], children: [
       /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: i.libelle }),
@@ -12045,6 +13122,7 @@ Error generating stack: `+u.message+`
     return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "page", children: [
       /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(EnteteEtape, { etape: "diagnostic", etat: etats.diagnostic, d }),
       accepte && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Encadre, { ton: "or", titre: `Devis déjà ${estGarantie(pc) && !requis ? "remplacé par la prise en charge garantie" : `accepté le ${fmtDate(d.dates.decision)}`}`, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: "Toute modification des travaux doit faire l’objet d’un nouvel accord du client. Pour une pièce non prévue, utilisez « Compléments » dans la fiche atelier." }) }),
+      estExercice(d) && (0, import_jsx_runtime7.jsx)(AccesFicheAtelier, { d }, d.id),
       (0, import_jsx_runtime7.jsx)(SousEtapes, { sous, actif, onChoisir: choisir, idBase, refBarre }),
       (0, import_jsx_runtime7.jsxs)("div", { role: "tabpanel", id: `${idBase}-panneau-${actif}`, "aria-labelledby": `${idBase}-onglet-${actif}`, className: "sous-panneau", children: [
       (0, import_jsx_runtime7.jsxs)("p", { className: "sous-panneau__reste", "data-etat": courante.etat, children: [
@@ -12057,10 +13135,13 @@ Error generating stack: `+u.message+`
         children: [
           (0, import_jsx_runtime7.jsxs)("div", { className: "rappel__tete", children: [
             (0, import_jsx_runtime7.jsx)("h3", { children: "Rappel du constat esthétique de la réception" }),
-            (0, import_jsx_runtime7.jsx)(Bouton, { petit: true, variante: "sec", icone: enModif.esthetique === null ? "stylo" : "check", onClick: basculerEsthetique, children: enModif.esthetique === null ? "Modifier le constat" : "Terminer la modification" })
+            (0, import_jsx_runtime7.jsxs)("div", { className: "actions", children: [
+              enModif.esthetique === null && (0, import_jsx_runtime7.jsx)(Bouton, { petit: true, variante: "sec", icone: "plus", onClick: () => basculerEsthetique(true), children: "Ajouter un composant de l’habillage" }),
+              (0, import_jsx_runtime7.jsx)(Bouton, { petit: true, variante: "sec", icone: enModif.esthetique === null ? "stylo" : "check", onClick: () => basculerEsthetique(false), children: enModif.esthetique === null ? "Modifier le constat" : "Terminer la modification" })
+            ] })
           ] }),
           enModif.esthetique !== null && (0, import_jsx_runtime7.jsx)("p", { className: "note rappel__note", children: "Modification en cours : vos changements mettent à jour le constat de la réception." }),
-          enModif.esthetique === null ? (0, import_jsx_runtime7.jsx)(VueConstatHabillage, { reception: d.reception, ent }) : (0, import_jsx_runtime7.jsx)(ConstatHabillage, { reception: d.reception, set, ent }),
+          enModif.esthetique === null ? (0, import_jsx_runtime7.jsx)(VueConstatHabillage, { reception: d.reception, ent }) : (0, import_jsx_runtime7.jsx)(ConstatHabillage, { reception: d.reception, set, ent, ajoutAuDemarrage: enModif.ajout }),
           (0, import_jsx_runtime7.jsx)("div", { className: "controles", style: { marginTop: "1rem" }, children: INSPECTION.filter((i) => i.famille === "esthetique").map(controle) })
         ]
       }),
@@ -12109,9 +13190,19 @@ Error generating stack: `+u.message+`
           p.libelle
         ] }, p.id)) }),
         pc ? /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { className: "note", style: { marginTop: ".7rem", maxWidth: "52rem" }, children: TEXTE_PEC[pc] }) : /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { className: "note", style: { marginTop: ".7rem" }, children: "Choisissez la prise en charge : elle détermine s’il faut un devis." }),
+        (0, import_jsx_runtime7.jsx)(Champ, { label: "Justification du choix (une phrase)", className: "exo-justif", children: (0, import_jsx_runtime7.jsx)(Zone, { rows: 2, valeur: dg.justificationPec || "", onChange: (v) => set(["diagnostic", "justificationPec"], v), placeholder: "Ex. : achat il y a 14 mois, facture présentée, aucun choc." }) }),
+        (0, import_jsx_runtime7.jsxs)("details", { className: "plan-info", style: { marginTop: ".8rem" }, children: [
+          (0, import_jsx_runtime7.jsx)("summary", { children: "Règles de prise en charge de Watch Repair Plus (entreprise fictive)" }),
+          (0, import_jsx_runtime7.jsx)("ul", { className: "exo__liste", children: REGLES_PEC.map(([t, r]) => (0, import_jsx_runtime7.jsxs)("li", { children: [(0, import_jsx_runtime7.jsx)("b", { children: t }), " : ", r] }, t)) })
+        ] }),
         payantsSousGarantie && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Bouton, { petit: true, variante: "sec", icone: "bouclier", onClick: () => setLignes(props.map((l) => l.statut === "obligatoire" ? { ...l, gratuit: true } : l)), children: "Passer les travaux obligatoires en « gratuit » (garantie)" })
       ] }),
       actif === "D" && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Carte, { titre: "D. Travaux et pièces", sousTitre: "Fiche de devis interne : pour chaque ligne, obligatoire ou optionnelle, payante ou gratuite.", children: [
+        (0, import_jsx_runtime7.jsx)("div", { className: "actions synthese__acces", children: (0, import_jsx_runtime7.jsx)(Bouton, { petit: true, variante: "sec", icone: "info", onClick: () => setSynthese(true), "aria-haspopup": "dialog", children: "Voir la synthèse des sous-étapes A, B et C" }) }),
+        (0, import_jsx_runtime7.jsx)(Dialogue, { ouvert: synthese, onFermer: () => setSynthese(false), titre: `Synthèse du diagnostic · ${d.id}`, large: true, className: "dialogue--synthese", pied: (0, import_jsx_runtime7.jsx)(Bouton, { onClick: () => setSynthese(false), children: "Fermer" }), children: synthese && (0, import_jsx_runtime7.jsx)(SyntheseDiagnostic, { d, ent, sous, onOuvrir: (x) => {
+          setSynthese(false);
+          choisir(x, true, true);
+        } }) }),
         /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(EditeurLignes, { lignes: props, onChange: setLignes, pc }),
         /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "actions", style: { margin: ".8rem 0" }, children: [
           /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Bouton, { petit: true, variante: "sec", icone: "horloge", onClick: () => ajouter({ libelle: "Main-d’œuvre horlogère", categorie: "mo", pu: ent.tauxHoraire, qte: 1 }), children: "Ajouter de la main-d’œuvre" }),
@@ -13439,9 +14530,294 @@ Error generating stack: `+u.message+`
     ] });
   }
 
+  // src/pages/vues.jsx
+  var import_jsx_runtime20 = __toESM(require_jsx_runtime(), 1);
+  var estVideV = (v) => v === null || v === void 0 || String(v).trim() === "";
+  function Infos({ lignes, colonnes }) {
+    return (0, import_jsx_runtime20.jsx)("dl", { className: cx("vue-dl", colonnes === 1 && "vue-dl--1"), children: lignes.filter(Boolean).map(([dt, dd, large]) => (0, import_jsx_runtime20.jsxs)("div", { className: cx("vue-dl__l", large && "vue-dl__l--large"), children: [
+      (0, import_jsx_runtime20.jsx)("dt", { children: dt }),
+      (0, import_jsx_runtime20.jsx)("dd", { "data-vide": estVideV(dd) ? "oui" : void 0, children: estVideV(dd) ? "Non renseigné" : dd })
+    ] }, dt)) });
+  }
+  function Texte({ valeur, sinon }) {
+    return estVideV(valeur) ? (0, import_jsx_runtime20.jsx)("p", { className: "vue-vide", children: sinon || "Non renseigné." }) : (0, import_jsx_runtime20.jsx)("p", { className: "vue-texte", children: valeur });
+  }
+  function Bloc({ titre, actions, children }) {
+    return (0, import_jsx_runtime20.jsx)(Carte, { titre, actions, className: "vue-bloc", children });
+  }
+  function Photos({ d, etape }) {
+    const ph = photosEtape(d, etape);
+    return (0, import_jsx_runtime20.jsx)(Bloc, { titre: "Photos", actions: (0, import_jsx_runtime20.jsx)(Badge, { children: `${ph.length} photo${ph.length > 1 ? "s" : ""}` }), children: (0, import_jsx_runtime20.jsx)(GaleriePhotos, { photos: ph }) });
+  }
+  var dateOuVide = (s) => s ? fmtDate(s) : "";
+  function VueAccueil({ d }) {
+    const c = d.client, m = d.montre, dt = d.dates;
+    const sec = (d.demandesSecondaires || []).filter((x) => !estVideV(x.texte));
+    const qq = QQOQCP.filter((x) => !estVideV((d.qqoqcp || {})[x.id]));
+    return (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, { children: [
+      (0, import_jsx_runtime20.jsxs)("div", { className: "vue-colonnes", children: [
+        (0, import_jsx_runtime20.jsx)(Bloc, { titre: "Client", children: (0, import_jsx_runtime20.jsx)(Infos, { colonnes: 1, lignes: [
+          ["Nom", c.nom], ["N° client", c.numero],
+          ["Adresse", [c.adresse, [c.npa, c.ville].filter(Boolean).join(" ")].filter(Boolean).join(", ")],
+          ["Téléphone", c.telephone], ["E-mail", c.email], ["Référence du client", c.reference]
+        ] }) }),
+        (0, import_jsx_runtime20.jsx)(Bloc, { titre: "Montre", children: (0, import_jsx_runtime20.jsx)(Infos, { colonnes: 1, lignes: [
+          ["Marque et modèle", [m.marque, m.modele].filter(Boolean).join(" ")], ["Référence", m.reference], ["N° de série (boîte)", m.serie],
+          ["Type de mouvement", (TYPES_MOUVEMENT.find((t) => t.id === m.type) || {}).libelle], ["Calibre", m.calibre], ["N° de mouvement", m.mouvementNo],
+          ["Cadran", m.cadran], ["Bracelet", m.bracelet], ["Boucle / fermoir", m.boucle]
+        ] }) })
+      ] }),
+      (0, import_jsx_runtime20.jsx)(Bloc, { titre: "Chronologie", children: (0, import_jsx_runtime20.jsx)(Infos, { lignes: [
+        ["Date d’achat", dateOuVide(dt.vente)], ["Date de production", dateOuVide(dt.production)],
+        ["Dernière réparation", dateOuVide(dt.derniereReparation)], ["Date de dépôt", dateOuVide(dt.depot)]
+      ] }) }),
+      (0, import_jsx_runtime20.jsxs)(Bloc, { titre: "Demande du client", children: [
+        (0, import_jsx_runtime20.jsx)("p", { className: "vue-sous", children: "Demande principale" }),
+        (0, import_jsx_runtime20.jsx)(Texte, { valeur: d.demande }),
+        sec.length > 0 && (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, { children: [
+          (0, import_jsx_runtime20.jsx)("p", { className: "vue-sous", children: "Demandes secondaires" }),
+          (0, import_jsx_runtime20.jsx)("ul", { className: "liste-doc", children: sec.map((x) => (0, import_jsx_runtime20.jsx)("li", { children: x.texte }, x.uid)) })
+        ] }),
+        (0, import_jsx_runtime20.jsx)("p", { className: "vue-sous", children: "Problème vécu par le client" }),
+        d.problemeSignale === "non" ? (0, import_jsx_runtime20.jsx)("p", { className: "vue-texte", children: "Aucun problème signalé par le client." }) : (0, import_jsx_runtime20.jsx)(Texte, { valeur: d.probleme, sinon: d.problemeSignale === "oui" ? "Problème signalé, non décrit." : "Non renseigné." }),
+        qq.length > 0 && (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, { children: [
+          (0, import_jsx_runtime20.jsx)("p", { className: "vue-sous", children: "QQOQCP" }),
+          (0, import_jsx_runtime20.jsx)(Infos, { colonnes: 1, lignes: qq.map((x) => [x.q, d.qqoqcp[x.id]]) })
+        ] })
+      ] })
+    ] });
+  }
+  function VueReception({ d, ent }) {
+    const r = d.reception;
+    const el = ELEMENTS_REMIS.filter((e) => (r.elements || {})[e.id]).map((e) => e.libelle);
+    if (!estVideV(r.autreElement)) el.push(r.autreElement);
+    return (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, { children: [
+      (0, import_jsx_runtime20.jsx)(Bloc, { titre: "Éléments remis et documents", children: (0, import_jsx_runtime20.jsx)(Infos, { colonnes: 1, lignes: [
+        ["Éléments remis", el.length ? el.join(" · ") : "Aucun élément remis avec la montre"],
+        ["Vérification documentaire", r.docsVerifies ? "Documents vérifiés" : ""]
+      ] }) }),
+      (0, import_jsx_runtime20.jsx)(Bloc, { titre: "Défauts esthétiques", actions: (0, import_jsx_runtime20.jsx)(Badge, { children: `${(r.defauts || []).length} défaut${(r.defauts || []).length > 1 ? "s" : ""}` }), children: (0, import_jsx_runtime20.jsx)(VueConstatHabillage, { reception: r, ent }) }),
+      (0, import_jsx_runtime20.jsx)(Bloc, { titre: "Défauts fonctionnels ou techniques", children: (0, import_jsx_runtime20.jsx)(ListeDefautsFonctionnels, { reception: r }) }),
+      (0, import_jsx_runtime20.jsx)(Bloc, { titre: "Observations", children: (0, import_jsx_runtime20.jsx)(Texte, { valeur: r.observations, sinon: "Aucune observation." }) }),
+      (0, import_jsx_runtime20.jsx)(Photos, { d, etape: "reception" })
+    ] });
+  }
+  function VueDiagnostic({ d, ent }) {
+    const dg = d.diagnostic;
+    const props = lignesProposees(d);
+    const t = totauxDevis(d, ent);
+    return (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, { children: [
+      (0, import_jsx_runtime20.jsx)(Bloc, { titre: "Sous-étapes A, B et C", children: (0, import_jsx_runtime20.jsx)(SyntheseDiagnostic, { d, ent, sous: avancementDiagnostic(d) }) }),
+      (0, import_jsx_runtime20.jsxs)(Bloc, { titre: "D. Travaux et pièces", actions: (0, import_jsx_runtime20.jsx)(Badge, { children: `${props.length} ligne${props.length > 1 ? "s" : ""}` }), children: [
+        (0, import_jsx_runtime20.jsx)(TableLignesVue, { lignes: props }),
+        (0, import_jsx_runtime20.jsx)(Infos, { lignes: [
+          ["Travaux obligatoires HT", fmtCHF(t.sOblig)],
+          t.opts.length > 0 && ["Options proposées HT", fmtCHF(t.sOptions)],
+          ["Délai de réparation estimé", estVideV(dg.delaiSemaines) ? "" : `${dg.delaiSemaines} semaine${nombre(dg.delaiSemaines) > 1 ? "s" : ""}`],
+          ["Visa", dg.visa]
+        ] })
+      ] }),
+      (0, import_jsx_runtime20.jsx)(Photos, { d, etape: "diagnostic" })
+    ] });
+  }
+  function TableLignesVue({ lignes, accord }) {
+    if (!lignes.length) return (0, import_jsx_runtime20.jsx)("p", { className: "vue-vide", children: "Aucune ligne." });
+    return (0, import_jsx_runtime20.jsx)("div", { className: "tableau-conteneur", children: (0, import_jsx_runtime20.jsxs)("table", { className: "tableau tableau--cartes tableau--rappel vue-lignes", children: [
+      (0, import_jsx_runtime20.jsx)("thead", { children: (0, import_jsx_runtime20.jsxs)("tr", { children: [
+        (0, import_jsx_runtime20.jsx)("th", { scope: "col", children: "Désignation" }),
+        (0, import_jsx_runtime20.jsx)("th", { scope: "col", children: "Type" }),
+        (0, import_jsx_runtime20.jsx)("th", { scope: "col", children: accord ? "Accord du client" : "Statut" }),
+        (0, import_jsx_runtime20.jsx)("th", { scope: "col", className: "num", children: "Montant HT" })
+      ] }) }),
+      (0, import_jsx_runtime20.jsx)("tbody", { children: lignes.map((l) => (0, import_jsx_runtime20.jsxs)("tr", { children: [
+        (0, import_jsx_runtime20.jsx)("td", { className: "plein rappel__composant", children: l.libelle || "—" }),
+        (0, import_jsx_runtime20.jsx)("td", { className: "plein", "data-l": "Type", children: (CATEGORIES[l.categorie] || {}).titre || "—" }),
+        (0, import_jsx_runtime20.jsx)("td", { className: "plein", "data-l": accord ? "Accord" : "Statut", children: accord ? l.accord === true ? "obtenu" : l.accord === false ? "refusé" : "non requis ou en attente" : [l.statut === "optionnel" ? "Optionnel" : "Obligatoire", l.gratuit ? " · gratuit" : ""].join("") }),
+        (0, import_jsx_runtime20.jsx)("td", { className: "plein num", "data-l": "Montant HT", children: l.gratuit ? "gratuit" : fmtCHF(montantLigne(l)) })
+      ] }, l.uid)) })
+    ] }) });
+  }
+  function VueDevis({ d, ent }) {
+    const dec = decisionDevis(d);
+    const pec = PEC_PAR_ID[d.diagnostic.priseEnCharge];
+    let titre, ton = "info";
+    if (dec === "refus") [titre, ton] = [`Devis refusé le ${fmtDate(d.dates.decision)}`, "erreur"];
+    else if (dec === "options") [titre, ton] = [`Devis B accepté le ${fmtDate(d.dates.decision)} : travaux obligatoires et options choisies`, "ok"];
+    else if (dec === "obligatoire") [titre, ton] = [`Devis A accepté le ${fmtDate(d.dates.decision)} : travaux obligatoires seuls`, "ok"];
+    else if (d.diagnostic.priseEnCharge && !devisRequis(d)) [titre, ton] = [`Pas de devis : ${pec ? pec.libelle : "prise en charge"}`, "ok"];
+    else titre = "Décision du client en attente";
+    return (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, { children: [
+      (0, import_jsx_runtime20.jsx)(Encadre, { ton, titre, className: "vue-decision", children: !estVideV(d.devis.remarques) ? (0, import_jsx_runtime20.jsx)("p", { children: d.devis.remarques }) : null }),
+      (0, import_jsx_runtime20.jsx)(DocDevis, { d, ent })
+    ] });
+  }
+  function VueAtelier({ d }) {
+    const ops = d.atelier.operations || [];
+    const somme = (k) => ops.reduce((s, o) => s + nombreOuZero(o[k]), 0);
+    const comp = (d.lignes || []).filter((l) => l.origine === "atelier");
+    const appros = d.atelier.approvisionnements || [];
+    const termines = ops.filter((o) => o.statut === "termine").length;
+    return (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, { children: [
+      (0, import_jsx_runtime20.jsxs)(Bloc, { titre: "Opérations", actions: (0, import_jsx_runtime20.jsx)(Badge, { ton: ops.length && termines === ops.length ? "ok" : "neutre", children: `${termines} / ${ops.length} terminée${termines > 1 ? "s" : ""}` }), children: [
+        ops.length ? (0, import_jsx_runtime20.jsx)("div", { className: "tableau-conteneur", children: (0, import_jsx_runtime20.jsxs)("table", { className: "tableau tableau--cartes tableau--rappel", children: [
+          (0, import_jsx_runtime20.jsx)("thead", { children: (0, import_jsx_runtime20.jsxs)("tr", { children: [
+            (0, import_jsx_runtime20.jsx)("th", { scope: "col", children: "N°" }),
+            (0, import_jsx_runtime20.jsx)("th", { scope: "col", children: "Opération" }),
+            (0, import_jsx_runtime20.jsx)("th", { scope: "col", children: "Département" }),
+            (0, import_jsx_runtime20.jsx)("th", { scope: "col", className: "num", children: "Temps std (h)" }),
+            (0, import_jsx_runtime20.jsx)("th", { scope: "col", className: "num", children: "Temps réel (h)" }),
+            (0, import_jsx_runtime20.jsx)("th", { scope: "col", children: "Statut" })
+          ] }) }),
+          (0, import_jsx_runtime20.jsx)("tbody", { children: ops.map((o) => (0, import_jsx_runtime20.jsxs)("tr", { children: [
+            (0, import_jsx_runtime20.jsx)("td", { className: "plein", "data-l": "N°", children: o.num }),
+            (0, import_jsx_runtime20.jsx)("td", { className: "plein rappel__composant", children: o.description || "—" }),
+            (0, import_jsx_runtime20.jsx)("td", { className: "plein", "data-l": "Département", children: o.departement }),
+            (0, import_jsx_runtime20.jsx)("td", { className: "plein num", "data-l": "Temps std (h)", children: estVideV(o.tempsStd) ? "—" : fmtNombre(nombreOuZero(o.tempsStd), 1, 0) }),
+            (0, import_jsx_runtime20.jsx)("td", { className: "plein num", "data-l": "Temps réel (h)", children: estVideV(o.tempsReel) ? "—" : fmtNombre(nombreOuZero(o.tempsReel), 1, 0) }),
+            (0, import_jsx_runtime20.jsx)("td", { className: "plein", "data-l": "Statut", children: LIB_STATUT[o.statut] || "—" })
+          ] }, o.uid)) })
+        ] }) }) : (0, import_jsx_runtime20.jsx)("p", { className: "vue-vide", children: "Aucune opération." }),
+        ops.length > 0 && (0, import_jsx_runtime20.jsx)(Infos, { lignes: [["Temps standard total", `${fmtNombre(somme("tempsStd"), 1, 0)} h`], ["Temps réel total", `${fmtNombre(somme("tempsReel"), 1, 0)} h`]] })
+      ] }),
+      (0, import_jsx_runtime20.jsx)(Bloc, { titre: "Compléments découverts en cours de réparation", children: (0, import_jsx_runtime20.jsx)(TableLignesVue, { lignes: comp, accord: true }) }),
+      (0, import_jsx_runtime20.jsx)(Bloc, { titre: "Approvisionnement des composants", children: appros.length ? (0, import_jsx_runtime20.jsx)("ul", { className: "vue-liste", children: appros.map((a) => (0, import_jsx_runtime20.jsxs)("li", { children: [
+        (0, import_jsx_runtime20.jsx)("b", { children: a.composant || "Composant non nommé" }),
+        ` · ${LIB_STATUT_APPRO[a.statut] || ""}`,
+        a.fournisseur ? ` · ${a.fournisseur}` : "",
+        a.livraisonPrevue && a.statut !== "recu" ? ` · livraison prévue le ${fmtDate(a.livraisonPrevue)}` : "",
+        a.dateReception && a.statut === "recu" ? ` · reçu le ${fmtDate(a.dateReception)}` : ""
+      ] }, a.uid)) }) : (0, import_jsx_runtime20.jsx)("p", { className: "vue-vide", children: "Aucun composant à approvisionner." }) }),
+      (0, import_jsx_runtime20.jsx)(Bloc, { titre: "Observations techniques de l’horloger", children: (0, import_jsx_runtime20.jsx)(Texte, { valeur: d.atelier.notes, sinon: "Aucune observation." }) }),
+      (0, import_jsx_runtime20.jsx)(Photos, { d, etape: "atelier" })
+    ] });
+  }
+  function VueControle({ d }) {
+    const c = d.controle;
+    const bil = bilanControles(c.resultats);
+    const meca = estMecanique(d);
+    return (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, { children: [
+      (0, import_jsx_runtime20.jsxs)(Bloc, { titre: "Contrôles", actions: (0, import_jsx_runtime20.jsx)(Badge, { ton: bil.nok ? "erreur" : bil.evalues === bil.total ? "ok" : "neutre", children: `${bil.evalues} / ${bil.total}` }), children: [
+        (0, import_jsx_runtime20.jsx)(Infos, { lignes: [["Conformes", String(bil.ok)], ["Non conformes", String(bil.nok)], ["Sans objet", String(bil.na)], ["Non renseignés", String(bil.total - bil.evalues)]] }),
+        CONTROLES_FINAUX.map((g, gi) => (0, import_jsx_runtime20.jsxs)("div", { className: "vue-groupe", children: [
+          (0, import_jsx_runtime20.jsx)("p", { className: "vue-sous", children: `${gi + 1}. ${g.titre}` }),
+          (0, import_jsx_runtime20.jsx)("ul", { className: "vue-controles", children: g.items.map(([k, l]) => (0, import_jsx_runtime20.jsxs)("li", { "data-etat": c.resultats[k] || "vide", children: [
+            (0, import_jsx_runtime20.jsx)("span", { children: l }),
+            (0, import_jsx_runtime20.jsx)("b", { children: CHOIX_CONTROLE2[c.resultats[k]] || "Non renseigné" })
+          ] }, k)) })
+        ] }, g.id))
+      ] }),
+      (0, import_jsx_runtime20.jsx)(Bloc, { titre: meca ? "Mesures finales" : "Marche finale", children: meca ? (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, { children: [
+        (0, import_jsx_runtime20.jsx)(TableMesures, { legende: "Tableau des mesures finales", mesures: c.mesures, reference: d.diagnostic.mesures, lectureSeule: true }),
+        (0, import_jsx_runtime20.jsx)(Infos, { lignes: [["Réserve de marche mesurée", estVideV(c.reserveMarche) ? "" : `${c.reserveMarche} h`]] })
+      ] }) : (0, import_jsx_runtime20.jsx)(Infos, { lignes: [["Marche mesurée", estVideV(c.marcheQuartz) ? "" : `${c.marcheQuartz} s/j`]] }) }),
+      (0, import_jsx_runtime20.jsx)(Bloc, { titre: "Remarques du contrôle", children: (0, import_jsx_runtime20.jsx)(Texte, { valeur: c.remarques, sinon: "Aucune remarque." }) }),
+      (0, import_jsx_runtime20.jsx)(Photos, { d, etape: "controle" })
+    ] });
+  }
+  function VueLivraison({ d, ent }) {
+    const l = d.livraison;
+    const recu = d.reception.elements || {};
+    const aRendre = ELEMENTS_REMIS.filter((e) => recu[e.id]).map((e) => [e.id, e.libelle]);
+    if (!estVideV(d.reception.autreElement)) aRendre.push(["autre", d.reception.autreElement]);
+    const liste = d.refus ? SORTIE_REFUS : SORTIE;
+    const t = calculTotaux(d, ent);
+    const coches = (items, etat) => (0, import_jsx_runtime20.jsx)("ul", { className: "vue-controles", children: items.map(([k, lib]) => (0, import_jsx_runtime20.jsxs)("li", { "data-etat": etat[k] ? "ok" : "vide", children: [
+      (0, import_jsx_runtime20.jsx)("span", { children: lib }),
+      (0, import_jsx_runtime20.jsx)("b", { children: etat[k] ? "Fait" : "Non coché" })
+    ] }, k)) });
+    return (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, { children: [
+      d.statut === "livre" && (0, import_jsx_runtime20.jsx)(Encadre, { ton: "ok", titre: `Dossier clôturé le ${fmtDate(d.dates.livraison)}`, children: (0, import_jsx_runtime20.jsx)("p", { children: "La montre a été remise au client." }) }),
+      (0, import_jsx_runtime20.jsx)(Bloc, { titre: "Éléments restitués", children: aRendre.length ? coches(aRendre, l.rendus || {}) : (0, import_jsx_runtime20.jsx)("p", { className: "vue-vide", children: "Aucun élément n’a été confié avec la montre." }) }),
+      (0, import_jsx_runtime20.jsx)(Bloc, { titre: "Contrôle de sortie", children: coches(liste, l.sortie || {}) }),
+      (0, import_jsx_runtime20.jsxs)(Bloc, { titre: "Remise au client", actions: !d.refus && (0, import_jsx_runtime20.jsx)(Badge, { ton: t.total ? "alerte" : "ok", children: t.total ? `À payer : ${fmtCHF(t.total)}` : "Sans frais" }), children: [
+        (0, import_jsx_runtime20.jsx)(Infos, { lignes: [["Montre remise à", l.remisA], ["Date de remise", dateOuVide(d.dates.livraison)]] }),
+        (0, import_jsx_runtime20.jsx)("p", { className: "vue-sous", children: "Signature du client" }),
+        l.signature ? (0, import_jsx_runtime20.jsx)("img", { className: "vue-signature", src: l.signature, alt: "Signature du client" }) : (0, import_jsx_runtime20.jsx)("p", { className: "vue-vide", children: "Pas de signature." })
+      ] })
+    ] });
+  }
+  var SANS_OBJET_REFUS = { atelier: "Aucune intervention n’est réalisée ; la montre est retournée au client en l’état.", controle: "Aucune intervention n’a été réalisée : il n’y a rien à contrôler.", rapport: "Aucune intervention n’a été réalisée : il n’y a pas de rapport de réparation.", facturation: "La montre est retournée en l’état, sans intervention et sans facture." };
+  function VueEtape({ vue, d, ent, etats, suivant, imprimer, onEditer }) {
+    const etat = d.refus && SANS_OBJET_REFUS[vue] ? "sans_objet" : etats[vue];
+    const doc = ["devis", "rapport", "facturation"].includes(vue) && etat !== "sans_objet";
+    let corps;
+    if (etat === "sans_objet") corps = (0, import_jsx_runtime20.jsx)(Encadre, { ton: "erreur", titre: "Sans objet : devis refusé", children: SANS_OBJET_REFUS[vue] });
+    else if (vue === "accueil") corps = (0, import_jsx_runtime20.jsx)(VueAccueil, { d });
+    else if (vue === "reception") corps = (0, import_jsx_runtime20.jsx)(VueReception, { d, ent });
+    else if (vue === "diagnostic") corps = (0, import_jsx_runtime20.jsx)(VueDiagnostic, { d, ent });
+    else if (vue === "devis") corps = (0, import_jsx_runtime20.jsx)(VueDevis, { d, ent });
+    else if (vue === "atelier") corps = (0, import_jsx_runtime20.jsx)(VueAtelier, { d });
+    else if (vue === "controle") corps = (0, import_jsx_runtime20.jsx)(VueControle, { d });
+    else if (vue === "rapport") corps = (0, import_jsx_runtime20.jsx)(DocRapport, { d, ent });
+    else if (vue === "facturation") corps = (0, import_jsx_runtime20.jsx)(DocFacture, { d, ent });
+    else corps = (0, import_jsx_runtime20.jsx)(VueLivraison, { d, ent });
+    return (0, import_jsx_runtime20.jsxs)("div", { className: cx("page page--vue", doc && "page--doc"), children: [
+      (0, import_jsx_runtime20.jsx)(EnteteEtape, { etape: vue, etat, d, outils: doc ? (0, import_jsx_runtime20.jsx)(Bouton, { variante: "sec", icone: "imprimer", onClick: imprimer, children: "Imprimer / PDF" }) : null }),
+      (0, import_jsx_runtime20.jsx)("p", { className: "vue-bandeau no-print", children: "Mode affichage : lecture des informations saisies. Passez en mode « Édition » pour modifier." }),
+      corps,
+      (0, import_jsx_runtime20.jsxs)(BarreActions, { info: etat === "fait" ? "Étape validée. Affichage en lecture seule." : "Affichage en lecture seule.", children: [
+        (0, import_jsx_runtime20.jsx)(Bouton, { variante: "sec", icone: "stylo", onClick: onEditer, children: "Modifier (mode édition)" }),
+        etat === "fait" && suivant && (0, import_jsx_runtime20.jsxs)(Bouton, { onClick: suivant, children: [
+          "Étape suivante",
+          (0, import_jsx_runtime20.jsx)(Icone, { nom: "fleche" })
+        ] })
+      ] })
+    ] });
+  }
+
+  // src/pages/exercice.jsx
+  var EXERCICE_IDS = ["RS-2026-111", "RS-2026-112", "RS-2026-113", "RS-2026-114", "RS-2026-115", "RS-2026-116"];
+  var FICHES_ATELIER = {"RS-2026-111": {"a1": null, "analyse": "Constat confirmé", "a2": [["identification", "Fait", ""], ["etancheite", "Conforme", ""], ["marche", "Conforme", "après remontage à la main"], ["remontage", "Non conforme", "la masse oscillante frotte ; le remontage automatique n’arme pas le ressort"], ["miseHeure", "Conforme", ""], ["fonctions", "Sans objet", "pas de date"], ["joints", "Conforme", ""], ["magnetisme", "Non magnétisée", ""], ["reproduction", "Reproduit", "arrêt après 9 h sur le remontoir de montres"]], "mesures": [[4, 290], [3, 295], [7, 262], [6, 258], [8, 255], [9, 250]], "quartz": null, "b": ["Masse oscillante : roulement à billes grippé. Deux billes sont ébréchées.", "Face intérieure du fond : traces de frottement de la masse oscillante.", "Mouvement propre. Huiles en bon état.", "Aucune trace de choc ni d’humidité."]}, "RS-2026-112": {"a1": null, "analyse": "Constat confirmé", "a2": [["identification", "Fait", ""], ["etancheite", "Non conforme", "fuite au contrôleur d’étanchéité, côté couronne"], ["marche", "Conforme", "avec une pile d’essai"], ["remontage", "Sans objet", "montre à quartz"], ["miseHeure", "Conforme", ""], ["fonctions", "Conforme", "date"], ["joints", "Non conforme", "joint de couronne et joint de fond secs, aplatis"], ["magnetisme", "Non magnétisée", ""], ["reproduction", "Reproduit", "montre arrêtée, pile usée"]], "mesures": null, "quartz": "+0,3 s/j (avec une pile d’essai)", "b": ["Pile usée : tension très inférieure à la valeur nominale. Aucune fuite de la pile.", "Mouvement propre. Aucune trace d’humidité.", "Joint de couronne et joint de fond secs et aplatis : cause de la fuite."]}, "RS-2026-113": {"a1": "Cadran : tache d’humidité près de 3 h. Type « Taché / jauni », intensité 1, précision « humidité près de 3 h ».", "analyse": "Constat modifié", "a2": [["identification", "Fait", ""], ["etancheite", "Non conforme", "fuite au contrôleur d’étanchéité, côté couronne"], ["marche", "Conforme", ""], ["remontage", "Conforme", ""], ["miseHeure", "Conforme", ""], ["fonctions", "Conforme", "date"], ["joints", "Non conforme", "joint du tube de couronne pincé"], ["magnetisme", "Non magnétisée", ""], ["reproduction", "Reproduit", "fuite au test d’étanchéité"]], "mesures": [[2, 280], [1, 285], [4, 255], [5, 250], [3, 252], [6, 248]], "quartz": null, "b": ["Joint du tube de couronne pincé : mal positionné au remontage lors de la révision du 15.09.2025.", "Tige de remontoir : début d’oxydation.", "Couronne : début d’oxydation à l’intérieur.", "Mouvement : aucune autre trace d’humidité. Huiles en bon état."]}, "RS-2026-114": {"a1": null, "analyse": "Constat confirmé", "a2": [["identification", "Fait", ""], ["etancheite", "Sans objet", "montre non étanche selon la référence"], ["marche", "Non conforme", "avance d’environ 290 s/j"], ["remontage", "Conforme", ""], ["miseHeure", "Conforme", ""], ["fonctions", "Sans objet", "pas de fonction additionnelle"], ["joints", "Non conforme", "joint de fond sec"], ["magnetisme", "Magnétisée", "détecteur de magnétisme positif"], ["reproduction", "Reproduit", ""]], "mesures": [[305, 205], [298, 210], [285, 185], [280, 180], [290, 182], [276, 178]], "quartz": null, "b": ["Après démagnétisation : marche moyenne d’environ +12 s/j ; amplitude faible, environ 190°.", "Mouvement encrassé. Huiles sèches.", "Ressort de barillet fatigué : réserve de marche d’environ 28 h.", "Ponts : deux vis légèrement oxydées."]}, "RS-2026-115": {"a1": "Cornes : choc sur la corne à 2 h. Type « Chocs / bosses », intensité 3, précision « corne à 2 h ».", "analyse": "Constat modifié", "a2": [["identification", "Fait", ""], ["etancheite", "Non conforme", "fuite au poussoir à 2 h"], ["marche", "Conforme", ""], ["remontage", "Conforme", ""], ["miseHeure", "Conforme", ""], ["fonctions", "Non conforme", "le chronographe ne démarre pas"], ["joints", "Conforme", ""], ["magnetisme", "Non magnétisée", ""], ["reproduction", "Reproduit", ""]], "mesures": [[3, 285], [2, 288], [5, 262], [6, 258], [4, 260], [7, 255]], "quartz": null, "b": ["Tube du poussoir à 2 h déformé par un choc. Poussoir bloqué.", "Mécanisme de chronographe : levier de commande déformé.", "Marques de choc sur la carrure et la corne à 2 h : elles correspondent à une chute.", "Mouvement propre. Aucun autre dommage."]}, "RS-2026-116": {"a1": null, "analyse": "Constat confirmé", "a2": [["identification", "Fait", ""], ["etancheite", "Conforme", ""], ["marche", "Conforme", ""], ["remontage", "Conforme", ""], ["miseHeure", "Conforme", ""], ["fonctions", "Non conforme", "la date ne change pas à minuit"], ["joints", "Conforme", ""], ["magnetisme", "Non magnétisée", ""], ["reproduction", "Reproduit", "essai sur deux nuits"]], "mesures": [[2, 282], [3, 286], [5, 260], [4, 258], [6, 255], [5, 252]], "quartz": null, "b": ["Ressort de sautoir de quantième cassé.", "Cassure nette, sans déformation : défaut de matière probable.", "Aucune trace de choc. Mouvement propre, huiles en bon état."]}};
+  var estExercice = (d) => !!d && EXERCICE_IDS.includes(d.id);
+  var REGLES_PEC = [
+    ["Garantie de vente", "24 mois dès l’achat, avec facture ou carte de garantie."],
+    ["Garantie de réparation", "24 mois dès la dernière réparation, si le défaut vient de cette réparation."],
+    ["Exclusions", "choc, mauvaise utilisation, usure normale du bracelet et de l’habillage."],
+    ["Geste commercial", "garantie de vente terminée depuis moins de 3 mois, défaut de fabrication, aucun choc. Main-d’œuvre offerte, pièces payantes."]
+  ];
+  function FicheAtelier({ d }) {
+    const x = FICHES_ATELIER[d.id];
+    const lib = (k) => (INSPECTION.find((i) => i.id === k) || {}).libelle || k;
+    return (0, import_jsx_runtime7.jsxs)("div", { className: "exo", children: [
+      (0, import_jsx_runtime7.jsx)("h3", { children: "A1. Inspection esthétique" }),
+      (0, import_jsx_runtime7.jsx)("p", { children: x.a1 ? `Nouveau défaut à la loupe : ${x.a1}` : "Aucun nouveau défaut : le constat de la réception est complet." }),
+      (0, import_jsx_runtime7.jsxs)("p", { children: ["Analyse esthétique : ", (0, import_jsx_runtime7.jsx)("b", { children: x.analyse })] }),
+      (0, import_jsx_runtime7.jsx)("h3", { children: "A2. Inspection fonctionnelle" }),
+      (0, import_jsx_runtime7.jsx)("div", { className: "tableau-conteneur", children: (0, import_jsx_runtime7.jsxs)("table", { className: "tableau tableau--cartes tableau--rappel", children: [
+        (0, import_jsx_runtime7.jsx)("thead", { children: (0, import_jsx_runtime7.jsxs)("tr", { children: [(0, import_jsx_runtime7.jsx)("th", { scope: "col", children: "Contrôle" }), (0, import_jsx_runtime7.jsx)("th", { scope: "col", children: "Résultat" }), (0, import_jsx_runtime7.jsx)("th", { scope: "col", children: "Observation" })] }) }),
+        (0, import_jsx_runtime7.jsx)("tbody", { children: x.a2.map(([k, r, o]) => (0, import_jsx_runtime7.jsxs)("tr", { children: [
+          (0, import_jsx_runtime7.jsx)("td", { className: "plein rappel__composant", children: lib(k) }),
+          (0, import_jsx_runtime7.jsx)("td", { className: "plein", "data-l": "Résultat", children: r }),
+          (0, import_jsx_runtime7.jsx)("td", { className: "plein", "data-l": o ? "Observation" : void 0, children: o })
+        ] }, k)) })
+      ] }) }),
+      x.mesures ? (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+        (0, import_jsx_runtime7.jsx)("h3", { children: "Mesures de marche à réception" }),
+        (0, import_jsx_runtime7.jsx)("div", { className: "tableau-conteneur", tabIndex: 0, role: "region", "aria-label": "Mesures de la fiche atelier", children: (0, import_jsx_runtime7.jsxs)("table", { className: "tableau exo__mesures", children: [
+          (0, import_jsx_runtime7.jsx)("thead", { children: (0, import_jsx_runtime7.jsxs)("tr", { children: [(0, import_jsx_runtime7.jsx)("th", { scope: "col", children: "Position" }), ...POSITIONS.map((p) => (0, import_jsx_runtime7.jsx)("th", { scope: "col", className: "num", children: p.code }, p.id))] }) }),
+          (0, import_jsx_runtime7.jsxs)("tbody", { children: [
+            (0, import_jsx_runtime7.jsxs)("tr", { children: [(0, import_jsx_runtime7.jsx)("th", { scope: "row", children: "Marche (s/j)" }), ...x.mesures.map((v, i) => (0, import_jsx_runtime7.jsx)("td", { className: "num", children: (v[0] > 0 ? "+" : "") + v[0] }, i))] }),
+            (0, import_jsx_runtime7.jsxs)("tr", { children: [(0, import_jsx_runtime7.jsx)("th", { scope: "row", children: "Amplitude (°)" }), ...x.mesures.map((v, i) => (0, import_jsx_runtime7.jsx)("td", { className: "num", children: v[1] }, i))] })
+          ] })
+        ] }) })
+      ] }) : (0, import_jsx_runtime7.jsxs)("p", { children: ["Marche du mouvement quartz : ", (0, import_jsx_runtime7.jsx)("b", { children: x.quartz })] }),
+      (0, import_jsx_runtime7.jsx)("h3", { children: "B. Constats à l’établi, après ouverture" }),
+      (0, import_jsx_runtime7.jsx)("ul", { className: "exo__liste", children: x.b.map((t, i) => (0, import_jsx_runtime7.jsx)("li", { children: t }, i)) })
+    ] });
+  }
+  function AccesFicheAtelier({ d }) {
+    const [ouvert, setOuvert] = (0, import_react7.useState)(false);
+    if (d.exercice && d.exercice.recu) return null;
+    return (0, import_jsx_runtime7.jsxs)("div", { className: "fiche-acces no-print", children: [
+      (0, import_jsx_runtime7.jsx)("span", { children: "Résultats des contrôles faits à l’établi pour ce dossier." }),
+      (0, import_jsx_runtime7.jsx)(Bouton, { petit: true, variante: "sec", icone: "oeil", "aria-haspopup": "dialog", onClick: () => setOuvert(true), children: "Fiche atelier" }),
+      (0, import_jsx_runtime7.jsx)(Dialogue, { ouvert, onFermer: () => setOuvert(false), titre: `Fiche atelier · ${d.id}`, large: true, pied: (0, import_jsx_runtime7.jsx)(Bouton, { onClick: () => setOuvert(false), children: "Fermer" }), children: ouvert && (0, import_jsx_runtime7.jsx)(FicheAtelier, { d }) })
+    ] });
+  }
+
   // src/app.jsx
   var import_jsx_runtime13 = __toESM(require_jsx_runtime(), 1);
-  var VERSION = "2.11 — novembre 2026";
+  var VERSION = "2.16 — novembre 2026";
   function lireJSON(id) {
     const el = document.getElementById(id);
     if (!el) return { valeur: null, erreur: `Bloc « ${id} » absent du fichier.` };
@@ -13461,7 +14837,7 @@ Error generating stack: `+u.message+`
   var ERREURS_DONNEES = [J_ENT.erreur, J_CAT.erreur, J_DEMO.erreur].filter(Boolean);
   var dossiersDemo = () => (Array.isArray(J_DEMO.valeur) ? J_DEMO.valeur : []).map((d) => normaliser(JSON.parse(JSON.stringify(d))));
   var CLE_AJOUTS_DEMO = "ehg-gestion-sav-demo-ajouts";
-  var AJOUTS_DEMO = { "2.8": ["RS-2026-105", "RS-2026-106", "RS-2026-107", "RS-2026-108", "RS-2026-109", "RS-2026-110"], "2.11": [] };
+  var AJOUTS_DEMO = { "2.8": ["RS-2026-105", "RS-2026-106", "RS-2026-107", "RS-2026-108", "RS-2026-109", "RS-2026-110"], "2.11": [], "2.14": ["RS-2026-111", "RS-2026-112", "RS-2026-113", "RS-2026-114", "RS-2026-115", "RS-2026-116"] };
   function reprendreIntensitesDemo(dossiers) {
     const ref = {};
     for (const d of Array.isArray(J_DEMO.valeur) ? J_DEMO.valeur : []) for (const x of (d.reception || {}).defauts || []) ref[`${d.id}|${x.uid}`] = x;
@@ -13646,6 +15022,7 @@ Error generating stack: `+u.message+`
     const courant = (0, import_react13.useMemo)(() => dossiers && route.id ? dossiers.find((d) => d.id === route.id) || null : null, [dossiers, route.id]);
     const etats = (0, import_react13.useMemo)(() => courant ? etatsEtapes(courant) : {}, [courant]);
     const vue = courant ? route.etape || STATUTS[courant.statut].prochaine || "livraison" : "tableau";
+    const [modes, setModes] = (0, import_react13.useState)({});
     (0, import_react13.useEffect)(() => {
       setNavOuverte(false);
       window.scrollTo(0, 0);
@@ -13846,6 +15223,7 @@ Error generating stack: `+u.message+`
       let d = d0;
       if (mode === "copie") d = journaliser({ ...d0, id: prochainNumero(dossiers, (/* @__PURE__ */ new Date()).getFullYear()) }, `Copie du dossier ${d0.id} : nouveau numéro attribué.`);
       d = journaliser(d, `Dossier ouvert depuis le fichier « ${nomFichier} ».`);
+      if (estExercice(d)) d = { ...d, exercice: { recu: true } };
       setDossiers((ds) => mode === "remplacer" ? ds.map((x) => x.id === d.id ? d : x) : [d, ...ds]);
       setDlg(null);
       aller(d.id);
@@ -13969,6 +15347,13 @@ Error generating stack: `+u.message+`
     else if (vue === "rapport") page = /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(PageRapport, { ...props });
     else if (vue === "facturation") page = /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(PageFacturation, { ...props });
     else page = /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(PageLivraison, { ...props });
+    if (courant && ETAPE_PAR_ID[vue]) {
+      const cle = `${courant.id}|${vue}`;
+      const mode = modes[cle] || (etats[vue] === "fait" ? "affichage" : "edition");
+      const setMode = (m) => setModes((x) => ({ ...x, [cle]: m }));
+      if (mode === "affichage") page = /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(VueEtape, { ...props, vue, onEditer: () => setMode("edition") });
+      page = /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(CtxModeEtape.Provider, { value: { mode, setMode }, children: page }, cle);
+    }
     const themeSuivant = { auto: "light", light: "dark", dark: "auto" }[prefs.theme];
     const libTheme = { auto: "automatique", light: "clair", dark: "sombre" };
     const pec = courant && PEC_PAR_ID[courant.diagnostic.priseEnCharge];
@@ -14335,8 +15720,8 @@ Error generating stack: `+u.message+`
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Constat à la réception : défauts esthétiques (composant, type de défaut, intensité de 1 à 5, précision). Défauts fonctionnels ou techniques : description. Composants selon Horopedia, article « Habillage » (horopedia.org/fr/habillage, consulté le 01.10.2026) ; types de défauts d’après la fiche de devis interne du support de cours. L’échelle d’intensité est une convention de l’entreprise fictive, sans valeur de norme. Elle reste interne à l’atelier : le devis et le rapport l’omettent." }),
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Devis : trois décisions possibles, devis A (travaux obligatoires seuls), devis B (travaux obligatoires et options choisies) ou refus. Valider ouvre l’étape 5 (Réparation) ; refuser ouvre l’étape 9 (Livraison)." }),
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Approvisionnement des composants (étape 5) : à commander, commandé, reçu. Une alerte signale une livraison prévue après la restitution annoncée. Le client doit alors être informé et recevoir un nouveau délai (support de cours, « Les délais »)." }),
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Diagnostic (étape 3) : sous-étapes A à D en onglets. Chaque onglet indique son statut (à faire, en cours, complète) et le nombre de points renseignés. La sous-étape A distingue l’inspection esthétique (A1) et l’inspection fonctionnelle (A2). Le constat de la réception y est rappelé en lecture seule ; un bouton ouvre sa modification." }),
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Constat du mouvement (sous-étape B) : constat général, composants concernés et description. La liste des composants dépend du type de mouvement. Noms des composants d’après Horopedia, menu « Mouvement » (horopedia.org/fr/composants-reglage, consulté le 09.11.2026) ; mouvement à quartz d’après Witschi Electronic AG, « Méthodes de contrôle des montres électroniques », version D40f du 18.11.2025." }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Diagnostic (étape 3) : sous-étapes A à D en onglets. Chaque onglet indique son statut (à faire, en cours, complète) et le nombre de points renseignés. La sous-étape A distingue l’inspection esthétique (A1) et l’inspection fonctionnelle (A2). Le constat de la réception y est rappelé en lecture seule ; un bouton ouvre sa modification. La sous-étape D affiche une synthèse de A, B et C dans une fenêtre." }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Constat du mouvement (sous-étape B) : constat général, composants concernés (mouvement et habillage) et description. La liste des composants dépend du type de mouvement. Noms des composants d’après Horopedia, menu « Mouvement » (horopedia.org/fr/composants-reglage, consulté le 09.11.2026) ; mouvement à quartz d’après Witschi Electronic AG, « Méthodes de contrôle des montres électroniques », version D40f du 18.11.2025." }),
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Démonstration : six dossiers à diagnostiquer, RS-2026-105 à RS-2026-110 (garantie de vente, retour après intervention, hors garantie). Ils sont ajoutés une fois aux appareils déjà utilisés." }),
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Synoptique de la réparation : ordre logique d’après le corrigé de la SEQ 10 « Opérations SAV » (travaux en parallèle sur le mouvement et sur l’habillage)." }),
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("li", { children: "Demande du client : demande principale, demandes secondaires, problème vécu (oui / non). QQOQCP : « Pourquoi ? » porte sur l’enjeu pour le client, pas sur la cause technique, qui relève du diagnostic." }),
